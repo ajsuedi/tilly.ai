@@ -17,8 +17,12 @@ DATA.records.forEach(r => {
   r.lane = lane(r.complexity);
   r.logo = DATA.logos[r.id];
   r.acvNum = DATA.acvNums[r.id];
+  r.owner = DATA.owners[r.id];
   Object.assign(r, DATA.deals[r.id]);
 });
+
+const repById = id => DATA.reps.find(x => x.id === id);
+const ownerName = r => r.owner === 'tilly' ? 'Tilly (agent)' : repById(r.owner).name;
 
 const gbp = n => n >= 1e6 ? '£' + (n / 1e6).toFixed(2) + 'm' : n >= 1000 ? '£' + Math.round(n / 1000) + 'k' : '£' + n;
 const pipeValue = recs => recs.reduce((s, r) => s + r.acvNum, 0);
@@ -583,6 +587,61 @@ const views = {
       ${specTable(['Tier', 'Capability', 'Constraint'], DATA.model.tiers.map(t => [`<span class="m-data">${esc(t.tier)}</span>`, `<b>${esc(t.capability)}</b>`, `<span class="t-caption">${esc(t.constraint)}</span>`]))}`;
   },
 
+  rep(id) {
+    const rep = repById(id) || DATA.reps[0];
+    const mine = byLikelihood(DATA.records.filter(r => r.owner === rep.id));
+    const openValue = pipeValue(mine);
+    const weighted = weightedValue(mine);
+    const attainment = Math.round(100 * rep.closedYTD / rep.quota);
+    const earned = Math.round(rep.closedYTD * rep.commissionRate);
+    const projected = Math.round(weighted * rep.commissionRate);
+    const toQuota = Math.max(0, rep.quota - rep.closedYTD);
+    return `
+      <h1 class="t-title page-title">My page — ${esc(rep.name)}</h1>
+      <p class="t-body t-muted page-sub">Your deals, your number, your commission. Private to you${rep.pos === 'P1' ? ' — and currently P1, keep it up' : ''}. In production this page is per-login; the switcher below simulates it.</p>
+      <div class="filterbar">
+        ${DATA.reps.map(x => `<button class="fchip${x.id === rep.id ? ' on' : ''}" data-rep="${x.id}">${esc(x.name.toUpperCase())}</button>`).join('')}
+      </div>
+      <div class="stats">
+        <div class="stat stat-blue"><span class="m-label">QUOTA ATTAINMENT</span><strong>${attainment}%</strong></div>
+        <div class="stat"><span class="m-label">CLOSED YTD</span><strong>${gbp(rep.closedYTD)}</strong></div>
+        <div class="stat"><span class="m-label">ANNUAL QUOTA</span><strong>${gbp(rep.quota)}</strong></div>
+        <div class="stat stat-dark"><span class="m-label">COMMISSION EARNED YTD</span><strong>${gbp(earned)}</strong></div>
+      </div>
+      <div class="gap"></div>
+      <div class="panel" style="padding:18px 20px">
+        <span class="m-label">TARGET TO QUOTA — ${gbp(toQuota)} TO GO</span>
+        <div class="likelihood" style="margin-top:4px"><span class="bar" style="width:100%;height:10px"><b style="width:${Math.min(100, attainment)}%"></b></span><span class="m-data">${gbp(rep.closedYTD)} / ${gbp(rep.quota)}</span></div>
+        <div class="t-caption" style="margin-top:10px">Weighted open pipeline covers ${Math.round(100 * weighted / Math.max(1, toQuota))}% of the gap. ${weighted >= toQuota ? 'Cover the gap and everything past 100% pays at the accelerator.' : 'Below 100% coverage — ask Tilly to promote more from the funnel.'}</div>
+      </div>
+      <div class="gap-lg"></div>
+      <div class="m-section" style="margin-bottom:16px">MY DEALS — ${mine.length} OPEN · ${gbp(openValue)} ACV · ${gbp(weighted)} WEIGHTED</div>
+      ${mine.length ? `
+      <table class="tbl">
+        <thead><tr><th>Deal</th><th>Stage</th><th>Band</th><th>ACV</th><th>Likelihood</th><th>Commission if won</th><th>Next action</th></tr></thead>
+        <tbody>${mine.map(r => `
+          <tr class="click${r.band === 'POLE' ? ' pole' : ''}" data-id="${r.id}">
+            <td><div style="display:flex;align-items:center;gap:12px">${avatar(r)}<span style="font-weight:600">${esc(r.name)}</span></div></td>
+            <td>${stageChip(r)}</td>
+            <td>${bandChip(r)}</td>
+            <td><span class="fit">${gbp(r.acvNum)}</span></td>
+            <td>${likelihoodBar(r.likelihood)}</td>
+            <td><span class="m-data" style="color:var(--tilly-green)">${gbp(Math.round(r.acvNum * rep.commissionRate))}</span></td>
+            <td class="t-caption">${esc(r.nextAction)}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>` : '<div class="panel" style="padding:24px" class="t-caption">No open deals — Tilly is qualifying the next ones overnight.</div>'}
+      <div class="gap"></div>
+      <div class="panel" style="padding:18px 20px">
+        <span class="m-label">COMMISSION PLAN</span>
+        <div class="kv"><span>Base rate</span><span>${Math.round(rep.commissionRate * 100)}% of closed ACV</span></div>
+        <div class="kv"><span>Accelerator above 100% of quota</span><span>${Math.round(rep.acceleratorRate * 100)}% on everything past ${gbp(rep.quota)}</span></div>
+        <div class="kv"><span>Projected from weighted pipeline</span><span class="fit">${gbp(projected)}</span></div>
+        <div class="kv"><span>Paid</span><span>Monthly, on countersignature</span></div>
+        <div class="t-caption" style="margin-top:14px;padding-top:14px;border-top:var(--line)">Figures are illustrative. Stage points and the leaderboard measure behaviour; commission pays on outcomes — countersigned contracts only, per the anti-gaming rules in §12.2.</div>
+      </div>`;
+  },
+
   success() {
     const S = DATA.success;
     const stages = ['Handoff', 'Implementation', 'Live'];
@@ -702,6 +761,7 @@ const views = {
           <div class="kv"><span>Term</span><span>${esc(r.term)}</span></div>
           <div class="kv"><span>Users</span><span>${esc(r.users)}</span></div>
           <div class="kv"><span>Decision maker</span><span>${esc((r.stakeholders.find(s => s.tag.startsWith('DECISION MAKER')) || {}).name || '—')}</span></div>
+          <div class="kv"><span>Deal owner</span><span>${esc(ownerName(r))}</span></div>
         </div>
         <div class="panel">
           <span class="m-label">STAKEHOLDER MAP — BUYING COMMITTEE</span>
@@ -755,6 +815,7 @@ $view.addEventListener('click', e => {
   }
   const fchip = e.target.closest('.fchip');
   if (fchip) {
+    if (fchip.dataset.rep) { location.hash = '#/rep/' + fchip.dataset.rep; return; }
     if (fchip.dataset.band) bandFilter = fchip.dataset.band;
     if (fchip.dataset.lane) laneFilter = fchip.dataset.lane;
     render();
@@ -792,6 +853,7 @@ function updateCounts() {
   document.getElementById('count-engage').textContent = DATA.engageQueue.length;
   document.getElementById('count-esc').textContent = DATA.records.filter(r => r.escalation).length;
   document.getElementById('count-success').textContent = DATA.success.health.length;
+  document.getElementById('count-rep').textContent = DATA.records.filter(r => r.owner === 'priya').length;
 }
 updateCounts();
 

@@ -471,11 +471,20 @@ const DATA = {
   race: { week: 'RACE — WEEK 31 OF 52', season: 'SEASON Q3 2026', fastestLap: 'FASTEST LAP: PRIYA KAUR — 11 MIN MEDIAN FIRST RESPONSE' },
   teamObjective: { label: 'TEAM OBJECTIVE — 10 CONTRACTS SIGNED THIS RACE', current: 7, target: 10 },
   reps: [
-    { pos: 'P1', name: 'Priya Kaur', points: 1240, rate: 92, note: '+50 incumbent win · fastest lap ×3' },
-    { pos: 'P2', name: 'Dan Mercer', points: 1105, rate: 87, note: '+150 tender win (BHF pilot)' },
-    { pos: 'P3', name: 'Sofia Reyes', points: 980, rate: 81, note: 'YMCA save in progress' },
-    { pos: 'P4', name: 'James Tan', points: 720, rate: 73, note: 'Rookie season · handicap applied' }
+    { id: 'priya', pos: 'P1', name: 'Priya Kaur', points: 1240, rate: 92, note: '+50 incumbent win · fastest lap ×3', quota: 400000, closedYTD: 310000, commissionRate: 0.08, acceleratorRate: 0.12 },
+    { id: 'dan', pos: 'P2', name: 'Dan Mercer', points: 1105, rate: 87, note: '+150 tender win (BHF pilot)', quota: 400000, closedYTD: 248000, commissionRate: 0.08, acceleratorRate: 0.12 },
+    { id: 'sofia', pos: 'P3', name: 'Sofia Reyes', points: 980, rate: 81, note: 'YMCA save in progress', quota: 350000, closedYTD: 152000, commissionRate: 0.08, acceleratorRate: 0.12 },
+    { id: 'james', pos: 'P4', name: 'James Tan', points: 720, rate: 73, note: 'Rookie season · handicap applied', quota: 250000, closedYTD: 84000, commissionRate: 0.08, acceleratorRate: 0.12 }
   ],
+
+  /* ---- Deal ownership: every deal has one owner. 'tilly' = agent-run self-serve. ---- */
+  owners: {
+    'sue-ryder': 'priya', 'cruk': 'priya',
+    'bhf': 'dan', 'barnardos': 'dan',
+    'ymca': 'sofia', 'shelter': 'sofia',
+    'salvation-army': 'james', 'emmaus': 'james',
+    'mind': 'tilly', 'age-uk': 'tilly', 'scope': 'tilly', 'oxfam': 'tilly', 'trinity': 'tilly'
+  },
   products: [
     { pos: 'P1', name: 'Membership subscription', rate: 71 },
     { pos: 'P2', name: 'Enterprise contract package', rate: 58 },
