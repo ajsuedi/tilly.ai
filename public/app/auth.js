@@ -326,8 +326,12 @@ $card.addEventListener('click', e => {
   }
 });
 
-/* Verification code boxes: auto-advance, enable Verify when complete */
+/* Keep typed values in state on every keystroke, so re-renders
+   (ticking a checkbox, picking a chip) never wipe the form. */
 $card.addEventListener('input', e => {
+  if (e.target.id === 'su-email') state.email = e.target.value;
+  if (e.target.id === 'su-name') state.name = e.target.value;
+  if (e.target.id === 'su-org') state.org = e.target.value;
   const box = e.target.closest('[data-code]');
   if (!box) return;
   box.value = box.value.replace(/\D/g, '').slice(0, 1);
