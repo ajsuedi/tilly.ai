@@ -485,6 +485,37 @@ const DATA = {
     ]
   },
 
+  /* ---- GTM: inbound ad traffic and the paid funnel, by channel.
+     Landing → sign-up → trial → subscribed, with the drop-off point named.
+     Tilly optimises budget and creative herself at T2; you approve the plays. ---- */
+  gtm: {
+    channels: [
+      { id: 'google', name: 'GOOGLE ADS', spend: '£1,240 / wk', cpl: '£19 CPL', trend: '+12% CVR WOW', read: 'Best converter — high-intent “charity retail software” terms' },
+      { id: 'meta', name: 'META ADS', spend: '£980 / wk', cpl: '£41 CPL', trend: '−8% CVR WOW', read: 'Cheap clicks, weak checkout — mobile card step is the leak' },
+      { id: 'linkedin', name: 'LINKEDIN ADS', spend: '£720 / wk', cpl: '£62 CPL', trend: 'FLAT', read: 'Expensive but senior — best trial-to-paid rate of the three' }
+    ],
+    funnel: [
+      { id: 'google', steps: [1880, 188, 121, 34], drop: 'Biggest drop: landing → sign-up (90%) — normal for cold search', dropStage: 1 },
+      { id: 'meta', steps: [2140, 132, 74, 12], drop: 'Biggest drop: card step on mobile — 71% abandon at payment', dropStage: 3 },
+      { id: 'linkedin', steps: [460, 55, 38, 9], drop: 'Biggest drop: landing → sign-up — creative fatigue after 3 weeks', dropStage: 1 }
+    ],
+    stages: ['LANDING', 'SIGN-UP', 'TRIAL ACTIVE', 'SUBSCRIBED'],
+    leads: [
+      { when: '09:41', org: 'Havens Hospices Retail', channel: 'GOOGLE', stage: 'SUBSCRIBED', status: 'Starter · £32/user — payment confirmed, onboarding started', good: true },
+      { when: '09:36', org: 'Scope Stores', channel: 'META', stage: 'DROP-OFF', status: 'Abandoned at card step (mobile) — recovery email 2 of 2 queued', record: 'scope' },
+      { when: '09:20', org: 'Willow Wood Hospice', channel: 'LINKEDIN', stage: 'TRIAL', status: 'Day 2 — completed core action 1 of 3', good: true },
+      { when: '08:54', org: 'Age UK Trading', channel: 'GOOGLE', stage: 'SUBSCRIBED', status: 'Converted from the shop-manager ad funnel', record: 'age-uk', good: true },
+      { when: '08:31', org: 'St Elizabeth Shops', channel: 'META', stage: 'DROP-OFF', status: 'Bounced on landing — 4s dwell, wrong-audience signal logged' },
+      { when: '07:58', org: 'Cats Protection Shops', channel: 'GOOGLE', stage: 'SIGN-UP', status: 'Email verified — plan page viewed twice' }
+    ],
+    plays: [
+      { id: 'shift-budget', text: 'Shift £40/day Meta → Google', detail: 'Google CPL £19 vs Meta £41 with double the checkout completion. Tilly reallocates within your cap — reversible any time.', tier: 'T2' },
+      { id: 'fix-card', text: 'Fix the Meta mobile card step', detail: '71% abandon at payment on mobile. Enable Apple Pay / Google Pay and move the card form above the fold. Flagged to engineering with session recordings attached.', tier: 'FLAG' },
+      { id: 'rotate-creative', text: 'Rotate LinkedIn creative', detail: 'Frequency 6.1 and CTR falling three weeks straight. Swap in the Oxfam case-study ad — drafted, on brand, ready to go.', tier: 'T1' }
+    ],
+    applied: {}
+  },
+
   /* ---- Self-serve e-commerce funnel & subscription payment tracking ---- */
   selfServeFunnel: [
     { stage: 'VISIT', count: 4820, note: 'Ad + organic sessions this month' },
