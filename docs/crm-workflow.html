@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tilly.ai — CRM workflow architecture</title>
+<style>
+  :root{
+    --page:#FAF9F5; --surface:#FFFFFF; --surface-alt:#F1EFE8;
+    --text:#2C2C2A; --text-2:#5F5E5A; --text-3:#888780;
+    --border:#E3E1D9; --border-strong:#D3D1C7;
+    --accent:#534AB7; --accent-bg:#EEEDFE;
+    --green:#3B6D11; --green-bd:#97C459; --green-bg:#EAF3DE;
+    --amber:#854F0B; --amber-bd:#EF9F27; --amber-bg:#FAEEDA;
+    --red:#A32D2D; --red-bd:#F09595; --red-bg:#FCEBEB;
+    --teal:#0F6E56; --teal-bg:#E1F5EE;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page:#1E1E1C; --surface:#282826; --surface-alt:#333331;
+      --text:#EDEBE3; --text-2:#B4B2A9; --text-3:#888780;
+      --border:#3D3D3A; --border-strong:#525250;
+      --accent:#AFA9EC; --accent-bg:#26215C;
+      --green:#C0DD97; --green-bd:#639922; --green-bg:#173404;
+      --amber:#FAC775; --amber-bd:#BA7517; --amber-bg:#412402;
+      --red:#F7C1C1; --red-bd:#A32D2D; --red-bg:#501313;
+      --teal:#9FE1CB; --teal-bg:#04342C;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:40px 24px 64px;background:var(--page);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:26px;font-weight:500;margin:0 0 6px}
+  .lede{font-size:15px;color:var(--text-2);margin:0 0 8px;max-width:70ch}
+  .meta{font-size:12px;color:var(--text-3);margin:0 0 28px}
+  .hero{display:inline-flex;align-items:center;gap:8px;background:var(--accent-bg);color:var(--accent);
+    padding:7px 18px;border-radius:20px;font-size:13px;font-weight:500;margin:0 auto;display:flex;width:max-content}
+  .conn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 0}
+  .conn i{width:0.5px;height:16px;background:var(--border-strong);display:block}
+  .conn span{font-size:12px;color:var(--text-3)}
+  .caret{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;
+    border-top:6px solid var(--border-strong)}
+  .lane{font-size:13px;font-weight:500;color:var(--text-2);margin:0 0 10px;
+    text-transform:none;letter-spacing:0}
+  .lane .num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
+    border-radius:50%;background:var(--surface-alt);color:var(--text-2);font-size:11px;margin-right:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+  .card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:12px 14px}
+  .card h4{font-size:14px;font-weight:500;margin:0}
+  .card p{font-size:12px;color:var(--text-2);margin:4px 0 0}
+  .zone{border-radius:12px;padding:16px;margin:0}
+  .zone.core{border:2px solid var(--accent);background:var(--surface)}
+  .zone.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px;padding:0;border:none}
+  .zone.selfserve{border:0.5px solid var(--green-bd);background:var(--green-bg)}
+  .zone.ent{border:0.5px solid var(--amber-bd);background:var(--amber-bg)}
+  .zone.esc{background:var(--red-bg);border:0.5px solid var(--red-bd)}
+  .zone.selfserve .lane{color:var(--green)}
+  .zone.ent .lane{color:var(--amber)}
+  .zone.core .lane{color:var(--accent)}
+  .zone.esc .lane{color:var(--red);margin-bottom:8px}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .pill{display:inline-block;background:var(--surface);color:var(--red);font-size:12px;font-weight:500;
+    padding:4px 12px;border-radius:6px;margin:0 6px 6px 0}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:14px}
+  .stat{background:var(--surface-alt);border-radius:8px;padding:14px 16px}
+  .stat span{display:block;font-size:12px;color:var(--text-2)}
+  .stat strong{display:block;font-size:24px;font-weight:500;margin-top:2px}
+  .board{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px}
+  .board h5{font-size:12px;color:var(--text-3);font-weight:400;margin:0 0 10px}
+  .row{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px;
+    border-top:0.5px solid var(--border)}
+  .row:first-of-type{border-top:none}
+  .row .pos{min-width:28px;text-align:center;font-size:11px;font-weight:500;padding:2px 0;
+    border-radius:5px;background:var(--surface-alt);color:var(--text-2)}
+  .row.lead .pos{background:var(--accent-bg);color:var(--accent)}
+  .row .name{flex:1}
+  .row .val{font-weight:500}
+  .bar{width:90px;height:5px;border-radius:3px;background:var(--surface-alt);overflow:hidden}
+  .bar b{display:block;height:100%;background:var(--accent);border-radius:3px}
+  h2{font-size:18px;font-weight:500;margin:44px 0 4px}
+  h2 + p{font-size:14px;color:var(--text-2);margin:0 0 16px;max-width:70ch}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);
+    border:0.5px solid var(--border);border-radius:12px;overflow:hidden}
+  th{text-align:left;font-weight:500;font-size:12px;color:var(--text-2);
+    padding:10px 14px;border-bottom:0.5px solid var(--border);background:var(--surface-alt)}
+  td{padding:10px 14px;border-bottom:0.5px solid var(--border);vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  ol{padding-left:20px;font-size:14px;color:var(--text-2)}
+  ol li{margin-bottom:6px}
+  ol li strong{color:var(--text);font-weight:500}
+  footer{margin-top:48px;padding-top:16px;border-top:0.5px solid var(--border);
+    font-size:12px;color:var(--text-3)}
+  @media print{body{background:#fff;padding:0}.zone,.card,.board{break-inside:avoid}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Tilly.ai — intelligent CRM workflow</h1>
+  <p class="lede">Full-lifecycle customer architecture for the UK charity sector. Serves self-serve
+    e-commerce customers and enterprise/contractor customers from a single intelligence core,
+    with an autonomous agent running the journey until a defined escalation trigger fires.</p>
+  <p class="meta">Internal architecture reference · Fluent Technology · July 2026</p>
+
+  <div class="hero">Tilly.ai — full lifecycle CRM</div>
+
+  <div class="conn"><i></i><div class="caret"></div></div>
+
+  <p class="lane"><span class="num">1</span>Inbound channels</p>
+  <div class="grid">
+    <div class="card"><h4>Web &amp; forms</h4><p>Enquiries, demo requests, chat</p></div>
+    <div class="card"><h4>Paid ads</h4><p>Search &amp; social funnels</p></div>
+    <div class="card"><h4>Organic content</h4><p>SEO, guides, webinars</p></div>
+    <div class="card"><h4>Public marketplaces</h4><p>G-Cloud, DPS, framework listings</p></div>
+    <div class="card"><h4>Referral &amp; partner</h4><p>Word of mouth, co-marketing</p></div>
+  </div>
+
+  <div style="height:16px"></div>
+
+  <p class="lane"><span class="num">2</span>Outbound channels</p>
+  <div class="grid">
+    <div class="card"><h4>SDR outreach</h4><p>Email &amp; LinkedIn sequences</p></div>
+    <div class="card"><h4>ABM campaigns</h4><p>Named enterprise accounts</p></div>
+    <div class="card"><h4>Tender &amp; RFP watch</h4><p>Public sector bid alerts</p></div>
+    <div class="card"><h4>Events</h4><p>Charity sector conferences</p></div>
+  </div>
+
+  <div class="conn"><i></i><span>every touch creates or updates a record</span><div class="caret"></div></div>
+
+  <p class="lane"><span class="num">3</span>Auto-enrichment engine</p>
+  <div class="grid">
+    <div class="card"><h4>Org intelligence</h4><p>Charity number, income band, cause area, staff size</p></div>
+    <div class="card"><h4>Contact intelligence</h4><p>Job changes, role moves, tenure, seniority</p></div>
+    <div class="card"><h4>Signal tracking</h4><p>Grant awards, funding rounds, tech stack, hiring</p></div>
+    <div class="card"><h4>Social &amp; interests</h4><p>Public posts, causes, conversation starters</p></div>
+  </div>
+
+  <div class="conn"><i></i><div class="caret"></div></div>
+
+  <div class="zone core">
+    <p class="lane">Tilly.ai intelligence core</p>
+    <div class="grid">
+      <div class="card"><h4>Predictive scoring</h4><p>Ranks every prospect by likelihood to convert</p></div>
+      <div class="card"><h4>Competitive analysis</h4><p>Where we win, lose, or can undercut</p></div>
+      <div class="card"><h4>Autonomous agent</h4><p>Runs the journey end-to-end, no human needed</p></div>
+      <div class="card"><h4>Personalisation engine</h4><p>Decides content, tone and timing per person</p></div>
+    </div>
+  </div>
+
+  <div class="conn"><i></i><span>routed by fit score &amp; deal complexity</span><div class="caret"></div></div>
+
+  <div class="zone split">
+    <div class="zone selfserve">
+      <p class="lane">Self-serve — e-commerce path</p>
+      <div class="stack">
+        <div class="card"><h4>Personalised ad funnel</h4><p>Ad → landing → trial, dynamically assembled</p></div>
+        <div class="card"><h4>Self-checkout</h4><p>Subscription, billing, plan changes</p></div>
+        <div class="card"><h4>Automated onboarding</h4><p>Guided activation, nudges, in-product prompts</p></div>
+        <div class="card"><h4>Renewal &amp; upsell</h4><p>Usage-triggered offers and tier moves</p></div>
+      </div>
+    </div>
+    <div class="zone ent">
+      <p class="lane">Enterprise &amp; contractors — contract path</p>
+      <div class="stack">
+        <div class="card"><h4>Tender &amp; bid tracking</h4><p>RFP capture, deadlines, decision maker mapping</p></div>
+        <div class="card"><h4>Auto-drafted proposals</h4><p>Scoped from the customer's stated requirements</p></div>
+        <div class="card"><h4>Contract builder</h4><p>Terms generated from need, not from a template</p></div>
+        <div class="card"><h4>Procurement workflow</h4><p>Compliance checks, approvals, sign-off trail</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="conn"><i></i><span>both paths share one engagement layer</span><div class="caret"></div></div>
+
+  <p class="lane"><span class="num">4</span>Personalised engagement layer — outbound push</p>
+  <div class="grid">
+    <div class="card"><h4>Explainer video</h4><p>Product-in-action clips matched to their use case</p></div>
+    <div class="card"><h4>Individual dossier</h4><p>Job moves, interests, likely talking points</p></div>
+    <div class="card"><h4>Dynamic contracts</h4><p>Built live from the needs Tilly has captured</p></div>
+    <div class="card"><h4>Channel-optimised send</h4><p>Email, LinkedIn, SMS or call — best next channel</p></div>
+  </div>
+
+  <div class="conn"><i></i><div class="caret"></div></div>
+
+  <div class="zone esc">
+    <p class="lane">Human escalation — the only triggers that break autonomy</p>
+    <div>
+      <span class="pill">Deal value above threshold</span>
+      <span class="pill">Negative sentiment detected</span>
+      <span class="pill">Complex negotiation</span>
+      <span class="pill">Compliance / legal sign-off</span>
+      <span class="pill">Customer explicitly asks for a person</span>
+    </div>
+  </div>
+
+  <div class="conn"><i></i><div class="caret"></div></div>
+
+  <p class="lane"><span class="num">5</span>Gamified sales cockpit — F1 format</p>
+  <div class="stats">
+    <div class="stat"><span>Hot leads</span><strong>38</strong></div>
+    <div class="stat"><span>Avg. convert likelihood</span><strong>64%</strong></div>
+    <div class="stat"><span>In pit lane (support)</span><strong>5</strong></div>
+    <div class="stat"><span>Team streak</span><strong>7 days</strong></div>
+  </div>
+
+  <div class="board">
+    <h5>Drivers' championship — reps ranked by hot-lead conversion</h5>
+    <div class="row lead"><span class="pos">P1</span><span class="name">Rep 1</span><span class="bar"><b style="width:92%"></b></span><span class="val">92%</span></div>
+    <div class="row"><span class="pos">P2</span><span class="name">Rep 2</span><span class="bar"><b style="width:87%"></b></span><span class="val">87%</span></div>
+    <div class="row"><span class="pos">P3</span><span class="name">Rep 3</span><span class="bar"><b style="width:81%"></b></span><span class="val">81%</span></div>
+    <div class="row"><span class="pos">P4</span><span class="name">Rep 4</span><span class="bar"><b style="width:73%"></b></span><span class="val">73%</span></div>
+  </div>
+
+  <div class="board">
+    <h5>Constructors' championship — products by win rate</h5>
+    <div class="row lead"><span class="pos">P1</span><span class="name">Membership subscription</span><span class="bar"><b style="width:71%"></b></span><span class="val">71%</span></div>
+    <div class="row"><span class="pos">P2</span><span class="name">Enterprise contract package</span><span class="bar"><b style="width:58%"></b></span><span class="val">58%</span></div>
+    <div class="row"><span class="pos">P3</span><span class="name">Add-on services</span><span class="bar"><b style="width:44%"></b></span><span class="val">44%</span></div>
+  </div>
+
+  <h2>How the pieces connect</h2>
+  <p>Read the workflow top to bottom. Each stage hands enriched context to the next, so nothing is
+    re-collected and every downstream decision uses the fullest available picture.</p>
+  <ol>
+    <li><strong>Capture</strong> — inbound and outbound channels create or match a record. No manual entry.</li>
+    <li><strong>Enrich</strong> — the record is auto-populated with org, person, signal and social data before a human ever sees it.</li>
+    <li><strong>Score and analyse</strong> — Tilly ranks conversion likelihood and overlays competitive position on the specific opportunity.</li>
+    <li><strong>Route</strong> — fit score plus deal complexity decides self-serve e-commerce or enterprise contract path.</li>
+    <li><strong>Engage</strong> — the personalisation layer pushes video, dossiers, proposals and contracts on the best channel.</li>
+    <li><strong>Escalate only when needed</strong> — the agent owns the journey until one of five defined triggers fires.</li>
+    <li><strong>Compete</strong> — outcomes feed the cockpit, where reps and products race on live leaderboards.</li>
+  </ol>
+
+  <h2>Requirement coverage</h2>
+  <p>Every stated requirement mapped to the stage that delivers it.</p>
+  <table>
+    <thead><tr><th style="width:38%">Requirement</th><th style="width:22%">Stage</th><th>How it is met</th></tr></thead>
+    <tbody>
+      <tr><td>Inbound and outbound channels</td><td>Stages 1–2</td><td>Nine channel sources, all writing to one record</td></tr>
+      <tr><td>Auto-enriched records</td><td>Stage 3</td><td>Org, contact, signal and social enrichment on creation</td></tr>
+      <tr><td>Predictive scoring</td><td>Core</td><td>Ranks prospects by likelihood to convert</td></tr>
+      <tr><td>Competitive market analysis</td><td>Core</td><td>Win / lose / undercut position per opportunity</td></tr>
+      <tr><td>Agent runs journey unaided</td><td>Core + escalation</td><td>Autonomous until one of five triggers fires</td></tr>
+      <tr><td>Self-serve e-commerce</td><td>Self-serve path</td><td>Ad funnel, checkout, subscription, renewal</td></tr>
+      <tr><td>Enterprise contracts &amp; tenders</td><td>Enterprise path</td><td>Bid tracking, proposals, procurement workflow</td></tr>
+      <tr><td>Pushes video content out</td><td>Stage 4</td><td>Product-in-action clips matched to use case</td></tr>
+      <tr><td>Super-personalised</td><td>Core + stage 4</td><td>Personalisation engine drives every touchpoint</td></tr>
+      <tr><td>Builds contracts from needs</td><td>Enterprise path + stage 4</td><td>Contract builder generates terms from captured requirements</td></tr>
+      <tr><td>Person-level detail</td><td>Stage 3–4</td><td>Job changes, moves, interests, conversation openers</td></tr>
+      <tr><td>Gamified, connects to support</td><td>Stage 5</td><td>Hot leads, convert likelihood, pit lane support count</td></tr>
+      <tr><td>Competitive F1 team feel</td><td>Stage 5</td><td>Drivers' and constructors' championships</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Tilly.ai CRM workflow — internal reference. Leaderboard figures are illustrative placeholders.</footer>
+
+</div>
+</body>
+</html>

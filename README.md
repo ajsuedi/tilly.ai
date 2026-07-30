@@ -10,6 +10,12 @@ Tilly is a CRM to prospect and close enterprise and self-service customers in on
 | --- | --- |
 | `brand/` | Brand identity source — the brand guide and the direction explorations it came from |
 | `design/` | Design infrastructure — [`styles.css`](design/styles.css) (design tokens + component classes) and [`index.html`](design/index.html) (live system reference) |
+| `app/` | The CRM — clickable prototype implementing the full workflow. Open [`app/index.html`](app/index.html) in a browser; no build step, no dependencies |
+| `docs/` | Architecture reference — [`crm-workflow.html`](docs/crm-workflow.html), the workflow the app implements |
+
+## The CRM in one pass
+
+Read the app the way you read the workflow, top to bottom: **Channels** capture (nine sources, one record, no manual entry) and auto-enrich. The **intelligence core** scores fit and convert likelihood, then routes each record **Self-serve** (ad funnel → checkout → onboarding → renewal) or **Enterprise** (tenders → auto-drafted proposals → contracts from need → procurement). **Engage** is the outbound push — video, dossiers, proposals, contracts on the best next channel. Tilly owns every journey until one of five triggers fires into **Escalations**. Outcomes race on the **Cockpit** — drivers' and constructors' championships, F1 format. All figures are illustrative placeholders.
 
 ## The brand in one paragraph
 

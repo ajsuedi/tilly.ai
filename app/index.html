@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tilly — CRM</title>
+<link rel="stylesheet" href="../design/styles.css">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="wordmark"><div class="mark mark-28"></div><span>Tilly</span></div>
+    <nav class="nav" id="nav">
+      <a href="#/cockpit" data-view="cockpit">Cockpit</a>
+      <a href="#/pipeline" data-view="pipeline">Pipeline <span class="count" id="count-pipeline"></span></a>
+      <a href="#/channels" data-view="channels">Channels</a>
+      <a href="#/selfserve" data-view="selfserve">Self-serve <span class="count" id="count-selfserve"></span></a>
+      <a href="#/enterprise" data-view="enterprise">Enterprise <span class="count" id="count-enterprise"></span></a>
+      <a href="#/engage" data-view="engage">Engage <span class="count" id="count-engage"></span></a>
+      <a href="#/escalations" data-view="escalations">Escalations <span class="count" id="count-esc"></span></a>
+    </nav>
+    <div class="foot"><span class="badge badge-ai">● AI ACTIVE</span></div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <span class="m-data t-muted" id="topbar-status">TILLY SCANNED 4,218 SHOPS · 02:00</span>
+      <input class="input" placeholder="Search 11,200 charity shops…" style="width:280px;padding:10px 14px">
+    </div>
+    <div id="view"></div>
+  </main>
+</div>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,153 @@
+/* Tilly CRM app layout — built on design/styles.css tokens. Flat. Square. Instant. */
+
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 100vh;
+}
+
+/* ---- Sidebar ---- */
+.side {
+  border-right: var(--line);
+  padding: 24px 0;
+  position: sticky; top: 0;
+  height: 100vh;
+  display: flex; flex-direction: column;
+  background: var(--tilly-white);
+}
+.side .wordmark { padding: 0 24px 24px; border-bottom: var(--line); }
+.nav { display: flex; flex-direction: column; padding: 16px 0; flex: 1; }
+.nav a {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 24px;
+  font-size: 14px; font-weight: 600; letter-spacing: -0.2px;
+  color: var(--tilly-grey-500);
+  border-left: 3px solid transparent;
+}
+.nav a:hover { color: var(--tilly-black); background: var(--tilly-grey-100); }
+.nav a.active { color: var(--tilly-black); border-left-color: var(--tilly-blue); }
+.nav a .count { font-family: var(--font-mono); font-size: 11px; color: var(--tilly-grey-500); }
+.nav a.active .count { color: var(--tilly-blue); }
+.side .foot { padding: 16px 24px 0; border-top: var(--line); }
+
+/* ---- Main ---- */
+.main { padding: 0 40px 64px; min-width: 0; }
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: var(--line);
+  margin-bottom: 36px;
+}
+.page-title { margin: 28px 0 6px; }
+.page-sub { margin: 0 0 32px; max-width: 62ch; }
+
+/* ---- Stats — the F1 wall ---- */
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.stat { border: var(--line); padding: 18px 20px; }
+.stat strong {
+  display: block;
+  font-size: 34px; font-weight: 600; letter-spacing: -1.5px;
+  margin-top: 6px;
+}
+.stat.stat-blue { background: var(--tilly-blue); border-color: var(--tilly-blue); color: #fff; }
+.stat.stat-blue .m-label { color: rgba(255,255,255,.7); }
+.stat.stat-dark { background: var(--tilly-black); border-color: var(--tilly-black); color: #fff; }
+.stat.stat-dark .m-label { color: rgba(255,255,255,.6); }
+
+/* ---- Leaderboards ---- */
+.board { border: var(--line); }
+.board-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 13px 20px;
+  border-top: var(--line);
+  font-size: 14px;
+}
+.board-row:first-of-type { border-top: none; }
+.board-row .pos {
+  font-family: var(--font-mono); font-size: 11px;
+  min-width: 34px; text-align: center;
+  padding: 5px 0;
+  background: var(--tilly-grey-100); color: var(--tilly-grey-500);
+}
+.board-row.lead .pos { background: var(--tilly-blue); color: #fff; }
+.board-row .name { flex: 1; font-weight: 600; letter-spacing: -0.2px; }
+.board-row .detail { font-size: 12px; color: var(--tilly-grey-500); }
+.bar { width: 120px; height: 6px; background: var(--tilly-grey-100); flex: none; }
+.bar b { display: block; height: 100%; background: var(--tilly-blue); }
+.board-row .val { font-family: var(--font-mono); font-size: 12px; min-width: 40px; text-align: right; }
+
+/* ---- Pipeline table ---- */
+.tbl { width: 100%; border-collapse: collapse; border: var(--line); font-size: 14px; }
+.tbl th {
+  text-align: left;
+  font-family: var(--font-mono); font-size: 10px; font-weight: 400;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--tilly-grey-500);
+  padding: 12px 16px;
+  border-bottom: var(--line);
+  background: var(--tilly-grey-100);
+}
+.tbl td { padding: 13px 16px; border-bottom: var(--line); vertical-align: middle; }
+.tbl tr:last-child td { border-bottom: none; }
+.tbl tr.click { cursor: pointer; }
+.tbl tr.click:hover td { background: var(--tilly-grey-100); }
+.fit { font-family: var(--font-mono); font-size: 12px; color: var(--tilly-blue); }
+.likelihood { display: flex; align-items: center; gap: 10px; }
+.likelihood .bar { width: 72px; }
+
+/* ---- Route / stage chips ---- */
+.chip {
+  display: inline-block;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px;
+  padding: 5px 10px;
+  border: var(--line); color: var(--tilly-grey-500);
+}
+.chip-selfserve { border-color: var(--tilly-black); color: var(--tilly-black); }
+.chip-enterprise { background: var(--tilly-black); border-color: var(--tilly-black); color: #fff; }
+.chip-esc { background: var(--tilly-grey-100); border-color: var(--tilly-grey-100); color: var(--tilly-red); }
+.chip-won { background: var(--tilly-grey-100); border-color: var(--tilly-grey-100); color: var(--tilly-green); }
+
+/* ---- Record detail ---- */
+.rec-head { display: flex; align-items: center; gap: 20px; padding: 8px 0 28px; }
+.rec-head .avatar { width: 56px; height: 56px; font-size: 20px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.panel { border: var(--line); padding: 24px; }
+.panel .m-label { margin-bottom: 16px; display: block; }
+.kv { display: flex; justify-content: space-between; gap: 16px; padding: 8px 0; border-top: var(--line); font-size: 13px; }
+.kv:first-of-type { border-top: none; padding-top: 0; }
+.kv span:first-child { color: var(--tilly-grey-500); }
+.kv span:last-child { font-weight: 600; text-align: right; }
+.sig { padding: 9px 0; border-top: var(--line); font-size: 13px; display: flex; gap: 10px; align-items: baseline; }
+.sig:first-of-type { border-top: none; padding-top: 0; }
+.sig::before { content: '■'; color: var(--tilly-blue); font-size: 8px; flex: none; }
+
+/* ---- Zones (workflow paths) ---- */
+.zone-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: var(--line);
+  background: var(--tilly-grey-100);
+}
+.esc-banner {
+  display: flex; align-items: center; gap: 12px;
+  border: 1px solid var(--tilly-red);
+  padding: 14px 20px;
+  margin-bottom: 8px;
+}
+.esc-banner .m-data { color: var(--tilly-red); }
+
+/* ---- Feed ---- */
+.feed { background: var(--tilly-black); padding: 20px 24px; }
+.feed div { font-family: var(--font-mono); font-size: 12px; line-height: 2.1; color: var(--tilly-trace); }
+.feed div::before { content: '> '; }
+
+.gap { height: 8px; }
+.gap-lg { height: 40px; }
+
+@media (max-width: 900px) {
+  .app { grid-template-columns: 1fr; }
+  .side { position: static; height: auto; }
+  .stats, .grid-4 { grid-template-columns: 1fr 1fr; }
+  .grid-2 { grid-template-columns: 1fr; }
+}
