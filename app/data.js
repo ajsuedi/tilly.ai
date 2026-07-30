@@ -455,7 +455,18 @@ const DATA = {
       { record: 'trinity', csm: 'Hannah Cole', health: 'AMBER', usage: 'STEADY', nps: '6', renewal: '01 MAR 2027 · £3.1k', play: 'Complaint open — no commercial motion until the refund is confirmed closed' },
       { record: 'ymca', csm: 'Ravi Menon', health: 'RED', usage: '−40% / 30 DAYS', nps: '4', renewal: '11 SEP 2026 · £5.8k', play: 'Save play live — pause offer first; renewal is 6 weeks out' }
     ],
-    packItems: ['Deal summary & why they bought', 'Stakeholder map with decision maker and users', 'Promised outcomes, verbatim from the proposal', 'Obligation register extracted from the signed contract', 'Open risks and conversation history']
+    packItems: ['Deal summary & why they bought', 'Stakeholder map with decision maker and users', 'Promised outcomes, verbatim from the proposal', 'Obligation register extracted from the signed contract', 'Open risks and conversation history'],
+
+    /* Product adoption: features a customer pays for but isn't using.
+       Tilly detects the gap from usage events; the fix is an explainer
+       video sent in-product + email (agent T1), or by the rep. */
+    adoption: [
+      { record: 'oxfam', product: 'Comparison tool', idle: 'NEVER USED · 88 DAYS SINCE GO-LIVE', why: 'Shops using it price donated stock 12% higher on average', video: 'videos/comparison-tool-guide.mp4', videoLabel: 'Expert Explainer — Comparison Tool Guide (example asset)', status: null },
+      { record: 'trinity', product: 'Comparison tool', idle: 'NEVER USED', why: 'Highest-value fix available while the account is frozen for sales motions — enablement is not a commercial motion', video: 'videos/comparison-tool-guide.mp4', videoLabel: 'Expert Explainer — Comparison Tool Guide (example asset)', status: null },
+      { record: 'age-uk', product: 'Volunteer rota', idle: 'UNUSED IN 34 DAYS', why: 'Rota users log in 3× more often — strongest activation lever', video: 'videos/comparison-tool-guide.mp4', videoLabel: 'Rota explainer in production — sample video attached', status: null },
+      { record: 'ymca', product: 'Gift Aid tracking', idle: 'DROPPED 6 WEEKS AGO', why: 'Was their original reason to buy — usage recovery starts here, pairs with the save play', video: 'videos/comparison-tool-guide.mp4', videoLabel: 'Gift Aid explainer in production — sample video attached', status: null },
+      { record: 'mind', product: 'Donation intake', idle: 'NOT YET ENABLED', why: 'Third core action — enabling it completes activation inside the 14-day window', video: 'videos/comparison-tool-guide.mp4', videoLabel: 'Intake explainer in production — sample video attached', status: null }
+    ]
   },
 
   /* ---- Media monitor: news about enterprise accounts = a reason to reach out ---- */

@@ -34,6 +34,7 @@ const liveARR = () => DATA.subscriptions.reduce((s, x) => s + 12 * (parseInt(x.m
 let searchQuery = '';
 let bandFilter = 'ALL';
 let laneFilter = 'ALL';
+let previewVideo = null;
 const expandedGrid = new Set();
 
 /* ---- The starting grid: everything that needs a human, by urgency ---- */
@@ -699,6 +700,32 @@ const views = {
         }).join('')}
         </tbody>
       </table>
+      <div class="gap-lg"></div>
+      <div class="m-section" style="margin-bottom:16px">PRODUCT ADOPTION — PAID FOR, NOT USED · FIX WITH A VIDEO, NOT A CALL</div>
+      <div class="board">
+        ${S.adoption.map((a, i) => {
+          const r = recById(a.record);
+          return `
+          <div class="grid-row">
+            ${avatar(r)}
+            <div style="flex:1;min-width:0">
+              <div class="t-heading" style="font-size:14px">${esc(r.name)} — <span style="color:var(--tilly-blue)">${esc(a.product)}</span></div>
+              <div class="m-data" style="font-size:10px;color:var(--tilly-red)">${esc(a.idle)}</div>
+              <div class="t-caption" style="margin-top:4px">${esc(a.why)}</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" data-preview-video="${i}">${previewVideo === i ? 'Hide video' : '▶ Preview video'}</button>
+            ${a.status
+              ? `<span class="m-data" style="color:var(--tilly-green)">✓ ${esc(a.status)}</span>`
+              : `<button class="btn btn-primary btn-sm" data-send-video="${i}">Send explainer</button>`}
+          </div>
+          ${previewVideo === i ? `
+          <div class="grid-expand" style="padding:16px 20px">
+            <div class="m-label" style="display:block;margin-bottom:10px">${esc(a.videoLabel)}</div>
+            <video controls preload="metadata" src="${esc(a.video)}" style="width:100%;max-width:720px;display:block;background:var(--tilly-black)"></video>
+            <div class="t-caption" style="margin-top:10px">This is what the customer receives — in-product prompt plus email, matched to the unused feature. Sending is agent tier T1: frequency-capped, consent respected.</div>
+          </div>` : ''}`;
+        }).join('')}
+      </div>
       <div class="gap"></div>
       <div class="panel" style="padding:18px 20px">
         <span class="m-label">THE HANDOFF PACK — SALES CANNOT CLOSE WITHOUT IT</span>
@@ -798,6 +825,19 @@ $view.addEventListener('click', e => {
   if (tick) {
     DATA.tasks[+tick.dataset.task].done = !DATA.tasks[+tick.dataset.task].done;
     updateCounts(); render();
+    return;
+  }
+  const pv = e.target.closest('[data-preview-video]');
+  if (pv) {
+    const i = +pv.dataset.previewVideo;
+    previewVideo = previewVideo === i ? null : i;
+    render();
+    return;
+  }
+  const sv = e.target.closest('[data-send-video]');
+  if (sv) {
+    DATA.success.adoption[+sv.dataset.sendVideo].status = 'QUEUED — IN-PRODUCT + EMAIL · T1';
+    render();
     return;
   }
   const approve = e.target.closest('[data-approve]');
