@@ -253,7 +253,9 @@ function nextStepPanel(r) {
       <div class="t-heading" style="font-size:22px;letter-spacing:-0.8px;margin:6px 0 8px">${esc(r.nextAction)}</div>
       <div class="t-caption" style="margin-bottom:18px"><b>Why now:</b> ${esc(r.verdict.play)}</div>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
-        <button class="btn btn-primary">${esc(r.tier === 'HUMAN' ? 'Take it — you own this one' : 'Do it now')}</button>
+        ${r.actionQueued
+          ? `<span class="m-data" style="color:var(--tilly-green)">✓ QUEUED — TILLY'S ON IT</span>`
+          : `<button class="btn btn-primary" data-do="${r.id}">${esc(r.tier === 'HUMAN' ? 'Take it — you own this one' : 'Do it now')}</button>`}
         ${task ? `<button class="btn btn-secondary" data-goto="#/tasks">On your task list — ${esc(task.due)}</button>` : ''}
         <button class="btn btn-outline" data-ask-open>Ask Tilly about this deal</button>
         <span style="margin-left:auto">${tierChip(r)}</span>
@@ -1284,6 +1286,20 @@ $view.addEventListener('click', e => {
     if (fchip.dataset.band) bandFilter = fchip.dataset.band;
     if (fchip.dataset.lane) laneFilter = fchip.dataset.lane;
     render();
+    return;
+  }
+  const doBtn = e.target.closest('[data-do]');
+  if (doBtn) {
+    const r = recById(doBtn.dataset.do);
+    const task = DATA.tasks.find(t => t.record === r.id && !t.done);
+    const eng = DATA.engageQueue.find(q => q.record === r.id && !q.approved && /^(AMBER|RED)/.test(q.authority));
+    if (task) { location.hash = '#/tasks'; render(); }
+    else if (eng) { location.hash = '#/engage'; render(); }
+    else {
+      r.actionQueued = true;
+      DATA.feed.unshift({ t: 'NOW', record: r.id, who: r.initials, msg: `${r.nextAction} — queued by you, Tilly executing` });
+      render();
+    }
     return;
   }
   const scr = e.target.closest('[data-scroll]');
