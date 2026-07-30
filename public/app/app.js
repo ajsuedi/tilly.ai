@@ -767,6 +767,22 @@ const views = {
       <h1 class="t-title page-title">Engage</h1>
       <p class="t-body t-muted page-sub">The outbound push — education first, pitches second, because slow adopters buy from whoever teaches them. Every send is stamped with the authority that lets it go; amber items need one click from you.</p>
       ${DATA.settings.testMode ? `<div class="panel" style="padding:12px 20px;margin-bottom:8px"><span class="m-data" style="color:var(--tilly-blue)">TEST MODE — EVERY OUTBOUND EMAIL IS PROXIED TO ${esc(DATA.settings.emailProxy.toUpperCase())} · NOTHING REACHES A CUSTOMER</span></div>` : ''}
+      <div class="board" style="margin-bottom:8px">
+        <div class="zone-head"><span class="m-label" style="margin:0;color:var(--tilly-blue)">● LINKEDIN AUTOMATION — CONNECT & NURTURE, GUARD-RAILED</span>
+          ${DATA.linkedin.bulkDone
+            ? `<span class="m-data" style="color:var(--tilly-green)">✓ ${Object.keys(DATA.linkedin.queued).length} CONNECTIONS QUEUED · 15/DAY PACING</span>`
+            : `<button class="btn btn-primary btn-sm" data-li-bulk>Queue connections — all open prospects</button>`}
+        </div>
+        ${DATA.linkedin.sequence.map(sq => `
+          <div class="grid-row" style="cursor:default">
+            <span class="m-data" style="color:var(--tilly-blue);min-width:52px;flex:none">${esc(sq.day)}</span>
+            <span class="t-heading" style="font-size:13px;min-width:120px;flex:none">${esc(sq.step)}</span>
+            <span class="t-caption" style="flex:1">${esc(sq.desc)}</span>
+          </div>`).join('')}
+        <div class="grid-row" style="cursor:default;background:var(--tilly-grey-100)">
+          <span class="t-caption">${esc(DATA.linkedin.caps)}</span>
+        </div>
+      </div>
       <table class="tbl">
         <thead><tr><th>Type</th><th>Item</th><th>Account</th><th>Channel</th><th>When</th><th>Authority</th><th></th></tr></thead>
         <tbody>
@@ -1152,7 +1168,14 @@ const views = {
           <span class="m-label">CONTACT DETAILS</span>
           <div class="kv"><span>Email</span><span>${esc(email)}</span></div>
           <div class="kv"><span>Phone</span><span>${esc(p ? p.phone : '—')}</span></div>
-          <div class="kv"><span>LinkedIn</span><span>${esc(p ? p.linkedin : '—')}</span></div>
+          <div class="kv"><span>LinkedIn</span><span style="display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap">
+            ${p ? `<a class="btn btn-secondary btn-sm" href="https://www.linkedin.com/${esc(p.linkedin)}" target="_blank" rel="noopener">View profile ↗</a>` : '<span class="t-caption">—</span>'}
+            ${DATA.linkedin.queued[r.id + '|' + s.name]
+              ? `<span class="m-data" style="color:var(--tilly-green)">✓ ${esc(DATA.linkedin.queued[r.id + '|' + s.name])}</span>`
+              : (disposition === 'DETRACTOR' || r.escalation === 'Safeguarding or complaint raised')
+                ? `<span class="m-data" style="color:var(--tilly-red)">AUTOMATION BLOCKED — HUMAN ONLY</span>`
+                : `<button class="btn btn-primary btn-sm" data-li-connect="${r.id}.${idx}">Connect on LinkedIn</button>`}
+          </span></div>
           <div class="kv"><span>Preferred channel</span><span>${esc(p ? p.channel : 'Unknown — default to email')}</span></div>
           ${isPrimary ? `<div class="kv"><span>Tenure</span><span>${esc(r.contact.tenure)}</span></div>` : ''}
           ${isPrimary ? `<div style="margin-top:14px;padding-top:14px;border-top:var(--line)" class="t-caption">${esc(r.contact.note)}</div>` : ''}
@@ -1326,6 +1349,32 @@ $view.addEventListener('click', e => {
     return;
   }
   if (e.target.closest('[data-run-agent]')) { runAgent(); return; }
+  const lic = e.target.closest('[data-li-connect]');
+  if (lic) {
+    const [recId, idx] = lic.dataset.liConnect.split('.');
+    const r = recById(recId);
+    const s = r.stakeholders[+idx];
+    DATA.linkedin.queued[r.id + '|' + s.name] = 'CONNECTION QUEUED — PERSONALISED NOTE';
+    DATA.feed.unshift({ t: 'NOW', record: r.id, who: r.initials, msg: `LinkedIn invite queued for ${s.name} — note drafted from their latest post` });
+    render();
+    return;
+  }
+  if (e.target.closest('[data-li-bulk]')) {
+    let n = 0;
+    const OPEN_STAGES = ['Prospecting', 'Engaged', 'Funnel', 'Identified', 'Trial', 'Tender', 'Proposal', 'Negotiation'];
+    DATA.records.forEach(r => {
+      if (!OPEN_STAGES.includes(r.stage) || r.escalation) return;
+      const p = DATA.people[r.id + '|' + r.contact.name];
+      if (p && p.disposition === 'DETRACTOR') return;
+      if (!/^[A-Z][a-z]+ [A-Z][a-z]+$/.test(r.contact.name)) return;
+      const key = r.id + '|' + r.contact.name;
+      if (!DATA.linkedin.queued[key]) { DATA.linkedin.queued[key] = 'IN SEQUENCE — DAY 0 QUEUED'; n++; }
+    });
+    DATA.linkedin.bulkDone = true;
+    DATA.feed.unshift({ t: 'NOW', record: null, who: 'LINKEDIN', msg: `${n} connection invites queued at 15/day — detractors, complaints and won accounts excluded` });
+    render();
+    return;
+  }
   const gtm = e.target.closest('[data-gtm]');
   if (gtm) {
     const play = DATA.gtm.plays.find(p => p.id === gtm.dataset.gtm);
