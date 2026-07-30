@@ -113,6 +113,60 @@
 .chip-front { border-color: var(--tilly-black); color: var(--tilly-black); }
 .chip-back { background: var(--tilly-grey-100); border-color: var(--tilly-grey-100); color: var(--tilly-grey-500); }
 
+/* ---- Conversion flow ---- */
+
+/* Pole rows carry a blue racing line */
+tr.pole td:first-child { box-shadow: inset 3px 0 0 var(--tilly-blue); }
+
+/* Clickable rows point where they go */
+.tbl tr.click td:last-child { position: relative; padding-right: 30px; }
+.tbl tr.click:hover td:last-child::after {
+  content: '→'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--tilly-blue); font-weight: 600;
+}
+
+/* Filter chips */
+.filterbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.fchip {
+  border: var(--line); background: var(--tilly-white);
+  padding: 7px 12px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px;
+  color: var(--tilly-grey-500);
+}
+.fchip:hover { border-color: var(--tilly-black); color: var(--tilly-black); }
+.fchip.on { background: var(--tilly-black); border-color: var(--tilly-black); color: #fff; }
+
+/* Starting grid rows */
+.grid-row { display: flex; align-items: center; gap: 14px; padding: 13px 20px; border-top: var(--line); cursor: pointer; }
+.grid-row:first-of-type { border-top: none; }
+.grid-row:hover { background: var(--tilly-grey-100); }
+.clock { font-family: var(--font-mono); font-size: 11px; color: var(--tilly-red); min-width: 76px; }
+
+.approved { color: var(--tilly-green); }
+
+/* Expanded grid row: the action items */
+.grid-expand { padding: 4px 20px 18px 110px; border-top: var(--line); background: var(--tilly-grey-100); }
+.grid-expand .sig { border-top: none; padding: 5px 0; }
+
+/* Tasks */
+.task-row { display: flex; align-items: center; gap: 14px; padding: 12px 20px; border-top: var(--line); }
+.task-row:first-of-type { border-top: none; }
+.task-row.done .task-title { text-decoration: line-through; color: var(--tilly-grey-500); }
+.tick {
+  width: 20px; height: 20px; flex: none; cursor: pointer;
+  border: 1px solid var(--tilly-grey-500); background: var(--tilly-white);
+  color: #fff; font-size: 12px; line-height: 1; padding: 0;
+}
+.tick:hover { border-color: var(--tilly-blue); }
+.tick.on { background: var(--tilly-blue); border-color: var(--tilly-blue); }
+
+/* Deal-progress board */
+.kanban { display: grid; gap: 8px; }
+.kcol { border: var(--line); padding: 14px; min-width: 0; }
+.kcard { border: var(--line); padding: 12px; margin-bottom: 8px; cursor: pointer; background: var(--tilly-white); }
+.kcard:hover { background: var(--tilly-grey-100); }
+@media (max-width: 900px) { .kanban { grid-template-columns: 1fr 1fr !important; } }
+
 /* ---- Record detail ---- */
 .rec-head { display: flex; align-items: center; gap: 20px; padding: 8px 0 28px; }
 .rec-head .avatar { width: 56px; height: 56px; font-size: 20px; }

@@ -176,6 +176,96 @@ const DATA = {
     }
   ],
 
+  /* ---- Org marks: each customer's own brand colour on the flat square avatar.
+     Third-party identity is data, not our decoration — the one-blue rule applies
+     to Tilly's own UI, not to the customer's mark. Drop real logo files in
+     app/logos/<id>.png later and swap these for images. ---- */
+  logos: {
+    'sue-ryder': '#00857E', 'barnardos': '#6AA338', 'bhf': '#D20019', 'cruk': '#2E008B',
+    'mind': '#0033A0', 'salvation-army': '#B71234', 'age-uk': '#C6007E', 'shelter': '#E52713',
+    'scope': '#D0006F', 'ymca': '#6D2077', 'emmaus': '#D97B26', 'oxfam': '#0B7030', 'trinity': '#7A3A8E'
+  },
+
+  /* ---- Deal values (ACV £/yr) — merged onto records at boot. Illustrative. ---- */
+  acvNums: {
+    'sue-ryder': 96000, 'barnardos': 142000, 'bhf': 340000, 'cruk': 113000,
+    'mind': 8400, 'salvation-army': 22000, 'age-uk': 3600, 'shelter': 12000,
+    'scope': 1188, 'ymca': 5760, 'emmaus': 2400, 'oxfam': 38000, 'trinity': 3120
+  },
+
+  /* ---- Deal & stakeholder enrichment — merged onto records at boot ---- */
+  deals: {
+    'sue-ryder': { acv: '£96,000 proposed', term: '24 months', users: '420 seats scoped', stakeholders: [
+      { name: 'Rachel Holt', role: 'Director of Retail Operations', tag: 'DECISION MAKER' },
+      { name: 'Ian Frost', role: 'Finance Director', tag: 'ECONOMIC BUYER' },
+      { name: 'Meera Patel', role: 'Retail Systems Manager (being hired)', tag: 'USER LEAD' },
+      { name: 'Trustee board contact', role: 'Warm intro route', tag: 'INFLUENCER' }
+    ]},
+    'barnardos': { acv: '£142,000', term: '36 months pending', users: '640 seats scoped', stakeholders: [
+      { name: 'Marcus Webb', role: 'Head of Trading', tag: 'DECISION MAKER' },
+      { name: 'Sally Nkomo', role: 'Finance Business Partner', tag: 'ECONOMIC BUYER' },
+      { name: 'Dev Sharma', role: 'Head of IT — tech stack review', tag: 'INFLUENCER' },
+      { name: 'Shop managers ×600', role: 'Store operations', tag: 'USERS' }
+    ]},
+    'bhf': { acv: '£340,000', term: '36 months (tender)', users: '2,100 seats scoped', stakeholders: [
+      { name: 'Gareth Llewellyn', role: 'Retail Operations Director', tag: 'DECISION MAKER' },
+      { name: 'Nadia Hussain', role: 'Chief Financial Officer', tag: 'ECONOMIC BUYER' },
+      { name: 'Amara Osei', role: 'Retail Transformation Lead', tag: 'CHAMPION' },
+      { name: 'Evaluation panel ×14', role: 'Tender scoring', tag: 'EVALUATORS' },
+      { name: 'Procurement office', role: 'Compliance & process', tag: 'PROCUREMENT' }
+    ]},
+    'cruk': { acv: '£113,000 (£340k / 3 yrs)', term: '36 months', users: '1,800 seats', stakeholders: [
+      { name: 'Daniel Price', role: 'Commercial Director', tag: 'DECISION MAKER' },
+      { name: 'Tom Okafor', role: 'Head of Retail Systems', tag: 'USER LEAD' },
+      { name: 'In-house legal', role: 'Red-tier contract review', tag: 'LEGAL' },
+      { name: 'Procurement', role: 'Security review requested', tag: 'PROCUREMENT' }
+    ]},
+    'mind': { acv: '£8,400 (growth plan)', term: '12 months', users: '14 active in trial', stakeholders: [
+      { name: 'Jess Fielding', role: 'Retail Development Manager', tag: 'DECISION MAKER' },
+      { name: 'Paul Whitby', role: 'Finance Officer', tag: 'ECONOMIC BUYER' },
+      { name: 'Trial colleagues ×3', role: 'Invited this week', tag: 'USERS' }
+    ]},
+    'salvation-army': { acv: 'est £22,000', term: 'not yet scoped', users: '—', stakeholders: [
+      { name: 'Grace Adeyemi', role: 'Head of Retail Systems (new post)', tag: 'DECISION MAKER' },
+      { name: 'Territorial HQ finance', role: 'Budget holder', tag: 'ECONOMIC BUYER' },
+      { name: 'Divisional retail managers ×8', role: 'Regional operations', tag: 'USERS' }
+    ]},
+    'age-uk': { acv: '£3,600 (starter, 12 shops)', term: 'monthly rolling', users: '31 active', stakeholders: [
+      { name: 'Tom Barker', role: 'Regional Retail Manager', tag: 'CHAMPION' },
+      { name: 'Susan Cole', role: 'National Retail Director', tag: 'DECISION MAKER — NOT YET ENGAGED' },
+      { name: 'Shop managers ×12', role: 'Daily users', tag: 'USERS' }
+    ]},
+    'shelter': { acv: 'est £12,000', term: 'not yet scoped', users: '—', stakeholders: [
+      { name: 'Fiona Marsh', role: 'Director of Fundraising & Trading', tag: 'DECISION MAKER' },
+      { name: 'Digitisation grant board', role: 'Ring-fenced budget', tag: 'ECONOMIC BUYER' },
+      { name: 'Josh Carey', role: 'Retail Operations Lead', tag: 'USER LEAD' }
+    ]},
+    'scope': { acv: '£1,188 (starter)', term: 'monthly rolling', users: '1 — trial pending', stakeholders: [
+      { name: 'Leah Quinn', role: 'Shop Manager, Bristol', tag: 'USER' },
+      { name: 'Head office retail leadership', role: 'Unknown', tag: 'DECISION MAKER — UNMAPPED' }
+    ]},
+    'ymca': { acv: '£5,760 at renewal', term: '12 months', users: '22 active · usage −40%', stakeholders: [
+      { name: 'Owen Hughes', role: 'Trading Manager', tag: 'DECISION MAKER' },
+      { name: 'Finance Manager', role: 'Renewal sign-off', tag: 'ECONOMIC BUYER' },
+      { name: 'Shop staff ×22', role: 'Daily users', tag: 'USERS' }
+    ]},
+    'emmaus': { acv: 'est £2,400', term: 'not yet scoped', users: '—', stakeholders: [
+      { name: 'Bea Collins', role: 'Community Director', tag: 'DECISION MAKER' },
+      { name: 'Community leaders ×5', role: 'Site-level operations', tag: 'USERS' }
+    ]},
+    'oxfam': { acv: '£14,300 → £38,000 proposed', term: '12 months', users: '640 active across 214 shops', stakeholders: [
+      { name: 'Priti Shah', role: 'Head of Retail Innovation', tag: 'DECISION MAKER' },
+      { name: 'Colin Bright', role: 'Finance Business Partner', tag: 'ECONOMIC BUYER' },
+      { name: 'Region 2 retail lead', role: 'Expansion sponsor', tag: 'INFLUENCER' },
+      { name: 'Shop managers ×214', role: 'Daily users', tag: 'USERS' }
+    ]},
+    'trinity': { acv: '£3,120', term: '12 months', users: '48 active', stakeholders: [
+      { name: 'Karen Doyle', role: 'Retail & Trading Lead', tag: 'DECISION MAKER' },
+      { name: 'Finance Officer', role: 'Raised the duplicate charge', tag: 'ECONOMIC BUYER' },
+      { name: 'Shop staff ×48', role: 'Daily users', tag: 'USERS' }
+    ]}
+  },
+
   /* ---- The model (§4–§6, §11 of the spec) — rendered on the Channels view ---- */
   model: {
     formula: ['intent_decayed = Σ ( weight × value × 0.5^(days_since / half_life) )', 'raw = (0.40 × fit) + (0.60 × intent_decayed)', 'likelihood = calibrate(raw) — isotonic, against closed-won history'],
@@ -292,6 +382,68 @@ const DATA = {
     { record: 'shelter', type: 'DOSSIER', item: 'Dossier — grant award, event talks, 2 conversation openers', channel: 'Internal', when: 'Ready', authority: 'T0 · AUTO' },
     { record: 'scope', type: 'EMAIL', item: 'Recovery — finish setting up your trial, 2 of 2', channel: 'Email', when: 'Tomorrow 10:00', authority: 'T1 · AUTO' },
     { record: 'bhf', type: 'PROPOSAL', item: 'Bid response — 41 requirement line items, 60% drafted', channel: 'Portal', when: '22 Aug deadline', authority: 'AMBER · SALES LEAD · 1 DAY' }
+  ],
+
+  /* ---- Rep to-do workflow: the human's day, kept to meetings and calls ---- */
+  tasks: [
+    { title: 'Check-in call — YMCA save play', record: 'ymca', due: 'NOW', kind: 'CALL', source: 'Escalation: negative sentiment · 4h SLA', done: false },
+    { title: 'Resolve billing complaint — Trinity Hospice', record: 'trinity', due: 'NOW', kind: 'CALL', source: 'Escalation: complaint · immediate · refund already queued', done: false },
+    { title: 'Demo — Emmaus UK, 14:00', record: 'emmaus', due: 'TODAY', kind: 'MEETING', source: 'Customer asked for a person · Granola will record', done: false },
+    { title: 'Final terms call — Cancer Research UK', record: 'cruk', due: 'TODAY', kind: 'MEETING', source: 'Deal value escalation · £340k · contract with legal', done: false },
+    { title: "Approve Barnardo's proposal", record: 'barnardos', due: 'TODAY', kind: 'APPROVAL', source: 'Amber tier · discount within your authority', goto: '#/engage', done: false },
+    { title: 'Send proposal draft — Sue Ryder', record: 'sue-ryder', due: 'THIS WEEK', kind: 'FOLLOW-UP', source: 'AUTO — Granola: you said it on the intro call, Tilly set it', auto: true, done: false },
+    { title: 'Enable Gift Aid module — Mind trial', record: 'mind', due: 'THIS WEEK', kind: 'FOLLOW-UP', source: 'AUTO — Granola: activation check-in, next step captured', auto: true, done: true },
+    { title: 'Review weak sections — BHF bid response', record: 'bhf', due: 'THIS WEEK', kind: 'REVIEW', source: 'Bid gate: scored coverage 78% — two sections flagged', done: false }
+  ],
+
+  /* ---- Granola-captured meetings: talk, and the CRM writes itself ---- */
+  meetings: [
+    { record: 'sue-ryder', title: 'Intro call — Rachel Holt', when: 'YESTERDAY 15:00', nextStep: 'Send proposal draft by Friday', task: 'TASK AUTO-CREATED' },
+    { record: 'mind', title: 'Activation check-in — Jess Fielding', when: 'MON 11:00', nextStep: 'Enable Gift Aid module on the trial', task: 'TASK AUTO-CREATED' },
+    { record: 'emmaus', title: 'Demo — Bea Collins', when: 'TODAY 14:00', nextStep: 'Set it verbally in the meeting — Tilly captures it', task: 'PENDING' }
+  ],
+
+  /* ---- Top of funnel: the agent's nightly run keeps the book full ---- */
+  funnel: {
+    run: [
+      { label: 'SHOPS SCANNED · 02:00', value: '4,218' },
+      { label: 'NEW LEADS FETCHED', value: '112' },
+      { label: 'QUALIFIED OVERNIGHT', value: '9' },
+      { label: 'PROMOTED TO PIPELINE', value: '3' }
+    ],
+    incoming: [
+      { name: 'Marie Curie Retail', cause: 'Palliative care', shops: 170, status: 'PROMOTED', fit: 81 },
+      { name: 'PDSA Charity Shops', cause: 'Animal welfare', shops: 120, status: 'QUALIFYING', fit: 64 },
+      { name: 'Sense Trading', cause: 'Disability', shops: 100, status: 'QUALIFYING', fit: 61 },
+      { name: 'Blue Cross Shops', cause: 'Animal welfare', shops: 60, status: 'FETCHED', fit: null },
+      { name: 'Crisis Shops', cause: 'Homelessness', shops: 11, status: 'DISQUALIFIED', fit: 32 }
+    ]
+  },
+
+  /* ---- Self-serve e-commerce funnel & subscription payment tracking ---- */
+  selfServeFunnel: [
+    { stage: 'VISIT', count: 4820, note: 'Ad + organic sessions this month' },
+    { stage: 'SIGN UP', count: 402, note: '8.3% of visits — dynamic landing pages' },
+    { stage: 'APP DOWNLOAD', count: 288, note: '72% of sign-ups — nudge at 24h if missing' },
+    { stage: 'SUBSCRIPTION SELECTED', count: 131, note: '46% of downloads — plan matched to shop count' },
+    { stage: 'ACTIVE USAGE', count: 94, note: '72% activated — 3 core actions inside 14 days' }
+  ],
+  subscriptions: [
+    { record: 'oxfam', plan: 'Growth', seats: 640, mrr: '£1,192', billing: 'PAID', next: '01 AUG', note: 'Tier upsell offer out — their own usage charted' },
+    { record: 'ymca', plan: 'Starter', seats: 22, mrr: '£480', billing: 'RETRY 2 OF 4', next: 'DAY 7 RETRY', note: 'Payment failed · read-only at day 21 · save play running' },
+    { record: 'age-uk', plan: 'Starter', seats: 31, mrr: '£300', billing: 'PAID', next: '03 AUG', note: 'Healthy — expansion signal from region 2' },
+    { record: 'trinity', plan: 'Starter', seats: 48, mrr: '£260', billing: 'REFUND OPEN', next: 'ON HOLD', note: 'Duplicate charge — billing frozen until complaint closes' },
+    { record: 'mind', plan: 'Trial', seats: 14, mrr: '£0', billing: 'TRIAL — DAY 11', next: 'DAY 14 OFFER', note: '2 of 3 core actions — activation nudge live' },
+    { record: 'scope', plan: '—', seats: 1, mrr: '£0', billing: 'CHECKOUT ABANDONED', next: 'RECOVERY 2 OF 2', note: 'Dropped at card step — recovery email tomorrow 10:00' }
+  ],
+
+  /* ---- Media monitor: news about enterprise accounts = a reason to reach out ---- */
+  media: [
+    { record: 'bhf', outlet: 'CHARITY RETAIL WEEK', when: 'TODAY', headline: 'BHF confirms plan to modernise its 700-shop estate', angle: 'Reference the announcement in the bid cover letter — it names the exact outcomes in our response.' },
+    { record: 'sue-ryder', outlet: 'THIRD SECTOR', when: 'YESTERDAY', headline: 'Sue Ryder opens four new shops across the North West', angle: 'Congratulate Rachel on the openings — the drafted outreach already references the expansion.' },
+    { record: 'cruk', outlet: 'RETAIL GAZETTE', when: '2 DAYS AGO', headline: 'Cancer Research UK reviews retail technology partners', angle: 'Share with the human owner before the final terms call — public signal strengthens our position.' },
+    { record: 'barnardos', outlet: 'CIVIL SOCIETY', when: 'THIS WEEK', headline: "Barnardo's board approves FY27 retail digitisation budget", angle: 'The proposal maps to this budget line — mention the board paper when it goes out.' },
+    { record: 'salvation-army', outlet: 'CHARITY TIMES', when: 'THIS WEEK', headline: 'Salvation Army Trading creates first head of retail systems role', angle: 'The LinkedIn opener congratulates Grace — approve it and it references this coverage.' }
   ],
 
   /* ---- Gamification (§12): points = stage × band multiplier + bonuses − penalties ---- */
