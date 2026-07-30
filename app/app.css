@@ -144,6 +144,25 @@ tr.pole td:first-child { box-shadow: inset 3px 0 0 var(--tilly-blue); }
 
 .approved { color: var(--tilly-green); }
 
+/* Tooltips — hover a chip to learn what it means. Flat, square, mono. */
+[data-tip] { position: relative; cursor: help; }
+[data-tip]:hover::after {
+  content: attr(data-tip);
+  position: absolute; left: 0; bottom: calc(100% + 8px);
+  width: 240px; z-index: 20;
+  background: var(--tilly-black); color: #fff;
+  padding: 10px 12px;
+  font-family: var(--font-sans); font-size: 12px; font-weight: 400;
+  letter-spacing: 0; text-transform: none; line-height: 1.5;
+  white-space: normal; text-align: left;
+}
+[data-tip]:hover::before {
+  content: ''; position: absolute; left: 12px; bottom: calc(100% + 2px);
+  border: 6px solid transparent; border-top-color: var(--tilly-black); z-index: 21;
+}
+td [data-tip]:hover::after, .kv [data-tip]:hover::after { bottom: auto; top: calc(100% + 8px); }
+td [data-tip]:hover::before, .kv [data-tip]:hover::before { bottom: auto; top: calc(100% + 2px); border-top-color: transparent; border-bottom-color: var(--tilly-black); }
+
 /* Expanded grid row: the action items */
 .grid-expand { padding: 4px 20px 18px 110px; border-top: var(--line); background: var(--tilly-grey-100); }
 .grid-expand .sig { border-top: none; padding: 5px 0; }

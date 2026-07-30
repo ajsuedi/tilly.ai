@@ -71,20 +71,25 @@ const stageChip = r => {
   return `<span class="chip">${esc(r.stage.toUpperCase())}</span>`;
 };
 
+/* Tooltips built from the model itself, so the hover text can't drift from the spec */
+const BAND_TIPS = Object.fromEntries(DATA.model.bands.map(b => [b.band, `Likelihood ${b.range}. ${b.behaviour}`]));
+const LANE_TIPS = Object.fromEntries(DATA.model.lanes.map(l => [l.lane, `Complexity ${l.range}. ${l.ownership}`]));
+const TIER_TIPS = Object.fromEntries(DATA.model.tiers.map(t => [t.tier, `${t.capability}. ${t.constraint}`]));
+
 const laneChip = r => ({
-  enterprise: `<span class="chip chip-enterprise">ENTERPRISE</span>`,
-  assisted: `<span class="chip chip-assisted">ASSISTED</span>`,
-  selfserve: `<span class="chip chip-selfserve">SELF-SERVE</span>`
+  enterprise: `<span class="chip chip-enterprise" data-tip="${esc(LANE_TIPS['ENTERPRISE'])}">ENTERPRISE</span>`,
+  assisted: `<span class="chip chip-assisted" data-tip="${esc(LANE_TIPS['ASSISTED'])}">ASSISTED</span>`,
+  selfserve: `<span class="chip chip-selfserve" data-tip="${esc(LANE_TIPS['SELF-SERVE'])}">SELF-SERVE</span>`
 })[r.lane];
 
 const bandChip = r => {
   const cls = { 'POLE': 'chip-pole', 'FRONT ROW': 'chip-front', 'MIDFIELD': '', 'BACK MARKER': 'chip-back', 'COLD': 'chip-back' }[r.band];
-  return `<span class="chip ${cls}">${r.band}</span>`;
+  return `<span class="chip ${cls}" data-tip="${esc(BAND_TIPS[r.band])}">${r.band}</span>`;
 };
 
 const tierChip = r => r.tier === 'HUMAN'
-  ? `<span class="chip chip-esc">HUMAN OWNER</span>`
-  : `<span class="chip">AGENT ${esc(r.tier)}</span>`;
+  ? `<span class="chip chip-esc" data-tip="An escalation trigger fired — a named human owns this deal now. The agent stays on research, drafting and admin.">HUMAN OWNER</span>`
+  : `<span class="chip" data-tip="${esc(TIER_TIPS[r.tier] || '')}">AGENT ${esc(r.tier)}</span>`;
 
 const likelihoodBar = v =>
   `<span class="likelihood"><span class="bar"><b style="width:${v}%"></b></span><span class="m-data">${v}%</span></span>`;
