@@ -705,6 +705,22 @@ const DATA = {
       read: ['surfaced by her own hiring post — the door is ajar', 'no contact history: education first, always', 'ease 58: unknown but reachable'], opener: 'Reference the hiring post — teams that grow need systems that scale.' }
   },
 
+  /* ---- LinkedIn automation: connection + outreach sequence, guard-railed.
+     Pacing-capped, personalised from the person's own posts, stops the moment
+     they reply (a human takes over), and never runs on detractors or open
+     complaints. Production note: ship this on LinkedIn's official APIs. ---- */
+  linkedin: {
+    caps: '15 invites / day · personalised from their own posts · stops on reply — a human takes over · never sent to detractors or open complaints',
+    sequence: [
+      { day: 'DAY 0', step: 'Connect', desc: 'Invite with a personalised note built from their latest post — never a pitch' },
+      { day: 'DAY 2', step: 'Thanks + insight', desc: 'On accept: thank you plus one sector benchmark relevant to their role' },
+      { day: 'DAY 5', step: 'Education asset', desc: 'The explainer matched to their category — teaching, not selling' },
+      { day: 'DAY 9', step: 'Soft ask', desc: '15-minute call offer, framed around their stated goal · then stop and nurture' }
+    ],
+    queued: {},
+    bulkDone: false
+  },
+
   /* ---- Media monitor: news about enterprise accounts = a reason to reach out ---- */
   media: [
     { record: 'bhf', outlet: 'CHARITY RETAIL WEEK', when: 'TODAY', headline: 'BHF confirms plan to modernise its 700-shop estate', angle: 'Reference the announcement in the bid cover letter — it names the exact outcomes in our response.' },
