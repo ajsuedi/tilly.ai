@@ -24,6 +24,20 @@ DATA.records.forEach(r => {
 const repById = id => DATA.reps.find(x => x.id === id);
 const ownerName = r => r.owner === 'tilly' ? 'Tilly (agent)' : repById(r.owner).name;
 
+/* CS health flags (§2.3): band by score, escalate one level on a falling trend */
+const FLAG_ORDER = ['RED FLAG', 'SAFETY CAR', 'YELLOW FLAG', 'GREEN FLAG'];
+const flagFor = h => {
+  let i = h.score >= 75 ? 3 : h.score >= 55 ? 2 : h.score >= 35 ? 1 : 0;
+  if (h.d30 <= -10 || h.d7 <= -15) i = Math.max(0, i - 1);
+  return FLAG_ORDER[i];
+};
+const flagChip = f => ({
+  'GREEN FLAG': `<span class="chip chip-won">GREEN FLAG</span>`,
+  'YELLOW FLAG': `<span class="chip">YELLOW FLAG</span>`,
+  'SAFETY CAR': `<span class="chip chip-esc">SAFETY CAR</span>`,
+  'RED FLAG': `<span class="chip" style="background:var(--tilly-red);border-color:var(--tilly-red);color:#fff">RED FLAG</span>`
+})[f];
+
 const gbp = n => n >= 1e6 ? '£' + (n / 1e6).toFixed(2) + 'm' : n >= 1000 ? '£' + Math.round(n / 1000) + 'k' : '£' + n;
 const pipeValue = recs => recs.reduce((s, r) => s + r.acvNum, 0);
 const weightedValue = recs => Math.round(recs.reduce((s, r) => s + r.acvNum * r.likelihood / 100, 0));
@@ -544,6 +558,7 @@ const views = {
     return `
       <h1 class="t-title page-title">Engage</h1>
       <p class="t-body t-muted page-sub">The outbound push, stamped with the authority that lets it send. Amber items need one click from you — everything else sends itself.</p>
+      ${DATA.settings.testMode ? `<div class="panel" style="padding:12px 20px;margin-bottom:8px"><span class="m-data" style="color:var(--tilly-blue)">TEST MODE — EVERY OUTBOUND EMAIL IS PROXIED TO ${esc(DATA.settings.emailProxy.toUpperCase())} · NOTHING REACHES A CUSTOMER</span></div>` : ''}
       <table class="tbl">
         <thead><tr><th>Type</th><th>Item</th><th>Account</th><th>Channel</th><th>When</th><th>Authority</th><th></th></tr></thead>
         <tbody>
@@ -556,7 +571,7 @@ const views = {
               <td><div style="display:flex;align-items:center;gap:10px">${avatar(r, 26)}${esc(r.name)}</div></td>
               <td class="t-caption">${esc(q.channel)}</td>
               <td><span class="m-data">${esc(q.when.toUpperCase())}</span></td>
-              <td><span class="m-data${q.approved ? ' approved' : ''}" style="color:${q.approved ? 'var(--tilly-green)' : red ? 'var(--tilly-red)' : amber ? 'var(--tilly-grey-500)' : 'var(--tilly-green)'}">${q.approved ? '✓ APPROVED · SENDING' : esc(q.authority)}</span></td>
+              <td><span class="m-data${q.approved ? ' approved' : ''}" style="color:${q.approved ? 'var(--tilly-green)' : red ? 'var(--tilly-red)' : amber ? 'var(--tilly-grey-500)' : 'var(--tilly-green)'}">${q.approved ? (q.proxied ? '✓ APPROVED → ' + esc(DATA.settings.emailProxy.toUpperCase()) : '✓ APPROVED · SENDING') : esc(q.authority)}</span></td>
               <td>${amber && !q.approved ? `<button class="btn btn-primary btn-sm" data-approve="${i}">Approve</button>` : red && !q.approved ? `<span class="t-caption">with legal</span>` : ''}</td>
             </tr>`;
           }).join('')}
@@ -645,63 +660,147 @@ const views = {
 
   success() {
     const S = DATA.success;
-    const stages = ['Handoff', 'Implementation', 'Live'];
-    const atRisk = S.health.filter(h => h.health === 'RED').length;
-    const renewals = S.health.filter(h => /2026/.test(h.renewal)).length;
-    const healthColor = h => h === 'GREEN' ? 'var(--tilly-green)' : h === 'RED' ? 'var(--tilly-red)' : 'var(--tilly-grey-500)';
+    const flags = Object.fromEntries(S.health.map(h => [h.record, flagFor(h)]));
+    const greenShare = Math.round(100 * Object.values(flags).filter(f => f === 'GREEN FLAG').length / S.health.length);
+    const scActive = S.safetyCars.length;
+    const byRisk = [...S.health].sort((a, b) => (100 - b.score) * recById(b.record).acvNum - (100 - a.score) * recById(a.record).acvNum);
+    const kindChip = k => k === 'BLACKOUT' ? `<span class="chip" style="color:var(--tilly-red);border-color:var(--tilly-red)">BLACKOUT</span>`
+      : k === 'TARGET' ? `<span class="chip chip-pole">TARGET</span>`
+      : k === 'RENEWAL' ? `<span class="chip chip-enterprise">RENEWAL</span>`
+      : `<span class="chip">MILESTONE</span>`;
     return `
       <h1 class="t-title page-title">Tilly Success</h1>
-      <p class="t-body t-muted page-sub">Where sold becomes delivered. Every closed deal arrives with a handoff pack and an obligation register extracted from the signed contract — what was promised is what gets tracked. CSMs own the book from here.</p>
+      <p class="t-body t-muted page-sub">The garage. The customer is the driver — everyone else exists to get them round the lap faster. Health telemetry runs nightly, the safety car freezes commercial motions the moment risk lands, and the +75 NPS is earned in §3, not in the survey.</p>
       <div class="stats">
-        <div class="stat stat-blue"><span class="m-label">CUSTOMERS IN THE BOOK</span><strong>${S.health.length}</strong></div>
-        <div class="stat"><span class="m-label">LIVE ARR</span><strong>${gbp(liveARR())}</strong></div>
-        <div class="stat"><span class="m-label">AT RISK (RED)</span><strong>${atRisk}</strong></div>
-        <div class="stat stat-dark"><span class="m-label">RENEWALS THIS YEAR</span><strong>${renewals}</strong></div>
+        <div class="stat${greenShare >= 75 ? ' stat-blue' : ''}"><span class="m-label">GREEN FLAG SHARE (TARGET ≥75%)</span><strong>${greenShare}%</strong></div>
+        <div class="stat"><span class="m-label">SAFETY CARS ACTIVE</span><strong>${scActive}</strong></div>
+        <div class="stat"><span class="m-label">NPS · ${esc(S.nps.response)}</span><strong>${esc(S.nps.score)}</strong></div>
+        <div class="stat stat-dark"><span class="m-label">MEDIAN PIT STOP TIME</span><strong>9 MIN</strong></div>
+      </div>
+      <div class="gap"></div>
+      <div class="grid-4" style="grid-template-columns:repeat(3,1fr)">
+        ${S.garage.map(g => `
+          <div class="panel" style="padding:16px 18px${g.tilly ? ';border-color:var(--tilly-blue);border-width:2px' : ''}">
+            <div class="m-label" style="margin-bottom:4px;display:block${g.tilly ? ';color:var(--tilly-blue)' : ''}">${esc(g.who)}</div>
+            <div class="t-heading" style="font-size:14px">${esc(g.role)}</div>
+            <div class="t-caption" style="margin-top:2px">${esc(g.desc)}</div>
+          </div>`).join('')}
       </div>
       <div class="gap-lg"></div>
-      <div class="m-section" style="margin-bottom:16px">SALES → CS HANDOFF — CLOSE TO GO-LIVE</div>
-      <div class="kanban" style="grid-template-columns:repeat(3,1fr)">
-        ${stages.map(st => {
-          const cards = S.handoffs.filter(h => h.stage === st);
-          return `
-          <div class="kcol">
-            <div class="m-label" style="display:block;margin-bottom:8px">${st.toUpperCase()} · ${cards.length}</div>
-            ${cards.map(h => {
-              const r = recById(h.record);
-              return `
-              <div class="kcard click" data-id="${r.id}">
-                <div style="display:flex;align-items:center;gap:10px">${avatar(r, 26)}<span style="font-weight:600;font-size:13px">${esc(r.name)}</span></div>
-                <div class="t-caption" style="margin-top:8px">${esc(h.closedBy)} → ${esc(h.csm)}</div>
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
-                  <span class="m-data" style="color:${h.obligations.done === h.obligations.total ? 'var(--tilly-green)' : 'var(--tilly-blue)'}">OBLIGATIONS ${h.obligations.done}/${h.obligations.total}</span>
-                  <span class="m-data t-muted">${esc(h.goLive)}</span>
-                </div>
-                ${h.pack.done < h.pack.total ? `<div class="m-data" style="color:var(--tilly-red);margin-top:6px">PACK ${h.pack.done}/${h.pack.total} — ${esc(h.pack.missing)}</div>` : ''}
-              </div>`;
-            }).join('') || '<div class="t-caption" style="padding:6px 0">—</div>'}
-          </div>`;
-        }).join('')}
-      </div>
-      <div class="gap-lg"></div>
-      <div class="m-section" style="margin-bottom:16px">CUSTOMER HEALTH — THE CSM BOOK</div>
+
+      <div class="m-section" style="margin-bottom:16px">THE GRID — WHOLE BOOK, RISK-WEIGHTED REVENUE, WORST FIRST</div>
       <table class="tbl">
-        <thead><tr><th>Account</th><th>CSM</th><th>Health</th><th>Usage</th><th>NPS</th><th>Renewal</th><th>Tilly's play</th></tr></thead>
-        <tbody>${S.health.map(h => {
+        <thead><tr><th>Account</th><th>Stage · tier</th><th>Health</th><th>Flag</th><th>Driver manager</th><th>Renewal</th><th>Tilly's read</th></tr></thead>
+        <tbody>${byRisk.map(h => {
           const r = recById(h.record);
+          const f = flags[h.record];
           return `<tr class="click" data-id="${r.id}">
             <td><div style="display:flex;align-items:center;gap:10px">${avatar(r, 26)}<span style="font-weight:600">${esc(r.name)}</span></div></td>
+            <td><span class="chip">${esc(h.stage.toUpperCase())}</span> <span class="m-data t-muted">${esc(h.tier)}</span></td>
+            <td><span class="fit">${h.score}</span> <span class="m-data" style="color:${h.d30 < 0 ? 'var(--tilly-red)' : 'var(--tilly-green)'}">${h.d30 > 0 ? '+' : ''}${h.d30} / 30D</span></td>
+            <td>${flagChip(f)}</td>
             <td class="t-caption">${esc(h.csm)}</td>
-            <td><span class="m-data" style="color:${healthColor(h.health)}">● ${h.health}</span></td>
-            <td><span class="m-data">${esc(h.usage)}</span></td>
-            <td><span class="m-data">${esc(h.nps)}</span></td>
             <td><span class="m-data" style="color:var(--tilly-blue)">${esc(h.renewal)}</span></td>
             <td class="t-caption">${esc(h.play)}</td>
           </tr>`;
         }).join('')}
         </tbody>
       </table>
+      <div class="gap"></div>
+      <div class="feed">${S.healthModel.formula.map(f => `<div>${esc(f)}</div>`).join('')}</div>
+      <div class="gap"></div>
+      <div class="panel" style="padding:18px 20px">
+        <span class="m-label">HEALTH DIMENSIONS — DEFAULT WEIGHTS, RE-WEIGHTED BY STAGE</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px">
+          ${S.healthModel.dimensions.map(d => `<span class="chip">${esc(d.name.toUpperCase())} · ${d.weight}</span>`).join('')}
+        </div>
+        <div class="t-caption" style="margin-top:12px">${esc(S.healthModel.note)}</div>
+      </div>
+      <div class="gap-lg"></div>
+
+      <div class="m-section" style="margin-bottom:16px">SAFETY CAR BOARD — COMMERCIAL MOTIONS FREEZE FIRST</div>
+      ${S.safetyCars.map(sc => {
+        const r = recById(sc.record);
+        return `
+        <div class="esc-banner click" data-id="${r.id}" style="cursor:pointer;align-items:flex-start">
+          <span class="chip chip-esc" style="flex:none">${esc(sc.severity)}</span>
+          ${avatar(r, 32)}
+          <div style="flex:1;min-width:0">
+            <div class="t-heading" style="font-size:14px">${esc(r.name)} <span class="m-data" style="color:var(--tilly-red)">· ${esc(sc.clock)}</span></div>
+            <div class="t-caption" style="margin-top:4px"><b>Trigger:</b> ${esc(sc.trigger)} · <b>Root cause:</b> ${esc(sc.cause)}</div>
+            <div class="t-caption" style="margin-top:2px"><b>Play:</b> ${esc(sc.play)}</div>
+            <div class="t-caption" style="margin-top:2px"><b>Owner:</b> ${esc(sc.owner)} · <b>Exit:</b> ${esc(sc.exit)}</div>
+          </div>
+        </div>`;
+      }).join('')}
+      <div class="panel" style="padding:14px 20px;margin-top:2px">
+        <span class="m-data" style="color:var(--tilly-red)">FROZEN:</span> <span class="t-caption">${esc(S.frozenNote)}</span>
+      </div>
+      <div class="gap-lg"></div>
+
+      <div class="m-section" style="margin-bottom:16px">PIT WALL — NEXT STOPS, PREP PACK STATUS</div>
+      <table class="tbl">
+        <thead><tr><th>Account</th><th>Pit stop</th><th>When</th><th>Length</th><th>Owner</th><th>Prep pack</th></tr></thead>
+        <tbody>${S.pitWall.map(p => {
+          const r = recById(p.record);
+          return `<tr class="click" data-id="${r.id}">
+            <td><div style="display:flex;align-items:center;gap:10px">${avatar(r, 26)}${esc(r.name)}</div></td>
+            <td><span class="chip">${esc(p.type)}</span></td>
+            <td><span class="m-data">${esc(p.when)}</span></td>
+            <td><span class="m-data t-muted">${esc(p.length)}</span></td>
+            <td class="t-caption">${esc(p.owner)}</td>
+            <td><span class="m-data" style="color:${p.pack === 'READY' ? 'var(--tilly-green)' : p.pack === 'BUILDING' ? 'var(--tilly-grey-500)' : 'var(--tilly-red)'}">${esc(p.pack)}</span></td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+      <div class="panel" style="padding:14px 20px;margin-top:2px"><span class="t-caption">${esc(S.pitStopNote)}</span></div>
+      <div class="gap-lg"></div>
+
+      <div class="m-section" style="margin-bottom:16px">SEASON CALENDAR — MILESTONES, RENEWALS AND THE CHARITY-SECTOR CLOCK</div>
+      <table class="tbl">
+        <thead><tr><th>When</th><th>Account</th><th>Item</th><th>Kind</th><th>Status</th></tr></thead>
+        <tbody>${S.season.map(s => {
+          const r = s.account ? recById(s.account) : null;
+          return `<tr${r ? ` class="click" data-id="${r.id}"` : ''}>
+            <td><span class="m-data" style="color:var(--tilly-blue)">${esc(s.when)}</span></td>
+            <td>${r ? `<div style="display:flex;align-items:center;gap:10px">${avatar(r, 22)}${esc(r.name)}</div>` : `<span class="t-caption">${esc(s.label)}</span>`}</td>
+            <td class="t-caption">${esc(s.item)}</td>
+            <td>${kindChip(s.kind)}</td>
+            <td><span class="m-data t-muted">${esc(s.status)}</span></td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+      <div class="gap-lg"></div>
+
+      <div class="m-section" style="margin-bottom:16px">THE +75 NPS SYSTEM — LEADING INDICATORS THE TEAM ACTUALLY MANAGES</div>
+      <table class="tbl">
+        <thead><tr><th>Indicator</th><th>Target</th><th>Now</th><th></th></tr></thead>
+        <tbody>${S.npsIndicators.map(n => `
+          <tr>
+            <td style="font-weight:600">${esc(n.name)}</td>
+            <td><span class="m-data t-muted">${esc(n.target)}</span></td>
+            <td><span class="m-data">${esc(n.actual)}</span></td>
+            <td><span class="m-data" style="color:${n.ok ? 'var(--tilly-green)' : 'var(--tilly-red)'}">${n.ok ? '● ON TARGET' : '● BEHIND'}</span></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      <div class="panel" style="padding:14px 20px;margin-top:2px"><span class="t-caption">${esc(S.nps.note)}</span></div>
+      <div class="gap-lg"></div>
+
+      <div class="m-section" style="margin-bottom:16px">DRIVER MANAGERS — SCORED ON OUTCOMES, BOOK-HANDICAPPED</div>
+      ${board('CS STANDINGS', S.csBoard)}
+      <div class="panel" style="padding:14px 20px;margin-top:2px"><span class="t-caption">${esc(S.csBoardNote)}</span></div>
+      <div class="gap-lg"></div>
+
+      <div class="m-section" style="margin-bottom:16px">HANDOVER GATE — BLOCKING · ${esc(recById(S.gate.record).name.toUpperCase())} CANNOT LEAVE HANDOVER UNTIL 8/8</div>
+      <div class="panel" style="padding:18px 20px">
+        ${S.gate.items.map(i => `<div class="kv"><span>${esc(i.name)}</span><span class="m-data" style="color:${i.done ? 'var(--tilly-green)' : 'var(--tilly-red)'}">${i.done ? '✓ PRESENT' : '✗ MISSING — BLOCKS EXIT'}</span></div>`).join('')}
+      </div>
       <div class="gap-lg"></div>
       <div class="m-section" style="margin-bottom:16px">PRODUCT ADOPTION — PAID FOR, NOT USED · FIX WITH A VIDEO, NOT A CALL</div>
+      ${DATA.settings.testMode ? `<div class="panel" style="padding:12px 20px;margin-bottom:8px"><span class="m-data" style="color:var(--tilly-blue)">TEST MODE — EVERY OUTBOUND EMAIL IS PROXIED TO ${esc(DATA.settings.emailProxy.toUpperCase())}</span></div>` : ''}
       <div class="board">
         ${S.adoption.map((a, i) => {
           const r = recById(a.record);
@@ -722,15 +821,14 @@ const views = {
           <div class="grid-expand" style="padding:16px 20px">
             <div class="m-label" style="display:block;margin-bottom:10px">${esc(a.videoLabel)}</div>
             <video controls preload="metadata" src="${esc(a.video)}" style="width:100%;max-width:720px;display:block;background:var(--tilly-black)"></video>
-            <div class="t-caption" style="margin-top:10px">This is what the customer receives — in-product prompt plus email, matched to the unused feature. Sending is agent tier T1: frequency-capped, consent respected.</div>
+            <div class="t-caption" style="margin-top:10px">This is what the customer receives — in-product prompt plus email, matched to the unused feature. Sending is agent tier T1: frequency-capped, consent respected.${DATA.settings.testMode ? ' In test mode the email goes to ' + esc(DATA.settings.emailProxy) + ' instead of the customer.' : ''}</div>
           </div>` : ''}`;
         }).join('')}
       </div>
       <div class="gap"></div>
       <div class="panel" style="padding:18px 20px">
-        <span class="m-label">THE HANDOFF PACK — SALES CANNOT CLOSE WITHOUT IT</span>
-        ${S.packItems.map(p => `<div class="sig">${esc(p)}</div>`).join('')}
-        <div class="t-caption" style="margin-top:14px;padding-top:14px;border-top:var(--line)">Contract commitments that never reach delivery are the single biggest source of avoidable churn (§8.4). The obligation register transfers automatically on signature — the CSM starts with dated tasks, not a blank page.</div>
+        <span class="m-label">TILLY — NAMED, DISCLOSED, GUARD-RAILED</span>
+        ${S.tillyRules.map(t => `<div class="sig">${esc(t)}</div>`).join('')}
       </div>`;
   },
 
@@ -836,7 +934,9 @@ $view.addEventListener('click', e => {
   }
   const sv = e.target.closest('[data-send-video]');
   if (sv) {
-    DATA.success.adoption[+sv.dataset.sendVideo].status = 'QUEUED — IN-PRODUCT + EMAIL · T1';
+    DATA.success.adoption[+sv.dataset.sendVideo].status = DATA.settings.testMode
+      ? `QUEUED · T1 → ${DATA.settings.emailProxy.toUpperCase()} (TEST PROXY)`
+      : 'QUEUED — IN-PRODUCT + EMAIL · T1';
     render();
     return;
   }
@@ -844,6 +944,7 @@ $view.addEventListener('click', e => {
   if (approve) {
     e.stopPropagation();
     DATA.engageQueue[+approve.dataset.approve].approved = true;
+    DATA.engageQueue[+approve.dataset.approve].proxied = DATA.settings.testMode;
     render();
     return;
   }
@@ -896,5 +997,11 @@ function updateCounts() {
   document.getElementById('count-rep').textContent = DATA.records.filter(r => r.owner === 'priya').length;
 }
 updateCounts();
+
+/* Test-mode banner in the static topbar */
+if (DATA.settings.testMode) {
+  document.getElementById('topbar-status').innerHTML +=
+    ` · <span style="color:var(--tilly-blue)">TEST MODE: EMAIL → ${esc(DATA.settings.emailProxy.toUpperCase())}</span>`;
+}
 
 render();

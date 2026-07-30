@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tilly — customer success spec</title>
+<style>
+  :root{
+    --page:#FAF9F5; --surface:#FFFFFF; --surface-alt:#F1EFE8;
+    --text:#2C2C2A; --text-2:#5F5E5A; --text-3:#888780;
+    --border:#E3E1D9; --border-strong:#D3D1C7;
+    --accent:#0F6E56; --accent-bg:#E1F5EE; --accent-bd:#5DCAA5;
+    --purple:#534AB7; --purple-bg:#EEEDFE;
+    --green:#3B6D11; --green-bd:#97C459; --green-bg:#EAF3DE;
+    --amber:#854F0B; --amber-bd:#EF9F27; --amber-bg:#FAEEDA;
+    --red:#A32D2D; --red-bd:#F09595; --red-bg:#FCEBEB;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --page:#1E1E1C; --surface:#282826; --surface-alt:#333331;
+      --text:#EDEBE3; --text-2:#B4B2A9; --text-3:#888780;
+      --border:#3D3D3A; --border-strong:#525250;
+      --accent:#9FE1CB; --accent-bg:#04342C; --accent-bd:#0F6E56;
+      --purple:#AFA9EC; --purple-bg:#26215C;
+      --green:#C0DD97; --green-bd:#639922; --green-bg:#173404;
+      --amber:#FAC775; --amber-bd:#BA7517; --amber-bg:#412402;
+      --red:#F7C1C1; --red-bd:#A32D2D; --red-bg:#501313;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;padding:40px 24px 64px;background:var(--page);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Helvetica,Arial,sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:960px;margin:0 auto}
+  h1{font-size:26px;font-weight:500;margin:0 0 6px}
+  .lede{font-size:15px;color:var(--text-2);margin:0 0 8px;max-width:70ch}
+  .meta{font-size:12px;color:var(--text-3);margin:0 0 24px}
+  h2{font-size:19px;font-weight:500;margin:52px 0 4px;padding-top:8px}
+  h2 + p{font-size:14px;color:var(--text-2);margin:0 0 16px;max-width:72ch}
+  h3{font-size:15px;font-weight:500;margin:30px 0 4px}
+  h3 + p{font-size:13px;color:var(--text-2);margin:0 0 12px;max-width:74ch}
+  p.note{font-size:13px;color:var(--text-2);max-width:74ch}
+  table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);
+    border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px}
+  th{text-align:left;font-weight:500;font-size:12px;color:var(--text-2);
+    padding:10px 14px;border-bottom:0.5px solid var(--border);background:var(--surface-alt)}
+  td{padding:10px 14px;border-bottom:0.5px solid var(--border);vertical-align:top}
+  tbody tr:last-child td{border-bottom:none}
+  tfoot td{font-weight:500;background:var(--surface-alt);border-top:0.5px solid var(--border-strong);
+    border-bottom:none}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;
+    background:var(--surface-alt);padding:1px 5px;border-radius:4px;color:var(--text)}
+  .num-cell{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .band{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:5px;white-space:nowrap}
+  .b-ok{background:var(--green-bg);color:var(--green)}
+  .b-warn{background:var(--amber-bg);color:var(--amber)}
+  .b-stop{background:var(--red-bg);color:var(--red)}
+  .b-mid{background:var(--surface-alt);color:var(--text-2)}
+  .b-acc{background:var(--accent-bg);color:var(--accent)}
+  .b-crit{background:var(--red);color:var(--red-bg)}
+  .formula{background:var(--surface);border:0.5px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:0 8px 8px 0;padding:12px 16px;margin:12px 0;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;
+    line-height:1.8;overflow-x:auto}
+  .formula em{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-style:normal;color:var(--text-3);font-size:12px}
+  nav.toc{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;
+    padding:14px 18px;margin:24px 0 0}
+  nav.toc p{font-size:12px;color:var(--text-3);margin:0 0 8px}
+  nav.toc ol{columns:2;column-gap:28px;margin:0;font-size:13px;padding-left:20px}
+  nav.toc li{margin-bottom:4px;color:var(--text-2)}
+  nav.toc a{color:var(--accent);text-decoration:none}
+  nav.toc a:hover{text-decoration:underline}
+  .flag{display:flex;gap:10px;background:var(--surface-alt);border-radius:8px;
+    padding:10px 14px;font-size:13px;color:var(--text-2);margin:12px 0}
+  .flag b{color:var(--text);font-weight:500}
+  .prereq{background:var(--purple-bg);border-radius:12px;padding:14px 18px;margin:20px 0 0}
+  .prereq h4{font-size:13px;font-weight:500;color:var(--purple);margin:0 0 6px}
+  .prereq p{font-size:13px;color:var(--text-2);margin:0;max-width:74ch}
+  .prereq ul{font-size:13px;color:var(--text-2);margin:8px 0 0;padding-left:20px}
+  .prereq li{margin-bottom:3px}
+  ol.steps{padding-left:20px;font-size:14px;color:var(--text-2)}
+  ol.steps li{margin-bottom:6px}
+  ol.steps li strong{color:var(--text);font-weight:500}
+  .garage{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:8px}
+  .role{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:12px 14px}
+  .role .who{font-size:11px;color:var(--text-3);margin-bottom:2px}
+  .role h4{font-size:14px;font-weight:500;margin:0}
+  .role p{font-size:12px;color:var(--text-2);margin:4px 0 0}
+  .role.tilly{border:2px solid var(--accent-bd);background:var(--accent-bg)}
+  .role.tilly .who{color:var(--accent)}
+  .flow{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0}
+  .flow i{width:0.5px;height:14px;background:var(--border-strong);display:block}
+  .flow span{font-size:12px;color:var(--text-3)}
+  .caret{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;
+    border-top:6px solid var(--border-strong)}
+  .lane{font-size:13px;font-weight:500;color:var(--text-2);margin:0 0 10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+  .card{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:12px 14px}
+  .card h4{font-size:14px;font-weight:500;margin:0}
+  .card p{font-size:12px;color:var(--text-2);margin:4px 0 0}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:8px}
+  .stat{background:var(--surface-alt);border-radius:8px;padding:14px 16px}
+  .stat span{display:block;font-size:12px;color:var(--text-2)}
+  .stat strong{display:block;font-size:24px;font-weight:500;margin-top:2px}
+  footer{margin-top:56px;padding-top:16px;border-top:0.5px solid var(--border);
+    font-size:12px;color:var(--text-3)}
+  @media print{body{background:#fff;padding:0}
+    table,.formula,.role,.card,.prereq{break-inside:avoid}
+    nav.toc{display:none} h2{break-before:page}}
+  @media (max-width:640px){nav.toc ol{columns:1}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Tilly — customer success spec</h1>
+  <p class="lede">The post-sale half of the Tilly.ai CRM: how a signed UK charity-sector customer is
+    onboarded, kept healthy, rescued when at risk, and turned into an advocate. Built on an F1 garage
+    model, run by Tilly as a named and personalised AI success assistant, and measured against a
+    +75 NPS target.</p>
+  <p class="meta">Fluent Technology · July 2026 · build-agnostic (no vendor assumed) · companion to the main CRM workflow spec</p>
+
+  <div class="prereq">
+    <h4>What this document assumes from the sales-side spec</h4>
+    <p>This spec is self-contained but sits downstream of four things defined in the main CRM
+      workflow document:</p>
+    <ul>
+      <li><strong>Agent permission tiers T0–T3</strong> — T0 read and research, T1 send content, T2 book meetings and apply approved discounts, T3 issue a contract. Tilly runs under the same tiers.</li>
+      <li><strong>Requirements register</strong> — the customer's objectives captured verbatim during the sale, which become the success plan.</li>
+      <li><strong>Contract obligation extraction</strong> — commitments pulled from the signed contract, which become the first milestones.</li>
+      <li><strong>Retention discount authority</strong> — max 20% for max 3 months, a separate cap from the new-business discount ladder.</li>
+    </ul>
+  </div>
+
+  <nav class="toc">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#garage">The garage — operating model</a></li>
+      <li><a href="#health">Health telemetry</a></li>
+      <li><a href="#safetycar">Safety car — churn risk protocol</a></li>
+      <li><a href="#pitstop">Pit stop — meetings &amp; touchpoints</a></li>
+      <li><a href="#planner">Race planner — success plans</a></li>
+      <li><a href="#tilly">Tilly — persona, personalisation &amp; video</a></li>
+      <li><a href="#nps">The +75 NPS system</a></li>
+      <li><a href="#cockpit">Cockpit views</a></li>
+      <li><a href="#risks">Open decisions</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="garage">1. The garage — operating model</h2>
+  <p>Post-sale is where a +75 NPS is won or lost, so it gets its own operating model rather than a
+    set of reminders bolted onto the sales pipeline. The garage metaphor gives every actor a clear
+    role — including the customer, who is the one actually driving.</p>
+
+  <h3>1.1 Who is who</h3>
+  <p>The customer is the driver. Everyone else exists to get them round the lap faster.</p>
+  <div class="garage">
+    <div class="role"><div class="who">The customer</div><h4>Driver</h4><p>Their outcomes are the only score that counts</p></div>
+    <div class="role"><div class="who">CSM</div><h4>Driver manager</h4><p>Owns the relationship and the season plan</p></div>
+    <div class="role tilly"><div class="who">Tilly</div><h4>Race engineer</h4><p>Always on the radio, sees the telemetry first</p></div>
+    <div class="role"><div class="who">Support &amp; implementation</div><h4>Pit crew</h4><p>Executes fast, measured interventions</p></div>
+    <div class="role"><div class="who">CS leader</div><h4>Team principal</h4><p>Portfolio calls, escalations, resourcing</p></div>
+    <div class="role"><div class="who">CS ops</div><h4>Strategist</h4><p>Owns the models, playbooks and calendar</p></div>
+  </div>
+
+  <h3>1.2 The post-sale flow</h3>
+  <p>Signature is not the finish line. It is the start of the lap that decides whether this customer
+    renews, expands and refers.</p>
+
+  <div class="flow"><span>Contract countersigned</span><i></i><div class="caret"></div></div>
+  <p class="lane">Handover gate — blocking (§1.5)</p>
+  <div class="grid">
+    <div class="card"><h4>Obligations</h4><p>Contract commitments become dated milestones</p></div>
+    <div class="card"><h4>Objectives</h4><p>Carried verbatim from the sale</p></div>
+    <div class="card"><h4>Owner</h4><p>Named driver manager assigned</p></div>
+    <div class="card"><h4>Baseline</h4><p>Starting numbers captured</p></div>
+  </div>
+
+  <div class="flow"><i></i><div class="caret"></div></div>
+  <p class="lane">Running the season</p>
+  <div class="grid">
+    <div class="card"><h4>Health telemetry</h4><p>Score, flag and trend, nightly (§2)</p></div>
+    <div class="card"><h4>Race planner</h4><p>Milestones and sector calendar (§5)</p></div>
+    <div class="card"><h4>Pit stops</h4><p>Prepared meetings, fast follow-up (§4)</p></div>
+    <div class="card"><h4>Tilly</h4><p>Always-on help and video (§6)</p></div>
+  </div>
+
+  <div class="flow"><span>on any risk trigger</span><i></i><div class="caret"></div></div>
+  <div style="background:var(--red-bg);border:0.5px solid var(--red-bd);border-radius:12px;padding:14px">
+    <p class="lane" style="color:var(--red)">Safety car deploys — commercial motions freeze first (§3)</p>
+    <div class="grid">
+      <div class="card"><h4>Risk brief</h4><p>Built by Tilly within 1 hour</p></div>
+      <div class="card"><h4>Named owner</h4><p>By severity, not a queue</p></div>
+      <div class="card"><h4>Recovery play</h4><p>Cause-matched, pre-filled</p></div>
+      <div class="card"><h4>Strict exit</h4><p>21 sustained days, cause resolved</p></div>
+    </div>
+  </div>
+
+  <div class="flow"><i></i><div class="caret"></div></div>
+  <p class="lane">Outcomes</p>
+  <div class="grid">
+    <div class="card"><h4>Renewal</h4><p>Intent known 90 days out</p></div>
+    <div class="card"><h4>Expansion</h4><p>Only from a green flag</p></div>
+    <div class="card"><h4>Advocacy</h4><p>Evidenced outcome plus promoter score</p></div>
+    <div class="card"><h4>Managed exit</h4><p>Graceful, deliberate, reputation-protecting</p></div>
+  </div>
+
+  <h3>1.3 Coverage model — driver managers</h3>
+  <p>Coverage is assigned by tier, then overridden by health. A £4k charity in a safety car gets more
+    attention than a healthy £30k account — that is the entire point of a health-driven model.</p>
+  <table>
+    <thead><tr><th style="width:14%">Tier</th><th style="width:20%">Who</th><th class="num-cell" style="width:12%">Ratio</th><th style="width:22%">Primary contact</th><th>Baseline cadence</th></tr></thead>
+    <tbody>
+      <tr><td>Tier 1</td><td>Enterprise &amp; contract</td><td class="num-cell">1 : 20</td><td>Named driver manager</td><td>Monthly pit stop, quarterly race debrief</td></tr>
+      <tr><td>Tier 2</td><td>Mid-market &amp; assisted</td><td class="num-cell">1 : 75</td><td>Pooled driver managers</td><td>Quarterly pit stop, biannual debrief</td></tr>
+      <tr><td>Tier 3</td><td>Self-serve</td><td class="num-cell">1 : 400</td><td>Tilly</td><td>Digital-led; human on safety car or request</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Tier 3 is not "unmanaged" — it is Tilly-managed, with a human pool on standby. The
+    ratios assume Tilly genuinely removes prep and admin work. If pit stop time — prep plus admin —
+    stays above 10 minutes (§4.3), these ratios will not hold and the model needs re-planning rather
+    than more heroics.</p>
+
+  <h3>1.4 Post-sale lifecycle states</h3>
+  <table>
+    <thead><tr><th style="width:18%">State</th><th style="width:30%">Entry</th><th>Exit criteria</th></tr></thead>
+    <tbody>
+      <tr><td>Handover</td><td>Contract countersigned</td><td>Owner assigned, success plan drafted, install lap booked</td></tr>
+      <tr><td>Mobilising</td><td>Install lap held</td><td>Environment live, first users invited, obligations scheduled</td></tr>
+      <tr><td>First value</td><td>Setup complete</td><td>First core action completed by a real user</td></tr>
+      <tr><td>Adopting</td><td>First value reached</td><td>Activation threshold met across the intended user group</td></tr>
+      <tr><td>Embedded</td><td>Activation met, health ≥75 for 30 days</td><td>Stays here; the goal state</td></tr>
+      <tr><td>Renewal window</td><td>90 days before renewal date</td><td>Renewal decision recorded</td></tr>
+      <tr><td>Expanding</td><td>Expansion signal with health ≥75</td><td>Additional seats, tier or product signed</td></tr>
+      <tr><td>Advocating</td><td>Evidenced outcome + promoter score</td><td>Reference, case study or referral delivered</td></tr>
+      <tr><td>Managed exit</td><td>Churn accepted or contract ended</td><td>Clean offboarding, data returned, exit interview logged</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>Managed exit is a deliberate state, not a failure to log.</b> The UK charity
+    sector is small and highly networked — sector bodies, shared trustees, peer forums, conference
+    circuits. A graceful exit protects the reputation that generates your referrals; a bad one gets
+    discussed. Treat offboarding quality as a retention investment in the accounts you keep.</div>
+
+  <h3>1.5 Handover gate</h3>
+  <p>The most common cause of early churn is a handover that loses what was promised during the sale.
+    This gate is blocking: the account cannot leave handover until every item is present.</p>
+  <table>
+    <thead><tr><th style="width:32%">Item</th><th style="width:22%">Source</th><th>Why it blocks</th></tr></thead>
+    <tbody>
+      <tr><td>Obligation register</td><td>Contract extraction</td><td>Commitments become milestones; unowned promises become churn</td></tr>
+      <tr><td>Stated objectives</td><td>Requirements register</td><td>The success plan is built from these, verbatim</td></tr>
+      <tr><td>Named driver manager</td><td>Coverage model (§1.3)</td><td>An account with no owner has no advocate</td></tr>
+      <tr><td>Stakeholder map</td><td>Deal record + enrichment</td><td>Champion, economic buyer, admin, sceptic — all identified</td></tr>
+      <tr><td>Install lap booked</td><td>Pit stop engine (§4)</td><td>Within 5 working days of signature</td></tr>
+      <tr><td>Success plan draft</td><td>Race planner (§5)</td><td>Shared with the customer at the install lap</td></tr>
+      <tr><td>Baseline metrics</td><td>Customer-supplied</td><td>Without a baseline you can never evidence an outcome</td></tr>
+      <tr><td>Known risks carried over</td><td>Sales notes</td><td>The sceptic in the room does not disappear at signature</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="health">2. Health telemetry</h2>
+  <p>One health score per account, recomputed nightly and on material events, weighted differently
+    by lifecycle stage. The score is a conversation starter, not a verdict — it always exposes its
+    contributing dimensions so the driver manager can see <em>why</em>, not just <em>what</em>.</p>
+
+  <h3>2.1 Score composition</h3>
+  <p>Seven dimensions, each normalised 0–1 and multiplied by a stage-specific weight. Every column
+    sums to 100, so scores stay comparable across stages.</p>
+  <table>
+    <thead><tr>
+      <th style="width:26%">Dimension</th>
+      <th class="num-cell" style="width:12%">Default</th>
+      <th class="num-cell" style="width:13%">Mobilising</th>
+      <th class="num-cell" style="width:13%">Adopting</th>
+      <th class="num-cell" style="width:13%">Embedded</th>
+      <th class="num-cell" style="width:13%">Renewal</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>Adoption depth</td><td class="num-cell">22</td><td class="num-cell">20</td><td class="num-cell">25</td><td class="num-cell">20</td><td class="num-cell">18</td></tr>
+      <tr><td>Usage frequency &amp; trend</td><td class="num-cell">20</td><td class="num-cell">18</td><td class="num-cell">24</td><td class="num-cell">22</td><td class="num-cell">20</td></tr>
+      <tr><td>Outcome attainment</td><td class="num-cell">18</td><td class="num-cell">8</td><td class="num-cell">14</td><td class="num-cell">22</td><td class="num-cell">26</td></tr>
+      <tr><td>Relationship strength</td><td class="num-cell">14</td><td class="num-cell">16</td><td class="num-cell">12</td><td class="num-cell">14</td><td class="num-cell">18</td></tr>
+      <tr><td>Sentiment</td><td class="num-cell">12</td><td class="num-cell">14</td><td class="num-cell">12</td><td class="num-cell">12</td><td class="num-cell">10</td></tr>
+      <tr><td>Support burden</td><td class="num-cell">8</td><td class="num-cell">14</td><td class="num-cell">8</td><td class="num-cell">6</td><td class="num-cell">4</td></tr>
+      <tr><td>Commercial signals</td><td class="num-cell">6</td><td class="num-cell">10</td><td class="num-cell">5</td><td class="num-cell">4</td><td class="num-cell">4</td></tr>
+    </tbody>
+    <tfoot><tr><td>Total</td><td class="num-cell">100</td><td class="num-cell">100</td><td class="num-cell">100</td><td class="num-cell">100</td><td class="num-cell">100</td></tr></tfoot>
+  </table>
+  <p class="note">The reweighting matters. During mobilising, outcome attainment drops to 8 because
+    it is unfair to score an account on outcomes it has not had time to reach, while support burden
+    rises to 14 because setup friction is the live risk. By the renewal window outcome attainment is
+    the single heaviest dimension at 26, because that is what the renewal conversation is actually about.</p>
+
+  <h3>2.2 What each dimension measures</h3>
+  <table>
+    <thead><tr><th style="width:24%">Dimension</th><th style="width:38%">Inputs</th><th>Scores 1.0 when</th></tr></thead>
+    <tbody>
+      <tr><td>Adoption depth</td><td>Distinct features used vs features in plan, weighted by relevance to stated objectives</td><td>Every feature relevant to their objectives is in active use</td></tr>
+      <tr><td>Usage frequency &amp; trend</td><td>WAU/MAU ratio, 30-day and 90-day deltas, seat utilisation</td><td>Consistent or rising use across the intended user group</td></tr>
+      <tr><td>Outcome attainment</td><td>Success plan milestones met vs due (§5)</td><td>All due milestones met with evidence attached</td></tr>
+      <tr><td>Relationship strength</td><td>Contacts engaged in 90 days, champion identified, exec sponsor responsive, multi-threading depth</td><td>3+ engaged contacts including an exec sponsor</td></tr>
+      <tr><td>Sentiment</td><td>Latest NPS/CSAT, support tone classification, meeting sentiment</td><td>Promoter score with no negative signals in 90 days</td></tr>
+      <tr><td>Support burden</td><td>Ticket volume vs cohort, severity mix, reopen rate, time to resolution</td><td>At or below cohort median with no reopens</td></tr>
+      <tr><td>Commercial signals</td><td>Invoice timeliness, seat utilisation vs paid, renewal proximity</td><td>Paying on time, using what they bought</td></tr>
+    </tbody>
+  </table>
+
+  <h3>2.3 Flags — score and trajectory together</h3>
+  <p>Absolute score alone is misleading: a 60 climbing is healthier than an 80 falling. The flag
+    combines band with trend, and trend can escalate a flag by one level.</p>
+  <table>
+    <thead><tr><th style="width:20%">Flag</th><th class="num-cell" style="width:12%">Range</th><th style="width:32%">Meaning</th><th>Default response</th></tr></thead>
+    <tbody>
+      <tr><td><span class="band b-ok">Green flag</span></td><td class="num-cell">75–100</td><td>Racing well</td><td>Baseline cadence; look for expansion and advocacy</td></tr>
+      <tr><td><span class="band b-warn">Yellow flag</span></td><td class="num-cell">55–74</td><td>Caution — something is off</td><td>Tilly intervenes, driver manager notified</td></tr>
+      <tr><td><span class="band b-stop">Safety car</span></td><td class="num-cell">35–54</td><td>Churn risk, intervention required</td><td>Full protocol deploys (§3)</td></tr>
+      <tr><td><span class="band b-crit">Red flag</span></td><td class="num-cell">0–34</td><td>Critical or churn accepted</td><td>Team principal owns; recover or manage exit</td></tr>
+    </tbody>
+  </table>
+  <div class="formula">
+    flag = band(score)<br>
+    <em>escalate one level if</em> 30-day delta ≤ −10&nbsp;&nbsp;<em>or</em> 7-day delta ≤ −15<br>
+    <em>de-escalate one level if</em> 30-day delta ≥ +10 <em>and</em> score ≥ band floor for 21 days
+  </div>
+
+  <h2 id="safetycar">3. Safety car — churn risk protocol</h2>
+  <p>In F1 the safety car neutralises the race: speeds drop, positions freeze, everyone regroups.
+    That is exactly the right instinct for an account at risk — the first move is to stop the
+    automated commercial machinery that is about to make things worse.</p>
+
+  <h3>3.1 Deployment triggers</h3>
+  <p>Any single trigger deploys the safety car. No committee, no weekly review lag — the protocol
+    starts the moment the signal lands.</p>
+  <table>
+    <thead><tr><th style="width:30%">Trigger</th><th style="width:28%">Threshold</th><th>Default severity</th></tr></thead>
+    <tbody>
+      <tr><td>Health band entry</td><td>Score enters 35–54</td><td>SC2</td></tr>
+      <tr><td>Health collapse</td><td>Drop ≥15 points in 30 days</td><td>SC2</td></tr>
+      <tr><td>Champion departure</td><td>Job-change signal on the named champion</td><td>SC2 — SC1 if sole contact</td></tr>
+      <tr><td>Admin dormancy</td><td>Zero logins by any admin in 21 days</td><td>SC3</td></tr>
+      <tr><td>Core usage collapse</td><td>Core action volume down &gt;40% over 30 days</td><td>SC2</td></tr>
+      <tr><td>Support pain</td><td>2+ severity-1 tickets in 14 days, or reopen rate &gt;25%</td><td>SC2</td></tr>
+      <tr><td>Detractor score</td><td>NPS 0–6 from any surveyed contact</td><td>SC1 from a decision maker or economic buyer, otherwise SC2</td></tr>
+      <tr><td>Commercial distress</td><td>Invoice &gt;30 days overdue, or seat utilisation &lt;50% inside the renewal window</td><td>SC2</td></tr>
+      <tr><td>Renewal exposure</td><td>Renewal &lt;90 days away with health &lt;55</td><td>SC1</td></tr>
+      <tr><td>Sponsor silence</td><td>Exec sponsor unresponsive to 3 consecutive touches</td><td>SC3</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Three further raises happen automatically elsewhere in the system and land on the
+    same board, all at SC3: trend escalation from a yellow flag (§2.3), a tier cadence missed by more
+    than 30 days (§4.4), and a milestone overdue by 30 days (§5.4).</p>
+  <div class="flag"><b>Charity-sector triggers worth wiring in locally:</b> a grant that funded the
+    purchase reaching its end date, a CEO or trustee-board change, a merger notice, or a published
+    funding shortfall. In this sector these predict churn far better than usage data alone, because
+    the decision is often financial rather than a judgement on the product. An account can love you
+    and still not be able to pay.</div>
+
+  <h3>3.2 The deployment procedure</h3>
+  <p>Order matters, and step one is the step most systems get wrong.</p>
+  <ol class="steps">
+    <li><strong>Freeze commercial motions</strong> — no upsell, no price-increase notice, no dunning escalation, no NPS survey, no automated renewal prompt. Applied instantly and automatically. A renewal email landing mid-problem is what converts a recoverable account into a lost one.</li>
+    <li><strong>Tilly builds the risk brief</strong> — within 1 hour: what changed, when, the evidence, the probable cause, and what worked before on similar accounts.</li>
+    <li><strong>Assign the owner</strong> — by tier and severity, per §3.3. A named individual, never a queue.</li>
+    <li><strong>Draft the recovery plan</strong> — the matching playbook from §3.4, pre-filled with this account's specifics.</li>
+    <li><strong>Start the clock</strong> — the response SLA runs from deployment, not from when someone notices.</li>
+    <li><strong>Daily visibility</strong> — the account sits on the safety car board (§8.1) with its clock running until the flag clears.</li>
+    <li><strong>Code the root cause</strong> — a fixed taxonomy entry is mandatory before exit, so patterns are analysable across the portfolio.</li>
+    <li><strong>Exit or escalate</strong> — per §3.5.</li>
+  </ol>
+
+  <h3>3.3 Severity, ownership and SLA</h3>
+  <table>
+    <thead><tr><th style="width:14%">Severity</th><th style="width:26%">Owner</th><th style="width:22%">First contact</th><th>Review rhythm</th></tr></thead>
+    <tbody>
+      <tr><td><span class="band b-stop">SC1</span></td><td>Driver manager + team principal</td><td>4 working hours</td><td>Weekly at portfolio review; exec sponsor call within 3 working days</td></tr>
+      <tr><td><span class="band b-warn">SC2</span></td><td>Driver manager</td><td>1 working day</td><td>Plan agreed within 3 working days, then weekly</td></tr>
+      <tr><td><span class="band b-mid">SC3</span></td><td>Tilly, driver manager notified</td><td>Automated, within 24 hours</td><td>Auto-escalates to SC2 if no improvement in 14 days</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.4 Recovery playbooks</h3>
+  <p>Cause-matched, not generic. The playbook is selected from the root cause in the risk brief and
+    arrives pre-filled — the driver manager edits rather than composes.</p>
+  <table>
+    <thead><tr><th style="width:24%">Root cause</th><th style="width:28%">Play</th><th>First move</th></tr></thead>
+    <tbody>
+      <tr><td>Champion left</td><td>Stakeholder rebuild</td><td>Map remaining contacts, warm intro to the successor, re-run the value story from scratch</td></tr>
+      <tr><td>Feature never adopted</td><td>Targeted enablement</td><td>Tilly video on that specific feature, then a 20-minute working session</td></tr>
+      <tr><td>Value not evidenced</td><td>Outcome review</td><td>Baseline vs current readout using their own numbers; fix the measurement gap if the data was never captured</td></tr>
+      <tr><td>Support pain</td><td>Remediation</td><td>Engineering escalation, written remediation plan with dates, senior apology where warranted</td></tr>
+      <tr><td>Funding ended</td><td>Commercial restructure</td><td>Pause, tier down, or align the term to the next funding cycle — before any discount</td></tr>
+      <tr><td>Onboarding never completed</td><td>Relaunch</td><td>Treat as a new mobilisation with a fresh install lap; do not pretend the first one worked</td></tr>
+      <tr><td>Wrong fit at sale</td><td>Managed exit</td><td>Honest conversation, help them move, capture the qualification lesson</td></tr>
+      <tr><td>Competitive displacement</td><td>Defend</td><td>Pull the competitive verdict from the sales record, lead on differentiators, involve the exec sponsor</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.5 Exit criteria — clearing the safety car</h3>
+  <p>Deliberately strict. A safety car that clears because the score bounced for a week teaches the
+    team nothing, and the account churns two quarters later.</p>
+  <table>
+    <thead><tr><th style="width:30%">Condition</th><th>Requirement</th></tr></thead>
+    <tbody>
+      <tr><td>Score recovered</td><td>Health ≥55 <em>and</em> sustained for 21 consecutive days</td></tr>
+      <tr><td>Cause addressed</td><td>Owner confirms the coded root cause is resolved, not just quieter</td></tr>
+      <tr><td>Forward commitment</td><td>At least one dated, agreed next milestone in the success plan</td></tr>
+      <tr><td>Customer confirmation</td><td>A human has spoken to the customer and they agree things are better</td></tr>
+      <tr><td>Commercial motions resume</td><td>Only after all four above; upsell stays suppressed for a further 30 days</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>If recovery fails:</b> move to red flag and choose deliberately between a
+    final escalation and a managed exit. Drifting is the worst option — it burns the team's time and
+    produces exactly the detractor score that puts the +75 target out of reach.</div>
+
+  <h2 id="pitstop">4. Pit stop — meetings &amp; touchpoints</h2>
+  <p>A pit stop is any scheduled human interaction with the customer. In F1 a pit stop takes seconds
+    because everything is prepared before the car arrives — that is the standard being set here for
+    CSM prep and follow-up.</p>
+
+  <h3>4.1 Pit stop types</h3>
+  <table>
+    <thead><tr><th style="width:20%">Type</th><th style="width:26%">Trigger</th><th class="num-cell" style="width:12%">Length</th><th>Required output</th></tr></thead>
+    <tbody>
+      <tr><td>Install lap</td><td>Within 5 working days of signature</td><td class="num-cell">60 min</td><td>Success plan agreed, milestones dated, users identified</td></tr>
+      <tr><td>Shakedown</td><td>Day 30</td><td class="num-cell">30 min</td><td>Blockers cleared, first value confirmed or rescued</td></tr>
+      <tr><td>Practice</td><td>Baseline cadence by tier (§1.3)</td><td class="num-cell">30 min</td><td>Adoption review, next milestone confirmed</td></tr>
+      <tr><td>Unscheduled stop</td><td>Safety car, or customer request</td><td class="num-cell">30 min</td><td>Named issue, owner, date</td></tr>
+      <tr><td>Race debrief</td><td>Quarterly tier 1, biannual tier 2</td><td class="num-cell">60 min</td><td>Outcome evidence, roadmap input, expansion or risk view</td></tr>
+      <tr><td>Qualifying</td><td>90 days before renewal</td><td class="num-cell">45 min</td><td>Renewal intent, budget route, blockers named</td></tr>
+      <tr><td>Season review</td><td>Annual, exec sponsor present</td><td class="num-cell">60 min</td><td>Year outcomes, next-year objectives, strategic fit</td></tr>
+      <tr><td>Podium</td><td>Evidenced outcome + promoter score</td><td class="num-cell">30 min</td><td>Reference, case study or referral agreed</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.2 The prep pack</h3>
+  <p>Assembled by Tilly 24 hours before every pit stop and sent to the owner. If the pack is not
+    ready the meeting is flagged, because an unprepared pit stop is worse than a delayed one.</p>
+  <table>
+    <thead><tr><th style="width:30%">Component</th><th>Contents</th></tr></thead>
+    <tbody>
+      <tr><td>Health movement</td><td>Score, flag, 30/90-day trend, which dimensions moved and why</td></tr>
+      <tr><td>Usage delta</td><td>Adoption by feature and by user since the last meeting; who stopped using what</td></tr>
+      <tr><td>Open items</td><td>Actions from the last pit stop with status, plus overdue milestones</td></tr>
+      <tr><td>Support picture</td><td>Open tickets, recent severity, anything unresolved past SLA</td></tr>
+      <tr><td>People changes</td><td>Job moves, new joiners, departures in the stakeholder map</td></tr>
+      <tr><td>Talking points</td><td>Sector news, their published updates, personal context for rapport</td></tr>
+      <tr><td>Suggested agenda</td><td>Three items ranked by what will move health most</td></tr>
+      <tr><td>Risks &amp; opportunities</td><td>Named risks with evidence; expansion signals with evidence</td></tr>
+      <tr><td>Draft outcome</td><td>Pre-written summary and likely actions, to be corrected rather than composed</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.3 Pit stop time — the operating metric</h3>
+  <p>Manual CSM minutes per pit stop, prep plus admin. This is the number that determines whether
+    the coverage ratios in §1.3 are real or aspirational.</p>
+  <table>
+    <thead><tr><th style="width:34%">Stage</th><th class="num-cell" style="width:16%">Target</th><th>Automated by</th></tr></thead>
+    <tbody>
+      <tr><td>Preparation</td><td class="num-cell">≤5 min</td><td>Prep pack assembled and delivered by Tilly</td></tr>
+      <tr><td>In-meeting capture</td><td class="num-cell">0 min</td><td>Transcription and live note capture</td></tr>
+      <tr><td>Follow-up</td><td class="num-cell">≤5 min</td><td>Summary, actions with owners and dates, CRM update, follow-up email drafted, next stop scheduled — all within 15 minutes of the meeting ending</td></tr>
+    </tbody>
+    <tfoot><tr><td>Total per pit stop</td><td class="num-cell">≤10 min</td><td>Review and send, nothing more</td></tr></tfoot>
+  </table>
+
+  <h3>4.4 Attendance handling</h3>
+  <table>
+    <thead><tr><th style="width:26%">Event</th><th>Response</th></tr></thead>
+    <tbody>
+      <tr><td>No-show</td><td>Same-day rebook offer with the prep pack attached; a second no-show reduces relationship strength and notifies the driver manager</td></tr>
+      <tr><td>Repeated declines</td><td>Two consecutive declines is a relationship signal, not a diary problem — logged as a yellow-flag input</td></tr>
+      <tr><td>Champion absent</td><td>Meeting proceeds; the champion gets a personalised recap video from Tilly (§6.4)</td></tr>
+      <tr><td>Overdue cadence</td><td>Tier cadence missed by &gt;30 days raises an SC3 safety car</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="planner">5. Race planner — success plans &amp; milestones</h2>
+  <p>The planner holds the season: what the customer is trying to achieve, the milestones that prove
+    it, and every planned touchpoint. It is shared with the customer, which is what turns it from an
+    internal tracker into a mutual commitment.</p>
+
+  <h3>5.1 Success plan structure</h3>
+  <table>
+    <thead><tr><th style="width:22%">Field</th><th>Definition</th></tr></thead>
+    <tbody>
+      <tr><td>Objective</td><td>The customer's stated goal, in their words, carried verbatim from the sale</td></tr>
+      <tr><td>Measure</td><td>How success is quantified, with a baseline captured at handover</td></tr>
+      <tr><td>Milestones</td><td>Dated, ordered steps toward the measure</td></tr>
+      <tr><td>Owner</td><td>Ours or theirs, named — mutual plans fail when only one side has tasks</td></tr>
+      <tr><td>Status</td><td>Not started · in progress · met · missed · no longer relevant</td></tr>
+      <tr><td>Evidence</td><td>The artefact proving a milestone was met; feeds outcome attainment in §2.1</td></tr>
+      <tr><td>Dependency</td><td>What must happen first; drives automatic replanning on slip</td></tr>
+      <tr><td>Visibility</td><td>Shared with the customer by default; internal-only is the exception and must be justified</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.2 Standard milestone library</h3>
+  <p>Auto-created at handover, then tailored. Days are from contract start on a 365-day term.</p>
+  <table>
+    <thead><tr><th class="num-cell" style="width:12%">Day</th><th style="width:30%">Milestone</th><th>Why it exists</th></tr></thead>
+    <tbody>
+      <tr><td class="num-cell">0</td><td>Handover complete</td><td>The gate in §1.5 passed</td></tr>
+      <tr><td class="num-cell">5</td><td>Install lap held</td><td>Plan agreed while momentum from signature is still live</td></tr>
+      <tr><td class="num-cell">14</td><td>First value</td><td>Time-to-first-value target; the strongest single predictor of retention and advocacy</td></tr>
+      <tr><td class="num-cell">30</td><td>Activation complete</td><td>Intended users onboarded, core actions in use</td></tr>
+      <tr><td class="num-cell">45</td><td>Second user group live</td><td>Single-user accounts churn; breadth is protection</td></tr>
+      <tr><td class="num-cell">90</td><td>First outcome evidenced</td><td>Something measurable to point at, with evidence attached</td></tr>
+      <tr><td class="num-cell">180</td><td>Outcome review</td><td>Mid-term proof and course correction</td></tr>
+      <tr><td class="num-cell">275</td><td>Renewal qualifying</td><td>Renewal intent and budget route known 90 days out</td></tr>
+      <tr><td class="num-cell">330</td><td>Renewal decision</td><td>Decision recorded 35 days before expiry, not on the day</td></tr>
+      <tr><td class="num-cell">365</td><td>Season review</td><td>Year outcomes and next-year objectives with the exec sponsor</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.3 Charity sector calendar</h3>
+  <p>This is the sharpest differentiator in the whole CS design. A generic customer success platform
+    schedules a review for whenever the cadence falls due. Tilly knows that the second week of the
+    Christmas appeal is the worst possible time to ask for one, and that a trustee board date is the
+    best possible time to have outcome evidence ready.</p>
+  <table>
+    <thead><tr><th style="width:28%">Period</th><th style="width:20%">Planner behaviour</th><th>Reasoning</th></tr></thead>
+    <tbody>
+      <tr><td>Financial year end — varies by charity, so capture it</td><td><span class="band b-stop">Blackout</span></td><td>Finance capacity is zero; renewals stall rather than fail</td></tr>
+      <tr><td>Annual return / accounts filing deadline</td><td><span class="band b-stop">Blackout</span></td><td>A regulatory deadline dominates everything else</td></tr>
+      <tr><td>Trustee board meeting</td><td><span class="band b-acc">Target</span></td><td>Have outcome evidence ready 10 days before — this is where budget is approved</td></tr>
+      <tr><td>Major appeal or campaign peak</td><td><span class="band b-stop">Blackout</span></td><td>Christmas, Ramadan, end of tax year, sector awareness days</td></tr>
+      <tr><td>Grant reporting deadline</td><td><span class="band b-warn">Support</span></td><td>Offer help producing the report — high value to them, low cost to us</td></tr>
+      <tr><td>Grant cycle start</td><td><span class="band b-acc">Target</span></td><td>New money, new appetite; the best window for expansion</td></tr>
+      <tr><td>AGM</td><td><span class="band b-warn">Support</span></td><td>A visibility moment; a good outcome story travels to members</td></tr>
+      <tr><td>Budget-setting season</td><td><span class="band b-acc">Target</span></td><td>Get next year's line item in before the budget closes</td></tr>
+      <tr><td>Known leadership transition</td><td><span class="band b-warn">Support</span></td><td>Rebuild relationships early rather than discover the gap at renewal</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Blackout means the planner will not schedule proactive meetings or commercial asks,
+    and shifts them to the nearest good window. It never blocks reactive support or a safety car.
+    Each account's real dates are captured at the install lap, because they genuinely vary and
+    guessing them is worse than asking.</p>
+
+  <h3>5.4 Planner mechanics</h3>
+  <table>
+    <thead><tr><th style="width:26%">Behaviour</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Auto-creation</td><td>Standard library instantiated at handover, dated from contract start</td></tr>
+      <tr><td>Dependency replanning</td><td>A slipped milestone shifts its dependents and flags any that now breach the renewal window</td></tr>
+      <tr><td>Slip detection</td><td>Milestone overdue by 14 days lowers outcome attainment; 30 days raises an SC3</td></tr>
+      <tr><td>Calendar awareness</td><td>Proactive touchpoints avoid blackout periods and cluster near target windows</td></tr>
+      <tr><td>Customer visibility</td><td>Shared plan with their tasks visible and completable by them</td></tr>
+      <tr><td>Evidence prompting</td><td>Tilly asks for the artefact when a milestone is marked met — no evidence, no attainment credit</td></tr>
+      <tr><td>Template library</td><td>Plans by segment and use case, so a new account starts from proven structure</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="tilly">6. Tilly — persona, personalisation &amp; video</h2>
+  <p>Tilly is the layer the customer actually experiences: she watches usage, answers questions,
+    prepares every meeting, and sends short personalised video showing them the thing they are
+    missing. She is the reason a 1:400 coverage ratio is even conceivable.</p>
+
+  <h3>6.1 Who Tilly is</h3>
+  <p>The brief is for Tilly to feel human. The way to deliver that is consistency, warmth, memory
+    and competence — a named teammate who knows the account, remembers the last conversation and
+    replies fast — rather than concealment.</p>
+  <div class="flag"><b>Recommendation:</b> present Tilly as a named AI teammate, disclosed on first
+    contact and discoverable thereafter. Passing her off as a human is a poor bet on three counts.
+    It is fragile — one odd reply or wrong answer exposes it. Discovery does far more damage to trust
+    than disclosure ever would, and this sector talks to itself. And charity buyers increasingly have
+    their own AI and data-ethics policies to satisfy, so honest disclosure is a commercial asset in a
+    procurement conversation rather than a cost. You keep almost all of the felt warmth and drop the
+    downside.</div>
+  <table>
+    <thead><tr><th style="width:26%">Element</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Identity</td><td>One name, one avatar, one voice across video, chat and email. Never a rotating cast.</td></tr>
+      <tr><td>Disclosure</td><td>"Tilly, your AI success assistant at Fluent" on first contact, in the video intro frame, and on her profile</td></tr>
+      <tr><td>Discoverability</td><td>A "who is Tilly?" link explaining what she is, what she can see, and how to reach a person</td></tr>
+      <tr><td>Never claims</td><td>Does not claim to be human if asked directly; does not fabricate personal experience or opinions she cannot hold</td></tr>
+      <tr><td>Admits limits</td><td>Says "I don't know, let me get someone who does" instead of guessing. This single behaviour does more for trust than any amount of polish.</td></tr>
+      <tr><td>Handoff manner</td><td>Names the human, says why, gives a timeframe. Never a silent transfer.</td></tr>
+      <tr><td>Tone</td><td>Warm, plain English, no jargon. These are mission-driven people under budget pressure — match that, don't perform at them.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.2 What makes her personalised</h3>
+  <p>Personalisation here is not merge fields. It is nine specific things Tilly knows and adapts to,
+    and the felt difference comes mostly from the last three.</p>
+  <table>
+    <thead><tr><th style="width:24%">Dimension</th><th style="width:34%">What she uses</th><th>What it prevents</th></tr></thead>
+    <tbody>
+      <tr><td>Person</td><td>First name, role, tenure, whether they are new to the account</td><td>Addressing a three-week-old joiner as if they set the strategy</td></tr>
+      <tr><td>Organisation</td><td>Correct legal and trading name, cause area, size, funding model</td><td>Getting a charity's own name wrong — instantly fatal to credibility</td></tr>
+      <tr><td>Their objective</td><td>Their stated goal, quoted in their own words from the success plan</td><td>Generic benefit language nobody recognises as their problem</td></tr>
+      <tr><td>Their numbers</td><td>Actual usage, their baseline, their measured outcome</td><td>Claiming value with no evidence the customer can verify</td></tr>
+      <tr><td>Their people</td><td>Who else is on the account, who joined, who left</td><td>Asking a departed champion for a renewal decision</td></tr>
+      <tr><td>Their history</td><td>The last conversation, what they asked, what we promised and when</td><td>Making them repeat themselves — the fastest way to feel unknown</td></tr>
+      <tr><td>Their calendar</td><td>Their year end, board dates, appeal peaks, reporting deadlines (§5.3)</td><td>Asking for a review during their busiest fortnight of the year</td></tr>
+      <tr><td>Their format</td><td>Channel preference, video opt-in, accessibility needs</td><td>Sending video to someone who cannot or will not watch it</td></tr>
+      <tr><td>Their mood</td><td>Open complaints, recent sentiment, whether a safety car is running</td><td>A cheerful upsell nudge landing on an unresolved problem</td></tr>
+    </tbody>
+  </table>
+  <p class="note">The last three are the ones that separate this from every other CSP. Any tool can
+    merge a first name. Very few know not to ask a charity finance director for anything in the two
+    weeks before their annual return is due, and none of the generic ones know it by default.</p>
+
+  <h3>6.3 Capabilities and boundaries</h3>
+  <p>Tilly runs under the same permission tiers as the sales-side agent.</p>
+  <table>
+    <thead><tr><th style="width:32%">Capability</th><th style="width:12%">Tier</th><th>Boundary</th></tr></thead>
+    <tbody>
+      <tr><td>Answer product questions from docs</td><td>T1</td><td>Cites the source; fetches a human rather than guessing</td></tr>
+      <tr><td>Detect usage gaps, send video</td><td>T1</td><td>Volume capped per §6.6</td></tr>
+      <tr><td>Build pit stop prep packs</td><td>T0</td><td>Internal only</td></tr>
+      <tr><td>Draft follow-ups and summaries</td><td>T1</td><td>Owner reviews before send on tier 1 and 2 accounts</td></tr>
+      <tr><td>Maintain the success plan</td><td>T1</td><td>Can update status and dates; objectives change only with the customer</td></tr>
+      <tr><td>Triage support tickets</td><td>T1</td><td>Resolves known issues, routes the rest with full context attached</td></tr>
+      <tr><td>Run SC3 interventions</td><td>T2</td><td>Auto-escalates to SC2 at 14 days without improvement</td></tr>
+      <tr><td>Book meetings</td><td>T2</td><td>Respects blackout periods in §5.3</td></tr>
+      <tr><td>Issue retention save offers</td><td>T2</td><td>Within the retention cap — max 20%, max 3 months</td></tr>
+      <tr><td>Never handles</td><td>—</td><td>Safeguarding, complaints, delivering bad news, commercial renegotiation, anything requiring legal sign-off</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.4 Video triggers</h3>
+  <p>Every video answers a question the customer's own behaviour just asked. Nothing is sent on a
+    schedule alone — that is the difference between help and marketing.</p>
+  <table>
+    <thead><tr><th style="width:30%">Trigger</th><th class="num-cell" style="width:14%">Length</th><th>Content</th></tr></thead>
+    <tbody>
+      <tr><td>Relevant feature unused</td><td class="num-cell">60–90 s</td><td>Feature maps to a stated objective but is unused after 30 days — what it does and why it matters to them specifically</td></tr>
+      <tr><td>Repeated incomplete attempt</td><td class="num-cell">45 s</td><td>Feature opened 3 times without completing — how to finish it</td></tr>
+      <tr><td>Onboarding stall</td><td class="num-cell">90 s</td><td>Day 3 with no core action — setup walkthrough</td></tr>
+      <tr><td>Milestone achieved</td><td class="num-cell">30 s</td><td>Congratulations and the single next step</td></tr>
+      <tr><td>Requested feature shipped</td><td class="num-cell">45 s</td><td>"You asked for this" — closes the loop on their own feedback</td></tr>
+      <tr><td>Renewal qualifying</td><td class="num-cell">2 min</td><td>Outcome recap using their own numbers against their own baseline</td></tr>
+      <tr><td>SC3 intervention</td><td class="num-cell">60 s</td><td>Targeted help on the specific diagnosed cause</td></tr>
+      <tr><td>Meeting recap for absentees</td><td class="num-cell">60 s</td><td>What was decided and what it means for them</td></tr>
+    </tbody>
+  </table>
+
+  <h3>6.5 Production pipeline</h3>
+  <ol class="steps">
+    <li><strong>Trigger fires</strong> with a use-case tag, named recipient and the account's objectives attached.</li>
+    <li><strong>Script assembles</strong> from a template plus their real data — name, organisation, actual usage numbers, their objective in their own words.</li>
+    <li><strong>Screen capture is stitched from a pre-recorded modular clip library</strong> of the real product. Never generate or synthesise product UI: a video showing a screen that does not exist is the fastest way to destroy the trust this entire system depends on.</li>
+    <li><strong>Avatar track renders</strong> — HeyGen presenter with the consistent Tilly likeness and voice.</li>
+    <li><strong>Compose</strong> avatar, screen capture and burnt-in captions.</li>
+    <li><strong>QA gate</strong> — automated checks before any send, per §6.6. Failures route to a human, never to the customer.</li>
+    <li><strong>Deliver</strong> on the contact's preferred channel with a transcript and a text-only equivalent.</li>
+    <li><strong>Measure</strong> — view rate, completion, and whether the action was taken within 7 days. Feeds health, and honestly answers whether video is working at all.</li>
+  </ol>
+
+  <h3>6.6 Guardrails</h3>
+  <table>
+    <thead><tr><th style="width:30%">Guardrail</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Factual gate</td><td>Script validated against a claim allowlist: no pricing, no commitments, no features that do not exist, no comparative claims about competitors</td></tr>
+      <tr><td>Volume cap</td><td>Maximum 2 videos per contact per month, 4 per organisation</td></tr>
+      <tr><td>Safety car suppression</td><td>No automated video during SC1 or SC2 unless the recovery playbook explicitly calls for one</td></tr>
+      <tr><td>Complaint suppression</td><td>No video to any contact with an open complaint — a cheerful avatar mid-complaint is actively insulting</td></tr>
+      <tr><td>Accessibility</td><td>Captions and transcript always; text-only equivalent always. Non-negotiable — many charities hold accessibility policies, and some recipients will have access needs video does not serve.</td></tr>
+      <tr><td>Opt-out</td><td>Per-contact video preference, honoured immediately and permanently</td></tr>
+      <tr><td>Likeness governance</td><td>Documented consent and licence for the avatar and voice, a named owner, and a defined process for retiring or replacing it</td></tr>
+      <tr><td>Human review sampling</td><td>Minimum 5% of generated videos reviewed by a person weekly, with findings feeding back into the script templates</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="nps">7. The +75 NPS system</h2>
+  <p>+75 is an exceptional target. Strong B2B SaaS sits around +30 to +50, so this is top-decile
+    territory and it will not come from asking more often or asking more favourably. It is achievable
+    in a focused niche with genuinely high-touch service, and the arithmetic below shows exactly
+    where the effort has to go.</p>
+
+  <h3>7.1 What +75 actually requires</h3>
+  <p>NPS is promoter share minus detractor share, so every detractor costs two points of headroom.
+    Detractor elimination, not promoter maximisation, is the lever.</p>
+  <table>
+    <thead><tr><th class="num-cell" style="width:20%">Detractors</th><th class="num-cell" style="width:24%">Promoters needed</th><th class="num-cell" style="width:20%">Passives left</th><th>Reading</th></tr></thead>
+    <tbody>
+      <tr><td class="num-cell">0%</td><td class="num-cell">75%</td><td class="num-cell">25%</td><td>Three in four must actively advocate</td></tr>
+      <tr><td class="num-cell">2%</td><td class="num-cell">77%</td><td class="num-cell">21%</td><td>Realistic best case</td></tr>
+      <tr><td class="num-cell">5%</td><td class="num-cell">80%</td><td class="num-cell">15%</td><td>Demanding but reachable at high touch</td></tr>
+      <tr><td class="num-cell">10%</td><td class="num-cell">85%</td><td class="num-cell">5%</td><td>Effectively impossible — almost no passives permitted</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Converting one detractor into a promoter is worth two points; converting a passive
+    is worth one. That is the mathematical case for the safety car being the primary NPS instrument
+    in this design rather than the survey itself — it is a detractor-prevention machine, and §3 is
+    where the +75 is actually earned.</p>
+
+  <h3>7.2 Survey design</h3>
+  <table>
+    <thead><tr><th style="width:22%">Survey</th><th style="width:20%">Cadence</th><th style="width:24%">Audience</th><th>Purpose</th></tr></thead>
+    <tbody>
+      <tr><td>Relationship NPS</td><td>Twice yearly per account</td><td>Economic buyer + primary admin</td><td>The headline number; deliberately infrequent to avoid fatigue</td></tr>
+      <tr><td>Pit stop CSAT</td><td>After every meeting</td><td>Attendees</td><td>Meeting quality, fast signal</td></tr>
+      <tr><td>Support CSAT</td><td>After every resolution</td><td>Ticket raiser</td><td>Pit crew quality</td></tr>
+      <tr><td>Onboarding CES</td><td>At activation</td><td>Admin</td><td>Effort score on setup — the highest-leverage friction to remove</td></tr>
+      <tr><td>Exit interview</td><td>At managed exit</td><td>Anyone willing</td><td>Honest causes; excluded from NPS, essential for learning</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.3 Integrity rules</h3>
+  <p>A gamed +75 is worse than an honest +45, because it removes the signal you need in order to
+    improve. These rules exist to make the number hard to fake.</p>
+  <table>
+    <thead><tr><th style="width:30%">Rule</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td>Census, not selection</td><td>Every account in scope is surveyed. Owners never choose recipients.</td></tr>
+      <tr><td>Timing is fixed</td><td>Scheduled cadence, not sent right after a win. Suppressed only during a safety car.</td></tr>
+      <tr><td>Response rate published</td><td>Always alongside the score. Below 40% the number is directional only.</td></tr>
+      <tr><td>Detractors never excluded</td><td>No "they were having a bad day" adjustments</td></tr>
+      <tr><td>Segment reporting</td><td>Reported by tier and lifecycle stage — a blended number hides where the problem is</td></tr>
+      <tr><td>Not in individual comp</td><td>Tie pay to NPS and you will get coached responses. Use it for portfolio learning.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.4 Closed loop</h3>
+  <table>
+    <thead><tr><th style="width:18%">Response</th><th style="width:26%">Action</th><th style="width:22%">SLA</th><th>Owner</th></tr></thead>
+    <tbody>
+      <tr><td><span class="band b-stop">Detractor 0–6</span></td><td>Personal contact, root cause, written remediation; safety car deploys automatically at the severity set in §3.1</td><td>4 working hours (SC1) · 1 working day (SC2)</td><td>A human, never Tilly</td></tr>
+      <tr><td><span class="band b-warn">Passive 7–8</span></td><td>Targeted "what would make this a 9?" conversation; the answer becomes a milestone</td><td>5 working days</td><td>Driver manager</td></tr>
+      <tr><td><span class="band b-ok">Promoter 9–10</span></td><td>Thank, then a specific advocacy ask — reference, case study or referral</td><td>5 working days</td><td>Tilly drafts, human sends</td></tr>
+      <tr><td>No response</td><td>One reminder, then treated as a relationship-strength signal, not as silence</td><td>14 days</td><td>Driver manager</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.5 Leading indicators</h3>
+  <p>NPS is a lagging measure taken twice a year. These are the operational numbers that move it, so
+    they are what the team actually manages day to day.</p>
+  <table>
+    <thead><tr><th style="width:36%">Indicator</th><th class="num-cell" style="width:18%">Target</th><th>Why it predicts NPS</th></tr></thead>
+    <tbody>
+      <tr><td>Time to first value</td><td class="num-cell">≤14 days</td><td>The strongest single predictor of both retention and advocacy</td></tr>
+      <tr><td>Onboarding effort score</td><td class="num-cell">≤2 of 7</td><td>Hard setup poisons the whole relationship</td></tr>
+      <tr><td>Outcome attainment</td><td class="num-cell">≥85% of due milestones</td><td>Promoters are customers who got what they came for</td></tr>
+      <tr><td>First response time</td><td class="num-cell">&lt;2 business hours</td><td>Responsiveness is the most cited driver of CS satisfaction</td></tr>
+      <tr><td>Safety car recovery rate</td><td class="num-cell">≥70%</td><td>Every failed recovery is a near-certain detractor</td></tr>
+      <tr><td>Green flag share</td><td class="num-cell">≥75% of accounts</td><td>Health and advocacy correlate tightly</td></tr>
+      <tr><td>Overdue action age</td><td class="num-cell">&lt;7 days median</td><td>Broken small promises cost more advocacy than big failures do</td></tr>
+      <tr><td>Pit stop punctuality</td><td class="num-cell">≥95% held as scheduled</td><td>Cancelled meetings read as "you are not a priority"</td></tr>
+      <tr><td>Video action rate</td><td class="num-cell">≥40% act within 7 days</td><td>Proves Tilly is helping rather than adding noise</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="cockpit">8. Cockpit views</h2>
+  <p>The F1 cockpit, post-sale. Scoring here is deliberately different from the sales leaderboard —
+    rewarding CS activity volume produces busy CSMs and irritated customers.</p>
+
+  <div class="stats">
+    <div class="stat"><span>Green flag share</span><strong>78%</strong></div>
+    <div class="stat"><span>Safety cars active</span><strong>5</strong></div>
+    <div class="stat"><span>NPS (58% response)</span><strong>+71</strong></div>
+    <div class="stat"><span>Median pit stop time</span><strong>9 min</strong></div>
+  </div>
+  <p class="note">Illustrative figures. Note the deliberate convention: NPS is never shown without
+    its response rate next to it.</p>
+
+  <h3>8.1 Boards</h3>
+  <table>
+    <thead><tr><th style="width:22%">Board</th><th style="width:30%">Shows</th><th>Sorted by</th></tr></thead>
+    <tbody>
+      <tr><td>The grid</td><td>Whole portfolio with health, flag and trend</td><td>Risk-weighted revenue, worst first</td></tr>
+      <tr><td>Safety car board</td><td>Every active intervention with its clock and owner</td><td>Severity, then time on the clock</td></tr>
+      <tr><td>Pit wall</td><td>Today's and tomorrow's pit stops with prep pack status</td><td>Meeting time; unprepared flagged red</td></tr>
+      <tr><td>Season calendar</td><td>Milestones, renewals and sector blackout periods</td><td>Date, with slipped items surfaced</td></tr>
+      <tr><td>Telemetry</td><td>Health movement across the book over 30 and 90 days</td><td>Biggest movers, both directions</td></tr>
+      <tr><td>Podium</td><td>Advocacy-ready accounts and outstanding asks</td><td>Outcome strength</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.2 CS leaderboard — scored on outcomes</h3>
+  <p>Driver managers compete on what the customer experiences, not on how much they did.</p>
+  <table>
+    <thead><tr><th style="width:36%">Counts toward standings</th><th>Explicitly excluded</th></tr></thead>
+    <tbody>
+      <tr><td>Net revenue retention in book</td><td>Number of meetings held</td></tr>
+      <tr><td>Health improvement across the book</td><td>Emails or touches sent</td></tr>
+      <tr><td>Safety car recovery rate</td><td>Notes logged</td></tr>
+      <tr><td>NPS in book, with response rate</td><td>Time spent in the tool</td></tr>
+      <tr><td>Outcome attainment rate</td><td>Tickets closed</td></tr>
+      <tr><td>Time to first value on new accounts</td><td>Video volume sent</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>Book-size handicap applies here too.</b> A tier 1 manager with 20 enterprise
+    accounts and a tier 3 pool manager with 400 self-serve accounts cannot be compared on raw
+    numbers. Normalise by book composition, or the leaderboard just reports who was assigned the
+    easier book.</div>
+
+  <h2 id="risks">9. Open decisions</h2>
+  <p>Worth settling before build starts rather than discovering in sprint four.</p>
+  <table>
+    <thead><tr><th style="width:26%">Decision</th><th style="width:36%">Why it matters</th><th>Needs</th></tr></thead>
+    <tbody>
+      <tr><td>Tilly disclosure position</td><td>Whether to disclose Tilly as AI. §6.1 recommends yes; this is a leadership decision with real commercial consequences either way.</td><td>Leadership + legal</td></tr>
+      <tr><td>Avatar likeness rights</td><td>Whose face and voice, on what licence, and what happens if that person leaves the business</td><td>Named owner + contract</td></tr>
+      <tr><td>NPS target realism</td><td>+75 requires ≤5% detractors. Consider committing publicly to a staged path rather than straight to the end state.</td><td>Target-setting call</td></tr>
+      <tr><td>Coverage ratios</td><td>1:400 at tier 3 only works if pit stop time genuinely lands under 10 minutes</td><td>Pilot measurement</td></tr>
+      <tr><td>Health score cold start</td><td>Weights are a reasoned starting point, not a fitted model. They need calibrating against real churn once you have outcomes.</td><td>Data audit</td></tr>
+      <tr><td>Video production capacity</td><td>The modular clip library is a real content operation that must be maintained as the product changes</td><td>Resourcing plan</td></tr>
+      <tr><td>Sector calendar capture</td><td>Blackout dates vary per charity and must be asked for at the install lap. Who owns keeping them current?</td><td>Process owner</td></tr>
+      <tr><td>Score transparency</td><td>Customers may ask what Tilly knows and how they are scored. Decide the answer before someone is asked live.</td><td>Policy</td></tr>
+      <tr><td>Leaderboard opt-out</td><td>Public ranking is motivating for some people and corrosive for others</td><td>People decision</td></tr>
+      <tr><td>Managed exit standard</td><td>What a good offboarding actually includes, given how networked this sector is</td><td>Process design</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Tilly — customer success spec. Weights, thresholds, ratios and cockpit figures are
+    calibrated starting points intended for review against real outcome data, not fixed values.
+    Companion to the main Tilly.ai CRM workflow spec. Fluent Technology · July 2026.</footer>
+
+</div>
+</body>
+</html>

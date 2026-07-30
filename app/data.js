@@ -180,6 +180,9 @@ const DATA = {
      Third-party identity is data, not our decoration — the one-blue rule applies
      to Tilly's own UI, not to the customer's mark. Drop real logo files in
      app/logos/<id>.png later and swap these for images. ---- */
+  /* Test mode: every outbound email the CRM would send is proxied here instead */
+  settings: { testMode: true, emailProxy: 'alina.suedi@listaid.ai' },
+
   logos: {
     'sue-ryder': '#00857E', 'barnardos': '#6AA338', 'bhf': '#D20019', 'cruk': '#2E008B',
     'mind': '#0033A0', 'salvation-army': '#B71234', 'age-uk': '#C6007E', 'shelter': '#E52713',
@@ -441,21 +444,94 @@ const DATA = {
      The obligation register comes straight from the signed contract (§9.6) —
      commitments become dated tasks so what was sold is what gets delivered. ---- */
   success: {
-    handoffs: [
-      { record: 'mind', stage: 'Handoff', closedBy: 'Priya Kaur', csm: 'Hannah Cole', goLive: 'TARGET 12 AUG', pack: { done: 4, total: 5, missing: 'Stakeholder map sign-off' }, obligations: { done: 0, total: 4 } },
-      { record: 'age-uk', stage: 'Implementation', closedBy: 'Dan Mercer', csm: 'Ravi Menon', goLive: '15 AUG', pack: { done: 5, total: 5 }, obligations: { done: 3, total: 6 } },
-      { record: 'oxfam', stage: 'Live', closedBy: 'Self-serve — no rep', csm: 'Hannah Cole', goLive: 'LIVE SINCE 02 MAY', pack: { done: 5, total: 5 }, obligations: { done: 4, total: 4 } },
-      { record: 'trinity', stage: 'Live', closedBy: 'Self-serve — no rep', csm: 'Hannah Cole', goLive: 'LIVE SINCE 09 JAN', pack: { done: 5, total: 5 }, obligations: { done: 3, total: 3 } },
-      { record: 'ymca', stage: 'Live', closedBy: 'Sofia Reyes', csm: 'Ravi Menon', goLive: 'LIVE SINCE 11 SEP 25', pack: { done: 5, total: 5 }, obligations: { done: 5, total: 5 } }
+    /* §1.1 The garage — who is who */
+    garage: [
+      { who: 'THE CUSTOMER', role: 'Driver', desc: 'Their outcomes are the only score that counts' },
+      { who: 'CSM', role: 'Driver manager', desc: 'Owns the relationship and the season plan' },
+      { who: 'TILLY', role: 'Race engineer', desc: 'Always on the radio, sees the telemetry first', tilly: true },
+      { who: 'SUPPORT & IMPLEMENTATION', role: 'Pit crew', desc: 'Executes fast, measured interventions' },
+      { who: 'CS LEADER', role: 'Team principal', desc: 'Portfolio calls, escalations, resourcing' },
+      { who: 'CS OPS', role: 'Strategist', desc: 'Owns the models, playbooks and calendar' }
     ],
+
+    /* §2 Health telemetry — score, trend and stage per account. Flag is COMPUTED
+       in app.js per §2.3: band(score), escalated one level if Δ30 ≤ −10 or Δ7 ≤ −15. */
     health: [
-      { record: 'oxfam', csm: 'Hannah Cole', health: 'GREEN', usage: '+22% MOM', nps: '9', renewal: '01 MAY 2027 · £38k', play: 'Expansion — region 2 upsell is out; ask for the case study while NPS is 9' },
-      { record: 'age-uk', csm: 'Ravi Menon', health: 'GREEN', usage: '+8% WOW', nps: '8', renewal: 'MONTHLY ROLLING', play: 'Drive onboarding to 100% — three nudges left, then expansion conversation' },
-      { record: 'mind', csm: 'Hannah Cole', health: 'GREEN', usage: 'TRIAL → PAID', nps: '—', renewal: '12 AUG 2027 · £8.4k', play: 'Implementation kickoff — carry the trial config into production' },
-      { record: 'trinity', csm: 'Hannah Cole', health: 'AMBER', usage: 'STEADY', nps: '6', renewal: '01 MAR 2027 · £3.1k', play: 'Complaint open — no commercial motion until the refund is confirmed closed' },
-      { record: 'ymca', csm: 'Ravi Menon', health: 'RED', usage: '−40% / 30 DAYS', nps: '4', renewal: '11 SEP 2026 · £5.8k', play: 'Save play live — pause offer first; renewal is 6 weeks out' }
+      { record: 'oxfam', score: 88, d30: 4, d7: 1, stage: 'Embedded', tier: 'TIER 2', csm: 'Hannah Cole', usage: '+22% MOM', nps: '9', renewal: '01 MAY 2027 · £38k', play: 'Green flag — expansion allowed. Region 2 upsell is out; ask for the case study while NPS is 9' },
+      { record: 'age-uk', score: 79, d30: 6, d7: 2, stage: 'Adopting', tier: 'TIER 3', csm: 'Tilly · Ravi Menon pool', usage: '+8% WOW', nps: '8', renewal: 'MONTHLY ROLLING', play: 'Drive activation across the second user group — breadth is protection' },
+      { record: 'mind', score: 72, d30: 9, d7: 3, stage: 'Mobilising', tier: 'TIER 3', csm: 'Tilly · Hannah Cole pool', usage: 'TRIAL → PAID', nps: '—', renewal: '12 AUG 2027 · £8.4k', play: 'Yellow only because outcome attainment is unweighted this early — install lap booked, first value clock running' },
+      { record: 'trinity', score: 58, d30: -18, d7: -4, stage: 'Embedded', tier: 'TIER 3', csm: 'Hannah Cole', usage: 'STEADY', nps: '6', renewal: '01 MAR 2027 · £3.1k', play: 'Trend escalation: 58 falling ≥15 in 30 days — safety car deployed, commercial motions frozen' },
+      { record: 'ymca', score: 41, d30: -16, d7: -6, stage: 'Renewal window', tier: 'TIER 3', csm: 'Ravi Menon', usage: '−40% / 30 DAYS', nps: '4', renewal: '11 SEP 2026 · £5.8k', play: 'Escalated to red flag: safety-car band and collapsing. Team principal owns — recover or manage exit' }
     ],
-    packItems: ['Deal summary & why they bought', 'Stakeholder map with decision maker and users', 'Promised outcomes, verbatim from the proposal', 'Obligation register extracted from the signed contract', 'Open risks and conversation history'],
+    healthModel: {
+      dimensions: [
+        { name: 'Adoption depth', weight: 22 }, { name: 'Usage frequency & trend', weight: 20 },
+        { name: 'Outcome attainment', weight: 18 }, { name: 'Relationship strength', weight: 14 },
+        { name: 'Sentiment', weight: 12 }, { name: 'Support burden', weight: 8 }, { name: 'Commercial signals', weight: 6 }
+      ],
+      formula: ['flag = band(score) · green 75–100 · yellow 55–74 · safety car 35–54 · red 0–34', 'escalate one level if Δ30 ≤ −10 or Δ7 ≤ −15', 'de-escalate if Δ30 ≥ +10 and score ≥ band floor for 21 days', 'weights shift by stage: outcome attainment 8 while mobilising → 26 in the renewal window'],
+      note: 'Recomputed nightly and on material events. The score always exposes its contributing dimensions — a conversation starter, not a verdict.'
+    },
+
+    /* §3 Safety car — active interventions. Commercial motions freeze FIRST. */
+    safetyCars: [
+      { record: 'trinity', severity: 'SC1', trigger: 'Detractor score from economic buyer + open complaint', cause: 'Support pain — duplicate direct debit', play: 'Remediation: written plan with dates, refund confirmed, senior apology', owner: 'Hannah Cole + team principal', clock: 'HOUR 3 · FIRST CONTACT MADE (SLA 4H)', exit: 'Health ≥55 for 21 days · complaint resolved · customer confirms · upsell stays off 30 more days' },
+      { record: 'ymca', severity: 'SC1', trigger: 'Renewal <90 days with health <55 + core usage −40%', cause: 'Funding ended — grant that funded the purchase expired', play: 'Commercial restructure: pause or align term to next funding cycle BEFORE any discount', owner: 'Ravi Menon + team principal', clock: 'DAY 4 · EXEC SPONSOR CALL BOOKED', exit: 'Health ≥55 for 21 days · funding route agreed · dated next milestone' }
+    ],
+    frozenNote: 'While a safety car runs: no upsell, no price-increase notice, no dunning escalation, no NPS survey, no automated renewal prompt. Tilly built each risk brief within 1 hour of the trigger.',
+
+    /* §4 Pit wall — upcoming pit stops with prep pack status */
+    pitWall: [
+      { record: 'mind', type: 'INSTALL LAP', when: 'TOMORROW 10:00', length: '60 MIN', owner: 'Hannah Cole', pack: 'READY' },
+      { record: 'ymca', type: 'QUALIFYING (RENEWAL)', when: 'THU 14:00', length: '45 MIN', owner: 'Ravi Menon', pack: 'READY' },
+      { record: 'oxfam', type: 'RACE DEBRIEF', when: 'FRI 11:00', length: '60 MIN', owner: 'Hannah Cole', pack: 'BUILDING' },
+      { record: 'age-uk', type: 'SHAKEDOWN (DAY 30)', when: 'MON 09:30', length: '30 MIN', owner: 'Tilly pool', pack: 'READY' }
+    ],
+    pitStopNote: 'Prep pack assembled by Tilly 24h before every stop: health movement, usage delta, open items, people changes, talking points, a ranked agenda and a draft outcome. Target: ≤10 manual minutes per stop, prep plus admin — the number that makes 1:400 coverage real.',
+
+    /* §5 Season calendar — milestones, renewals and the charity-sector calendar */
+    season: [
+      { when: 'TOMORROW', account: 'mind', item: 'Install lap — success plan agreed, milestones dated', kind: 'MILESTONE', status: 'ON TRACK' },
+      { when: '12 AUG', account: 'mind', item: 'Day 14 — first value: first core action by a real user', kind: 'MILESTONE', status: 'CLOCK RUNNING' },
+      { when: '15 AUG', account: 'age-uk', item: 'Day 45 — second user group live (breadth is protection)', kind: 'MILESTONE', status: 'ON TRACK' },
+      { when: '01 SEP', account: 'oxfam', item: 'Day 90 — outcome evidenced: Gift Aid uplift vs baseline', kind: 'MILESTONE', status: 'EVIDENCE REQUESTED' },
+      { when: '11 SEP', account: 'ymca', item: 'Renewal decision — £5.8k', kind: 'RENEWAL', status: 'SAFETY CAR' },
+      { when: 'SEP', account: null, label: 'Harvest appeal peaks (several accounts)', item: 'No proactive meetings or commercial asks', kind: 'BLACKOUT', status: 'PLANNER AVOIDS' },
+      { when: '08 OCT', account: 'oxfam', item: 'Trustee board — outcome evidence ready 10 days before', kind: 'TARGET', status: 'PREP QUEUED' },
+      { when: 'NOV–DEC', account: null, label: 'Christmas appeal (whole book)', item: 'Blackout for reviews and renewals; support only', kind: 'BLACKOUT', status: 'PLANNER AVOIDS' }
+    ],
+
+    /* §7 The +75 NPS system */
+    nps: { score: '+71', response: '58% RESPONSE', note: 'Every detractor costs two points — the safety car is the NPS instrument, not the survey. Never shown without its response rate.' },
+    npsIndicators: [
+      { name: 'Time to first value', target: '≤14 days', actual: '11 days', ok: true },
+      { name: 'Onboarding effort score', target: '≤2 of 7', actual: '1.8', ok: true },
+      { name: 'Outcome attainment', target: '≥85% due milestones', actual: '88%', ok: true },
+      { name: 'First response time', target: '<2 business hours', actual: '38 min', ok: true },
+      { name: 'Safety car recovery rate', target: '≥70%', actual: '67%', ok: false },
+      { name: 'Green flag share', target: '≥75% of accounts', actual: '40%', ok: false },
+      { name: 'Overdue action age', target: '<7 days median', actual: '3 days', ok: true },
+      { name: 'Pit stop punctuality', target: '≥95% held', actual: '97%', ok: true },
+      { name: 'Video action rate', target: '≥40% act in 7 days', actual: '46%', ok: true }
+    ],
+
+    /* §8.2 CS leaderboard — outcomes only, book-size handicapped */
+    csBoard: [
+      { pos: 'P1', name: 'Hannah Cole', rate: 84, note: 'NRR 112% · 3 of 3 books green or recovering · handicap: mixed tier 2/3 book' },
+      { pos: 'P2', name: 'Ravi Menon', rate: 76, note: 'Two safety cars owned · recovery clock running · handicap: heavier tier 3 pool' }
+    ],
+    csBoardNote: 'Scored on NRR, health improvement, safety-car recovery, NPS-in-book and outcome attainment. Meetings held, emails sent and videos pushed are explicitly excluded — busy is not the same as good.',
+
+    /* §1.5 The handover gate — blocking */
+    gate: { record: 'mind', items: [
+      { name: 'Obligation register from contract', done: true }, { name: 'Stated objectives, verbatim', done: true },
+      { name: 'Named driver manager', done: true }, { name: 'Stakeholder map incl. the sceptic', done: false },
+      { name: 'Install lap booked inside 5 days', done: true }, { name: 'Success plan draft', done: true },
+      { name: 'Baseline metrics captured', done: true }, { name: 'Known risks carried from sales notes', done: true }
+    ]},
+
+    /* §6 Tilly persona guardrails shown in the UI */
+    tillyRules: ['Disclosed as "Tilly, your AI success assistant" on first contact — never passed off as human', 'Says "I don\'t know, let me get someone who does" instead of guessing', 'Handoffs name the human, the reason and a timeframe', 'Max 2 videos per contact per month, 4 per organisation', 'No video during SC1/SC2 or to anyone with an open complaint', 'Captions, transcript and a text-only equivalent, always'],
 
     /* Product adoption: features a customer pays for but isn't using.
        Tilly detects the gap from usage events; the fix is an explainer
