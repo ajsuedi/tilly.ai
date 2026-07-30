@@ -1503,5 +1503,3 @@ if (DATA.settings.testMode) {
   document.getElementById('topbar-status').innerHTML +=
     ` · <span style="color:var(--tilly-blue)">TEST MODE: EMAIL → ${esc(DATA.settings.emailProxy.toUpperCase())}</span>`;
 }
-
-render();
