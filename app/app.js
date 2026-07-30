@@ -578,6 +578,71 @@ const views = {
       ${specTable(['Tier', 'Capability', 'Constraint'], DATA.model.tiers.map(t => [`<span class="m-data">${esc(t.tier)}</span>`, `<b>${esc(t.capability)}</b>`, `<span class="t-caption">${esc(t.constraint)}</span>`]))}`;
   },
 
+  success() {
+    const S = DATA.success;
+    const stages = ['Handoff', 'Implementation', 'Live'];
+    const atRisk = S.health.filter(h => h.health === 'RED').length;
+    const renewals = S.health.filter(h => /2026/.test(h.renewal)).length;
+    const healthColor = h => h === 'GREEN' ? 'var(--tilly-green)' : h === 'RED' ? 'var(--tilly-red)' : 'var(--tilly-grey-500)';
+    return `
+      <h1 class="t-title page-title">Tilly Success</h1>
+      <p class="t-body t-muted page-sub">Where sold becomes delivered. Every closed deal arrives with a handoff pack and an obligation register extracted from the signed contract — what was promised is what gets tracked. CSMs own the book from here.</p>
+      <div class="stats">
+        <div class="stat stat-blue"><span class="m-label">CUSTOMERS IN THE BOOK</span><strong>${S.health.length}</strong></div>
+        <div class="stat"><span class="m-label">LIVE ARR</span><strong>${gbp(liveARR())}</strong></div>
+        <div class="stat"><span class="m-label">AT RISK (RED)</span><strong>${atRisk}</strong></div>
+        <div class="stat stat-dark"><span class="m-label">RENEWALS THIS YEAR</span><strong>${renewals}</strong></div>
+      </div>
+      <div class="gap-lg"></div>
+      <div class="m-section" style="margin-bottom:16px">SALES → CS HANDOFF — CLOSE TO GO-LIVE</div>
+      <div class="kanban" style="grid-template-columns:repeat(3,1fr)">
+        ${stages.map(st => {
+          const cards = S.handoffs.filter(h => h.stage === st);
+          return `
+          <div class="kcol">
+            <div class="m-label" style="display:block;margin-bottom:8px">${st.toUpperCase()} · ${cards.length}</div>
+            ${cards.map(h => {
+              const r = recById(h.record);
+              return `
+              <div class="kcard click" data-id="${r.id}">
+                <div style="display:flex;align-items:center;gap:10px">${avatar(r, 26)}<span style="font-weight:600;font-size:13px">${esc(r.name)}</span></div>
+                <div class="t-caption" style="margin-top:8px">${esc(h.closedBy)} → ${esc(h.csm)}</div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+                  <span class="m-data" style="color:${h.obligations.done === h.obligations.total ? 'var(--tilly-green)' : 'var(--tilly-blue)'}">OBLIGATIONS ${h.obligations.done}/${h.obligations.total}</span>
+                  <span class="m-data t-muted">${esc(h.goLive)}</span>
+                </div>
+                ${h.pack.done < h.pack.total ? `<div class="m-data" style="color:var(--tilly-red);margin-top:6px">PACK ${h.pack.done}/${h.pack.total} — ${esc(h.pack.missing)}</div>` : ''}
+              </div>`;
+            }).join('') || '<div class="t-caption" style="padding:6px 0">—</div>'}
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="gap-lg"></div>
+      <div class="m-section" style="margin-bottom:16px">CUSTOMER HEALTH — THE CSM BOOK</div>
+      <table class="tbl">
+        <thead><tr><th>Account</th><th>CSM</th><th>Health</th><th>Usage</th><th>NPS</th><th>Renewal</th><th>Tilly's play</th></tr></thead>
+        <tbody>${S.health.map(h => {
+          const r = recById(h.record);
+          return `<tr class="click" data-id="${r.id}">
+            <td><div style="display:flex;align-items:center;gap:10px">${avatar(r, 26)}<span style="font-weight:600">${esc(r.name)}</span></div></td>
+            <td class="t-caption">${esc(h.csm)}</td>
+            <td><span class="m-data" style="color:${healthColor(h.health)}">● ${h.health}</span></td>
+            <td><span class="m-data">${esc(h.usage)}</span></td>
+            <td><span class="m-data">${esc(h.nps)}</span></td>
+            <td><span class="m-data" style="color:var(--tilly-blue)">${esc(h.renewal)}</span></td>
+            <td class="t-caption">${esc(h.play)}</td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+      <div class="gap"></div>
+      <div class="panel" style="padding:18px 20px">
+        <span class="m-label">THE HANDOFF PACK — SALES CANNOT CLOSE WITHOUT IT</span>
+        ${S.packItems.map(p => `<div class="sig">${esc(p)}</div>`).join('')}
+        <div class="t-caption" style="margin-top:14px;padding-top:14px;border-top:var(--line)">Contract commitments that never reach delivery are the single biggest source of avoidable churn (§8.4). The obligation register transfers automatically on signature — the CSM starts with dated tasks, not a blank page.</div>
+      </div>`;
+  },
+
   record(id) {
     const r = recById(id);
     if (!r) return `<p class="t-body">Record not found. <a href="#/pipeline">Back to pipeline</a></p>`;
@@ -721,6 +786,7 @@ function updateCounts() {
   document.getElementById('count-enterprise').textContent = DATA.records.filter(r => r.lane === 'enterprise').length;
   document.getElementById('count-engage').textContent = DATA.engageQueue.length;
   document.getElementById('count-esc').textContent = DATA.records.filter(r => r.escalation).length;
+  document.getElementById('count-success').textContent = DATA.success.health.length;
 }
 updateCounts();
 

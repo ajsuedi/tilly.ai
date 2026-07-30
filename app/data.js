@@ -437,6 +437,27 @@ const DATA = {
     { record: 'scope', plan: '—', seats: 1, mrr: '£0', billing: 'CHECKOUT ABANDONED', next: 'RECOVERY 2 OF 2', note: 'Dropped at card step — recovery email tomorrow 10:00' }
   ],
 
+  /* ---- Tilly Success: sales → CS handoff, implementation, and the health book.
+     The obligation register comes straight from the signed contract (§9.6) —
+     commitments become dated tasks so what was sold is what gets delivered. ---- */
+  success: {
+    handoffs: [
+      { record: 'mind', stage: 'Handoff', closedBy: 'Priya Kaur', csm: 'Hannah Cole', goLive: 'TARGET 12 AUG', pack: { done: 4, total: 5, missing: 'Stakeholder map sign-off' }, obligations: { done: 0, total: 4 } },
+      { record: 'age-uk', stage: 'Implementation', closedBy: 'Dan Mercer', csm: 'Ravi Menon', goLive: '15 AUG', pack: { done: 5, total: 5 }, obligations: { done: 3, total: 6 } },
+      { record: 'oxfam', stage: 'Live', closedBy: 'Self-serve — no rep', csm: 'Hannah Cole', goLive: 'LIVE SINCE 02 MAY', pack: { done: 5, total: 5 }, obligations: { done: 4, total: 4 } },
+      { record: 'trinity', stage: 'Live', closedBy: 'Self-serve — no rep', csm: 'Hannah Cole', goLive: 'LIVE SINCE 09 JAN', pack: { done: 5, total: 5 }, obligations: { done: 3, total: 3 } },
+      { record: 'ymca', stage: 'Live', closedBy: 'Sofia Reyes', csm: 'Ravi Menon', goLive: 'LIVE SINCE 11 SEP 25', pack: { done: 5, total: 5 }, obligations: { done: 5, total: 5 } }
+    ],
+    health: [
+      { record: 'oxfam', csm: 'Hannah Cole', health: 'GREEN', usage: '+22% MOM', nps: '9', renewal: '01 MAY 2027 · £38k', play: 'Expansion — region 2 upsell is out; ask for the case study while NPS is 9' },
+      { record: 'age-uk', csm: 'Ravi Menon', health: 'GREEN', usage: '+8% WOW', nps: '8', renewal: 'MONTHLY ROLLING', play: 'Drive onboarding to 100% — three nudges left, then expansion conversation' },
+      { record: 'mind', csm: 'Hannah Cole', health: 'GREEN', usage: 'TRIAL → PAID', nps: '—', renewal: '12 AUG 2027 · £8.4k', play: 'Implementation kickoff — carry the trial config into production' },
+      { record: 'trinity', csm: 'Hannah Cole', health: 'AMBER', usage: 'STEADY', nps: '6', renewal: '01 MAR 2027 · £3.1k', play: 'Complaint open — no commercial motion until the refund is confirmed closed' },
+      { record: 'ymca', csm: 'Ravi Menon', health: 'RED', usage: '−40% / 30 DAYS', nps: '4', renewal: '11 SEP 2026 · £5.8k', play: 'Save play live — pause offer first; renewal is 6 weeks out' }
+    ],
+    packItems: ['Deal summary & why they bought', 'Stakeholder map with decision maker and users', 'Promised outcomes, verbatim from the proposal', 'Obligation register extracted from the signed contract', 'Open risks and conversation history']
+  },
+
   /* ---- Media monitor: news about enterprise accounts = a reason to reach out ---- */
   media: [
     { record: 'bhf', outlet: 'CHARITY RETAIL WEEK', when: 'TODAY', headline: 'BHF confirms plan to modernise its 700-shop estate', angle: 'Reference the announcement in the bid cover letter — it names the exact outcomes in our response.' },
