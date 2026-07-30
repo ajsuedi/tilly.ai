@@ -1,5 +1,14 @@
 /* Tilly CRM app layout — built on design/styles.css tokens. Flat. Square. Instant. */
 
+/* Pipeline stage tracker on the dossier */
+.stagebar { display: flex; gap: 4px; margin-bottom: 8px; }
+.sseg { flex: 1; border: var(--line); padding: 10px 14px; background: var(--tilly-white); }
+.sseg .sn { display: block; font-family: var(--font-mono); font-size: 9px; letter-spacing: 1px; opacity: .55; }
+.sseg .sl { display: block; font-size: 12px; font-weight: 600; letter-spacing: -0.2px; margin-top: 2px; }
+.sseg.done { background: var(--tilly-black); border-color: var(--tilly-black); color: #fff; }
+.sseg.cur { background: var(--tilly-blue); border-color: var(--tilly-blue); color: #fff; }
+.sseg.next { border-style: dashed; }
+
 /* Ask Tilly — the race engineer in the corner */
 .ask-fab {
   position: fixed; right: 24px; bottom: 24px; z-index: 150;
@@ -249,6 +258,9 @@ td [data-tip]:hover::before, .kv [data-tip]:hover::before { bottom: auto; top: c
 .kcol { border: var(--line); padding: 14px; min-width: 0; }
 .kcard { border: var(--line); padding: 12px; margin-bottom: 8px; cursor: pointer; background: var(--tilly-white); }
 .kcard:hover { background: var(--tilly-grey-100); }
+.kcard[draggable="true"] { cursor: grab; }
+.kcard[draggable="true"]:active { cursor: grabbing; }
+.kcol.dropover { outline: 2px dashed var(--tilly-blue); outline-offset: -2px; background: var(--tilly-grey-100); }
 @media (max-width: 900px) { .kanban { grid-template-columns: 1fr 1fr !important; } }
 
 /* ---- Record detail ---- */

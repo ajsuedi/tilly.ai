@@ -60,7 +60,13 @@ let searchQuery = '';
 let bandFilter = 'ALL';
 let laneFilter = 'ALL';
 let previewVideo = null;
+let pipeView = 'list';
+let dragId = null;
 const expandedGrid = new Set();
+
+/* Canonical board columns — both lanes mapped onto one drag-and-drop flow */
+const BOARD_COLS = ['Prospecting', 'Engaged', 'Proposal', 'Negotiation', 'Won'];
+const BOARD_MAP = { 'Prospecting': 'Prospecting', 'Engaged': 'Engaged', 'Funnel': 'Engaged', 'Identified': 'Engaged', 'Trial': 'Engaged', 'Proposal': 'Proposal', 'Tender': 'Proposal', 'Negotiation': 'Negotiation', 'Onboarding': 'Won', 'Paid': 'Won', 'Expansion': 'Won', 'At risk': 'Won', 'Support': 'Won', 'Won': 'Won' };
 
 /* ---- The starting grid: everything that needs a human, by urgency ---- */
 
@@ -191,6 +197,69 @@ const kanban = (stages, pick) => `
   </div>`;
 
 const backLink = () => `<a href="#/pipeline" class="btn btn-text" style="padding:16px 0 0;display:inline-block">← Pipeline</a>`;
+
+/* Pipeline stage tracker + next step — so a rep always knows where the deal is and what to do */
+const STAGE_SEQ = {
+  enterprise: ['Prospecting', 'Engaged', 'Proposal', 'Negotiation', 'Won'],
+  selfserve: ['Prospecting', 'Identified', 'Trial', 'Paid', 'Expanded']
+};
+const STAGE_ALIAS = { 'Tender': 'Proposal', 'Funnel': 'Identified', 'Onboarding': 'Paid', 'Expansion': 'Expanded', 'Support': 'Paid', 'At risk': 'Paid' };
+const NEXT_HINT = {
+  'enterprise:Engaged': 'a first meeting or threaded reply moves it here',
+  'enterprise:Proposal': 'issuing the proposal or bid response moves it here',
+  'enterprise:Negotiation': 'a terms conversation moves it here',
+  'enterprise:Won': 'countersignature moves it here — commission pays on this',
+  'selfserve:Identified': 'an email captured or org resolved moves it here',
+  'selfserve:Trial': 'account created moves it here',
+  'selfserve:Paid': 'first successful charge moves it here',
+  'selfserve:Expanded': 'a seat or tier increase moves it here'
+};
+
+function stageIndex(r, seq) {
+  if (r.stage === 'Won') return seq.length - 1;
+  let s = STAGE_ALIAS[r.stage] || r.stage;
+  if (r.lane !== 'enterprise' && s === 'Engaged') s = 'Identified';
+  const i = seq.indexOf(s);
+  return i < 0 ? 0 : i;
+}
+
+function stageBar(r) {
+  const laneKey = r.lane === 'enterprise' ? 'enterprise' : 'selfserve';
+  const seq = STAGE_SEQ[laneKey];
+  const cur = stageIndex(r, seq);
+  const nextStage = seq[cur + 1];
+  return `
+    <span class="m-label" style="display:block;margin-bottom:8px">PIPELINE STAGE — ${esc(laneKey === 'enterprise' ? 'ENTERPRISE PATH' : 'SELF-SERVE PATH')}</span>
+    <div class="stagebar">
+      ${seq.map((s, i) => `
+        <div class="sseg${i < cur ? ' done' : i === cur ? ' cur' : i === cur + 1 ? ' next' : ''}">
+          <span class="sn">${i < cur ? '✓ DONE' : i === cur ? '● NOW' : 'STAGE ' + (i + 1)}</span>
+          <span class="sl">${esc(i === cur ? r.stage : s)}</span>
+        </div>`).join('')}
+    </div>
+    ${nextStage ? `<div class="t-caption" style="margin-bottom:24px">Next stage: <b>${esc(nextStage)}</b> — ${esc(NEXT_HINT[laneKey + ':' + nextStage] || '')}</div>` : `<div class="t-caption" style="margin-bottom:24px">Final stage — protect it and expand it.</div>`}`;
+}
+
+function nextStepPanel(r) {
+  const clock = r.escalation === 'Negative sentiment detected' ? 'SLA — 4 WORKING HOURS'
+    : r.escalation ? 'IMMEDIATE'
+    : r.band === 'POLE' ? '15-MIN RESPONSE CLOCK'
+    : r.band === 'FRONT ROW' ? 'TODAY'
+    : 'THIS WEEK';
+  const task = DATA.tasks.find(t => t.record === r.id && !t.done);
+  return `
+    <div class="panel" style="border:2px solid var(--tilly-blue);padding:24px;margin-bottom:8px">
+      <span class="m-label" style="color:var(--tilly-blue)">YOUR NEXT STEP · ${clock}</span>
+      <div class="t-heading" style="font-size:22px;letter-spacing:-0.8px;margin:6px 0 8px">${esc(r.nextAction)}</div>
+      <div class="t-caption" style="margin-bottom:18px"><b>Why now:</b> ${esc(r.verdict.play)}</div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-primary">${esc(r.tier === 'HUMAN' ? 'Take it — you own this one' : 'Do it now')}</button>
+        ${task ? `<button class="btn btn-secondary" data-goto="#/tasks">On your task list — ${esc(task.due)}</button>` : ''}
+        <button class="btn btn-outline" data-ask-open>Ask Tilly about this deal</button>
+        <span style="margin-left:auto">${tierChip(r)}</span>
+      </div>
+    </div>`;
+}
 
 /* Tilly's radio: the labelled live feed — timestamp, account, what happened, click through */
 const radio = items => `
@@ -403,12 +472,35 @@ const views = {
         <div class="stat"><span class="m-label">SELF-SERVE & ASSISTED</span><strong>${gbp(pipeValue(ss))}</strong></div>
       </div>
       <div class="filterbar">
+        <button class="fchip${pipeView === 'list' ? ' on' : ''}" data-pview="list">≡ LIST</button>
+        <button class="fchip${pipeView === 'board' ? ' on' : ''}" data-pview="board">▦ BOARD — DRAG & DROP</button>
+        <span style="width:12px"></span>
         ${bands.map(b => `<button class="fchip${bandFilter === b ? ' on' : ''}" data-band="${b}">${b}</button>`).join('')}
         <span style="width:12px"></span>
         ${lanes.map(([v, l]) => `<button class="fchip${laneFilter === v ? ' on' : ''}" data-lane="${v}">${l}</button>`).join('')}
         ${q ? `<span class="m-data t-muted">SEARCH: “${esc(searchQuery.trim().toUpperCase())}” · ${recs.length} OF ${DATA.records.length}</span>` : ''}
       </div>
-      ${recs.length ? recordTable(recs) : `
+      ${pipeView === 'board' ? `
+      <div class="kanban" style="grid-template-columns:repeat(${BOARD_COLS.length},1fr)">
+        ${BOARD_COLS.map(col => {
+          const cards = byLikelihood(recs.filter(r => (BOARD_MAP[r.stage] || 'Prospecting') === col));
+          return `
+          <div class="kcol" data-drop="${col}">
+            <div class="m-label" style="display:block;margin-bottom:4px">${col.toUpperCase()} · ${cards.length}</div>
+            <div class="m-data t-muted" style="display:block;margin-bottom:10px">${gbp(pipeValue(cards))}</div>
+            ${cards.map(r => `
+              <div class="kcard click" draggable="true" data-drag="${r.id}" data-id="${r.id}">
+                <div style="display:flex;align-items:center;gap:10px">${avatar(r, 26)}<span style="font-weight:600;font-size:13px">${esc(r.name)}</span></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px">
+                  <span class="m-data" style="color:var(--tilly-blue)">${r.likelihood}%</span>
+                  ${bandChip(r)}
+                </div>
+                <div class="t-caption" style="margin-top:8px;font-size:11px">${esc(r.nextAction)}</div>
+              </div>`).join('') || '<div class="t-caption" style="padding:6px 0">Drop a deal here</div>'}
+          </div>`;
+        }).join('')}
+      </div>
+      <div class="t-caption" style="margin-top:12px">Drag a card to move its stage — Tilly writes the audit entry and recomputes what's next. Won is where commission pays.</div>` : recs.length ? recordTable(recs) : `
         <div class="panel" style="padding:32px;text-align:center">
           <div class="t-heading">No records match.</div>
           <div class="t-caption" style="margin:6px 0 16px">Tilly is still watching all 11,200 shops — this filter just has nothing in it.</div>
@@ -904,11 +996,12 @@ const views = {
         ${avatar(r, 56)}
         <div style="flex:1">
           <h1 class="t-title" style="margin:0">${esc(r.name)}</h1>
-          <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">${laneChip(r)} ${bandChip(r)} ${stageChip(r)} ${tierChip(r)} <span class="m-data t-muted">VIA ${esc(r.channel.toUpperCase())}</span></div>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">${laneChip(r)} ${bandChip(r)} ${tierChip(r)} <span class="m-data t-muted">VIA ${esc(r.channel.toUpperCase())}</span></div>
         </div>
-        <button class="btn btn-primary">${esc(r.nextAction)}</button>
       </div>
       ${r.escalation ? `<div class="esc-banner"><span class="m-data">▲ ${esc(r.escalation.toUpperCase())} — HANDED TO A HUMAN OWNER. AGENT STAYS ON RESEARCH, DRAFTING AND ADMIN.</span></div><div class="gap"></div>` : ''}
+      ${stageBar(r)}
+      ${nextStepPanel(r)}
       <div class="grid-2">
         <div class="panel">
           <span class="m-label">SCORE — WHY, IN PLAIN ENGLISH</span>
@@ -1090,6 +1183,7 @@ $view.addEventListener('click', e => {
   const fchip = e.target.closest('.fchip');
   if (fchip) {
     if (fchip.dataset.rep) { location.hash = '#/rep/' + fchip.dataset.rep; return; }
+    if (fchip.dataset.pview) pipeView = fchip.dataset.pview;
     if (fchip.dataset.band) bandFilter = fchip.dataset.band;
     if (fchip.dataset.lane) laneFilter = fchip.dataset.lane;
     render();
@@ -1117,6 +1211,37 @@ $view.addEventListener('click', e => {
   }
   const row = e.target.closest('[data-id]');
   if (row) location.hash = `#/record/${row.dataset.id}`;
+});
+
+/* Drag & drop on the pipeline board */
+$view.addEventListener('dragstart', e => {
+  const card = e.target.closest('[data-drag]');
+  if (card) { dragId = card.dataset.drag; if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move'; }
+});
+$view.addEventListener('dragover', e => {
+  const col = e.target.closest('[data-drop]');
+  if (col && dragId) {
+    e.preventDefault();
+    document.querySelectorAll('.kcol.dropover').forEach(c => c.classList.remove('dropover'));
+    col.classList.add('dropover');
+  }
+});
+$view.addEventListener('dragleave', e => {
+  const col = e.target.closest('[data-drop]');
+  if (col) col.classList.remove('dropover');
+});
+$view.addEventListener('drop', e => {
+  const col = e.target.closest('[data-drop]');
+  if (!col || !dragId) return;
+  e.preventDefault();
+  const r = recById(dragId);
+  const newStage = col.dataset.drop;
+  if (r && BOARD_MAP[r.stage] !== newStage) {
+    r.stage = newStage;
+    DATA.feed.unshift({ t: 'NOW', record: r.id, who: r.name.toUpperCase().split(' ')[0], msg: `Stage moved to ${newStage} by you — audit entry written, next action recomputed` });
+  }
+  dragId = null;
+  render();
 });
 
 /* Search — lives in the static topbar, so focus survives re-render */
