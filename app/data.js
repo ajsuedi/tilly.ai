@@ -461,8 +461,16 @@ const DATA = {
       { record: 'age-uk', score: 79, d30: 6, d7: 2, stage: 'Adopting', tier: 'TIER 3', csm: 'Tilly · Ravi Menon pool', usage: '+8% WOW', nps: '8', renewal: 'MONTHLY ROLLING', play: 'Drive activation across the second user group — breadth is protection' },
       { record: 'mind', score: 72, d30: 9, d7: 3, stage: 'Mobilising', tier: 'TIER 3', csm: 'Tilly · Hannah Cole pool', usage: 'TRIAL → PAID', nps: '—', renewal: '12 AUG 2027 · £8.4k', play: 'Yellow only because outcome attainment is unweighted this early — install lap booked, first value clock running' },
       { record: 'trinity', score: 58, d30: -18, d7: -4, stage: 'Embedded', tier: 'TIER 3', csm: 'Hannah Cole', usage: 'STEADY', nps: '6', renewal: '01 MAR 2027 · £3.1k', play: 'Trend escalation: 58 falling ≥15 in 30 days — safety car deployed, commercial motions frozen' },
-      { record: 'ymca', score: 41, d30: -16, d7: -6, stage: 'Renewal window', tier: 'TIER 3', csm: 'Ravi Menon', usage: '−40% / 30 DAYS', nps: '4', renewal: '11 SEP 2026 · £5.8k', play: 'Escalated to red flag: safety-car band and collapsing. Team principal owns — recover or manage exit' }
+      { record: 'ymca', score: 41, d30: -16, d7: -6, stage: 'Renewal window', tier: 'TIER 3', csm: 'Ravi Menon', usage: '−40% / 30 DAYS', nps: '4', renewal: '11 SEP 2026 · £5.8k', renewalSoon: true, play: 'Escalated to red flag: safety-car band and collapsing. Team principal owns — recover or manage exit' },
+      { record: 'barnardos', score: 61, d30: -8, d7: -3, stage: 'First value', tier: 'TIER 1', csm: 'Hannah Cole', usage: 'PILOT — 12 SHOPS', nps: '7', renewal: 'PILOT ENDS 30 SEP', renewalSoon: true, play: 'Paid pilot running alongside the open proposal — usage slipping in week 3. QBR before the board paper, not after' }
     ],
+
+    /* Churn radar: risk = (100 − health) + trend penalty + renewal proximity.
+       Retention flows are lane-specific: tier 1/2 → exec QBR request;
+       tier 3 → courtesy connect with a CSM, or a gift in the post to the
+       primary user. Statuses are set at runtime when a flow is triggered. */
+    retention: {},
+    retentionNote: 'Risk is computed, never hand-set: (100 − health) + 1.5 × 30-day fall + 10 if renewal or pilot end is inside 90 days. Critical ≥60 · High 40–59 · Medium 25–39 · Low <25. Flows respect the safety car — a gift or courtesy connect is allowed mid-freeze; commercial asks are not.',
     healthModel: {
       dimensions: [
         { name: 'Adoption depth', weight: 22 }, { name: 'Usage frequency & trend', weight: 20 },

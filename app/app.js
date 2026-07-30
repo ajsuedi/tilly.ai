@@ -31,6 +31,17 @@ const flagFor = h => {
   if (h.d30 <= -10 || h.d7 <= -15) i = Math.max(0, i - 1);
   return FLAG_ORDER[i];
 };
+/* Churn radar: risk = (100 − health) + trend penalty + renewal proximity */
+const riskFor = h => Math.min(100, Math.round((100 - h.score) + 1.5 * Math.max(0, -h.d30) + (h.renewalSoon ? 10 : 0)));
+const riskBand = v => v >= 60 ? 'CRITICAL' : v >= 40 ? 'HIGH' : v >= 25 ? 'MEDIUM' : 'LOW';
+const riskChip = v => {
+  const b = riskBand(v);
+  const style = b === 'CRITICAL' ? 'background:var(--tilly-red);border-color:var(--tilly-red);color:#fff'
+    : b === 'HIGH' ? 'color:var(--tilly-red);border-color:var(--tilly-red)'
+    : b === 'MEDIUM' ? '' : 'color:var(--tilly-green);border-color:var(--tilly-grey-200)';
+  return `<span class="chip" style="${style}">${v} · ${b}</span>`;
+};
+
 const flagChip = f => ({
   'GREEN FLAG': `<span class="chip chip-won">GREEN FLAG</span>`,
   'YELLOW FLAG': `<span class="chip">YELLOW FLAG</span>`,
@@ -180,6 +191,11 @@ const kanban = (stages, pick) => `
   </div>`;
 
 const backLink = () => `<a href="#/pipeline" class="btn btn-text" style="padding:16px 0 0;display:inline-block">← Pipeline</a>`;
+
+function S_setRetention(recordId, status) {
+  DATA.success.retention[recordId] = status;
+  render();
+}
 
 /* ---- Views ---- */
 
@@ -688,10 +704,12 @@ const views = {
       </div>
       <div class="gap-lg"></div>
 
-      <div class="m-section" style="margin-bottom:16px">THE GRID — WHOLE BOOK, RISK-WEIGHTED REVENUE, WORST FIRST</div>
-      <table class="tbl">
+      ${[['THE GRID — ENTERPRISE & ASSISTED (TIER 1–2)', byRisk.filter(h => h.tier !== 'TIER 3')],
+         ['THE GRID — SELF-SERVE (TIER 3, TILLY-MANAGED)', byRisk.filter(h => h.tier === 'TIER 3')]].map(([title, rows]) => `
+      <div class="m-section" style="margin-bottom:16px">${title}</div>
+      <table class="tbl" style="margin-bottom:24px">
         <thead><tr><th>Account</th><th>Stage · tier</th><th>Health</th><th>Flag</th><th>Driver manager</th><th>Renewal</th><th>Tilly's read</th></tr></thead>
-        <tbody>${byRisk.map(h => {
+        <tbody>${rows.map(h => {
           const r = recById(h.record);
           const f = flags[h.record];
           return `<tr class="click" data-id="${r.id}">
@@ -705,7 +723,7 @@ const views = {
           </tr>`;
         }).join('')}
         </tbody>
-      </table>
+      </table>`).join('')}
       <div class="gap"></div>
       <div class="feed">${S.healthModel.formula.map(f => `<div>${esc(f)}</div>`).join('')}</div>
       <div class="gap"></div>
@@ -737,6 +755,35 @@ const views = {
         <span class="m-data" style="color:var(--tilly-red)">FROZEN:</span> <span class="t-caption">${esc(S.frozenNote)}</span>
       </div>
       <div class="gap-lg"></div>
+
+      <div class="m-section" style="margin-bottom:16px">CHURN RADAR — RISK SCORED NIGHTLY, ROUTED TO A RETENTION FLOW BY LANE</div>
+      ${[['ENTERPRISE & ASSISTED — QBR FLOW', S.health.filter(h => h.tier !== 'TIER 3')],
+         ['SELF-SERVE — COURTESY CONNECT OR A GIFT IN THE POST', S.health.filter(h => h.tier === 'TIER 3')]].map(([title, rows]) => `
+      <div class="board" style="margin-bottom:8px">
+        <div class="zone-head"><span class="m-label" style="margin:0">${title}</span></div>
+        ${rows.map(h => ({ h, risk: riskFor(h) })).sort((a, b) => b.risk - a.risk).map(({ h, risk }) => {
+          const r = recById(h.record);
+          const status = S.retention[h.record];
+          const drivers = `${100 - h.score} health gap${h.d30 < 0 ? ` + ${Math.round(1.5 * -h.d30)} falling trend` : ''}${h.renewalSoon ? ' + 10 renewal <90d' : ''}`;
+          const low = riskBand(risk) === 'LOW';
+          const ent = h.tier !== 'TIER 3';
+          return `
+          <div class="grid-row">
+            ${avatar(r)}
+            <div style="flex:1;min-width:0">
+              <div class="t-heading" style="font-size:14px">${esc(r.name)}</div>
+              <div class="m-data t-muted" style="font-size:10px">${esc(drivers.toUpperCase())} · PRIMARY USER: ${esc(r.contact.name.toUpperCase())}</div>
+            </div>
+            ${riskChip(risk)}
+            ${status ? `<span class="m-data" style="color:var(--tilly-green)">✓ ${esc(status)}</span>`
+              : low ? `<span class="m-data t-muted">GREEN — NO FLOW NEEDED</span>`
+              : ent ? `<button class="btn btn-primary btn-sm" data-qbr="${r.id}">Request exec QBR</button>`
+              : `<button class="btn btn-primary btn-sm" data-connect="${r.id}">Courtesy connect</button>
+                 <button class="btn btn-secondary btn-sm" data-gift="${r.id}">Send gift in the post</button>`}
+          </div>`;
+        }).join('')}
+      </div>`).join('')}
+      <div class="panel" style="padding:14px 20px;margin-top:2px;margin-bottom:40px"><span class="t-caption">${esc(S.retentionNote)}</span></div>
 
       <div class="m-section" style="margin-bottom:16px">PIT WALL — NEXT STOPS, PREP PACK STATUS</div>
       <table class="tbl">
@@ -938,6 +985,23 @@ $view.addEventListener('click', e => {
       ? `QUEUED · T1 → ${DATA.settings.emailProxy.toUpperCase()} (TEST PROXY)`
       : 'QUEUED — IN-PRODUCT + EMAIL · T1';
     render();
+    return;
+  }
+  const qbr = e.target.closest('[data-qbr]');
+  if (qbr) {
+    const id = qbr.dataset.qbr;
+    S_setRetention(id, `QBR REQUEST + PREP PACK → ${DATA.settings.emailProxy.toUpperCase()} (TEST PROXY)`);
+    return;
+  }
+  const conn = e.target.closest('[data-connect]');
+  if (conn) {
+    S_setRetention(conn.dataset.connect, `COURTESY CONNECT OFFERED — 15 MIN, NO AGENDA → ${DATA.settings.emailProxy.toUpperCase()} (TEST PROXY)`);
+    return;
+  }
+  const gift = e.target.closest('[data-gift]');
+  if (gift) {
+    const r = recById(gift.dataset.gift);
+    S_setRetention(r.id, `GIFT QUEUED — HANDWRITTEN CARD + HAMPER TO ${r.contact.name.toUpperCase()}, DISPATCH 48H`);
     return;
   }
   const approve = e.target.closest('[data-approve]');
