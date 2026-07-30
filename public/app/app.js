@@ -611,6 +611,59 @@ const views = {
         <div class="stat"><span class="m-label">LIVE ARR (SUBSCRIPTIONS)</span><strong>${gbp(liveARR())}</strong></div>
         <div class="stat"><span class="m-label">ACTIVATION TARGET</span><strong>14 DAYS</strong></div>
       </div>
+      <div class="m-section" style="margin-bottom:16px">INBOUND AD TRAFFIC — GTM FUNNEL BY CHANNEL</div>
+      <div class="grid-4" style="grid-template-columns:repeat(3,1fr);margin-bottom:8px">
+        ${DATA.gtm.channels.map(c => `
+          <div class="panel" style="padding:18px 20px">
+            <div style="display:flex;justify-content:space-between;align-items:baseline"><span class="m-label" style="margin:0">${esc(c.name)}</span><span class="m-data" style="color:${c.trend.startsWith('+') ? 'var(--tilly-green)' : c.trend.startsWith('−') ? 'var(--tilly-red)' : 'var(--tilly-grey-500)'}">${esc(c.trend)}</span></div>
+            <div style="display:flex;gap:14px;align-items:baseline;margin-top:10px"><span class="t-heading" style="font-size:20px;letter-spacing:-0.6px">${esc(c.spend)}</span><span class="fit">${esc(c.cpl)}</span></div>
+            <div class="t-caption" style="margin-top:8px">${esc(c.read)}</div>
+          </div>`).join('')}
+      </div>
+      <table class="tbl" style="margin-bottom:8px">
+        <thead><tr><th>Channel</th>${DATA.gtm.stages.map(s => `<th>${s}</th>`).join('')}<th>Where they drop</th></tr></thead>
+        <tbody>${DATA.gtm.funnel.map(f => {
+          const ch = DATA.gtm.channels.find(c => c.id === f.id);
+          return `<tr>
+            <td style="font-weight:600">${esc(ch.name)}</td>
+            ${f.steps.map((n, i) => `<td>
+              <div style="display:flex;flex-direction:column;gap:4px">
+                <span class="m-data" style="color:${i === f.dropStage ? 'var(--tilly-red)' : i === f.steps.length - 1 ? 'var(--tilly-green)' : 'var(--tilly-black)'}">${n.toLocaleString('en-GB')}${i > 0 ? ' · ' + Math.round(100 * n / f.steps[i - 1]) + '%' : ''}</span>
+                <span class="bar" style="width:100%"><b style="width:${Math.max(2, Math.round(100 * n / f.steps[0]))}%"></b></span>
+              </div>
+            </td>`).join('')}
+            <td class="t-caption">${esc(f.drop)}</td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+      <div class="board" style="margin-bottom:8px">
+        <div class="zone-head"><span class="m-label" style="margin:0">LIVE — WHERE INBOUND LEADS ARE IN THE FUNNEL RIGHT NOW</span><span class="m-data t-muted">TODAY</span></div>
+        ${DATA.gtm.leads.map(l => `
+          <div class="grid-row"${l.record ? ` data-goto="#/record/${l.record}" style="cursor:pointer"` : ' style="cursor:default"'}>
+            <span class="m-data t-muted" style="min-width:40px;flex:none">${esc(l.when)}</span>
+            <span class="chip" style="flex:none">${esc(l.channel)}</span>
+            <div style="flex:1;min-width:0">
+              <div class="t-heading" style="font-size:13px">${esc(l.org)}</div>
+              <div class="t-caption" style="font-size:11px">${esc(l.status)}</div>
+            </div>
+            <span class="m-data" style="flex:none;color:${l.stage === 'SUBSCRIBED' ? 'var(--tilly-green)' : l.stage === 'DROP-OFF' ? 'var(--tilly-red)' : 'var(--tilly-grey-500)'}">${esc(l.stage)}</span>
+          </div>`).join('')}
+      </div>
+      <div class="board" style="margin-bottom:40px">
+        <div class="zone-head"><span class="m-label" style="margin:0;color:var(--tilly-blue)">● TILLY'S OPTIMISATION PLAYS — ONE CLICK EACH</span></div>
+        ${DATA.gtm.plays.map(p => `
+          <div class="grid-row" style="cursor:default">
+            <span class="chip" style="flex:none">${esc(p.tier)}</span>
+            <div style="flex:1;min-width:0">
+              <div class="t-heading" style="font-size:13px">${esc(p.text)}</div>
+              <div class="t-caption" style="font-size:11px">${esc(p.detail)}</div>
+            </div>
+            ${DATA.gtm.applied[p.id]
+              ? `<span class="m-data" style="color:var(--tilly-green);flex:none">✓ ${esc(DATA.gtm.applied[p.id])}</span>`
+              : `<button class="btn btn-primary btn-sm" data-gtm="${p.id}" style="flex:none">${p.tier === 'FLAG' ? 'Flag to engineering' : 'Apply'}</button>`}
+          </div>`).join('')}
+      </div>
       <div class="m-section" style="margin-bottom:16px">CONVERSION FUNNEL — SIGN-UP → DOWNLOAD → SUBSCRIPTION → USAGE</div>
       <div class="board" style="margin-bottom:8px">
         ${DATA.selfServeFunnel.map((f, i, a) => `
@@ -1273,6 +1326,14 @@ $view.addEventListener('click', e => {
     return;
   }
   if (e.target.closest('[data-run-agent]')) { runAgent(); return; }
+  const gtm = e.target.closest('[data-gtm]');
+  if (gtm) {
+    const play = DATA.gtm.plays.find(p => p.id === gtm.dataset.gtm);
+    DATA.gtm.applied[play.id] = play.tier === 'FLAG' ? 'FLAGGED — SESSION RECORDINGS ATTACHED' : play.tier === 'T2' ? 'APPLIED · LOGGED — REVERSIBLE' : 'QUEUED · T1';
+    DATA.feed.unshift({ t: 'NOW', record: null, who: 'GTM', msg: `${play.text} — ${play.tier === 'FLAG' ? 'flagged to engineering' : 'applied by Tilly, audit written'}` });
+    render();
+    return;
+  }
   if (e.target.closest('[data-clear-filters]')) {
     bandFilter = 'ALL'; laneFilter = 'ALL'; searchQuery = '';
     document.getElementById('search').value = '';
