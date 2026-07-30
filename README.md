@@ -6,6 +6,20 @@ Tilly is a CRM for companies that prospect and sell into UK charity retailers �
 
 Why the Formula 1 framing throughout: the sector buys slowly, and slow markets breed slow teams. The race format — grids, pit stops, safety cars, championships — deliberately injects pace *inside* the team while the funnel itself stays patient with the buyer. Fast on our side of the table, unhurried on theirs.
 
+## For judges — the claims, and where they're real
+
+> "Not a contact database. A CRM that thinks ahead of the rep."
+
+| Claim | Working feature |
+| --- | --- |
+| Predictive scoring | Likelihood = `0.4×fit + 0.6×intent`, computed in [`app/app.js`](app/app.js); five F1 bands drive agent behaviour |
+| Competitive market analysis | Win zone / Contested / Loss risk / Undercut verdict with a recommended play on every dossier |
+| Next-best action | "Your next step" panel on every deal — the action, the clock, the why, the owner |
+| Auto-enriched records | Org/contact intelligence, live signals, freshness rules, media monitor with reach-out angles |
+| As agentic as possible | Permission tiers T0–T3, autonomous sends, eight escalation triggers, an audit-logged activity radio |
+
+Three surfaces, one demo bar: self-serve signup (with checkout + guided tour), enterprise sign-in, and the CRM itself. Demo script in [DEMO.md](DEMO.md).
+
 ## Repo layout
 
 | Path | What it is |
