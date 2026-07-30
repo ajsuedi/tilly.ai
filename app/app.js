@@ -1056,6 +1056,75 @@ const views = {
       </div>`;
   },
 
+  person(param) {
+    const [recId, idx] = (param || '').split('.');
+    const r = recById(recId);
+    const s = r && r.stakeholders[+idx];
+    if (!r || !s) return `<p class="t-body">Person not found. <a href="#/pipeline">Back to pipeline</a></p>`;
+    const p = DATA.people[r.id + '|' + s.name];
+    const disposition = p ? p.disposition : 'UNKNOWN';
+    const ease = p ? p.ease : Math.round(50 + (r.likelihood - 50) / 2);
+    const easeBand = ease >= 70 ? 'SMOOTH — LEAN IN' : ease >= 45 ? 'WORKABLE — STANDARD PLAY' : 'HARD GOING — HUMAN TOUCH ONLY';
+    const dispColor = disposition === 'PROMOTER' ? 'var(--tilly-green)' : disposition === 'DETRACTOR' ? 'var(--tilly-red)' : 'var(--tilly-grey-500)';
+    const domain = r.name.toLowerCase().replace(/[^a-z]+/g, '').slice(0, 14) + '.org.uk';
+    const email = s.name.toLowerCase().replace(/[^a-z]+/g, '.') + '@' + domain;
+    const initials = s.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const isPrimary = r.contact.name === s.name;
+    const posts = (p && p.posts.length) ? p.posts : [{ when: '—', platform: 'NO PUBLIC ACTIVITY', text: 'Nothing recent found. Tilly checks monthly; social data frames conversations only — it never scores.' }];
+    return `
+      <a href="#/record/${r.id}" class="btn btn-text" style="padding:16px 0 0;display:inline-block">← ${esc(r.name)}</a>
+      <div class="rec-head">
+        <div class="avatar" style="width:56px;height:56px;font-size:20px;background:${r.logo}">${initials}</div>
+        <div style="flex:1">
+          <h1 class="t-title" style="margin:0">${esc(s.name)}</h1>
+          <div style="display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap">
+            <span class="chip${s.tag.startsWith('DECISION') ? ' chip-front' : ''}">${esc(s.tag)}</span>
+            <span class="chip" style="color:${dispColor};border-color:${dispColor}">${disposition}${p && p.nps !== null && p.nps !== undefined ? ' · NPS ' + p.nps : ''}</span>
+            <span class="m-data t-muted">${esc(s.role.toUpperCase())} · ${esc(r.name.toUpperCase())}</span>
+          </div>
+        </div>
+        <a class="btn btn-primary" href="#/record/${r.id}">Open the deal</a>
+      </div>
+      <div class="grid-2">
+        <div class="panel">
+          <span class="m-label">EASE OF DOING BUSINESS — CLOSE SIGNAL AT PERSON LEVEL</span>
+          <div class="kv"><span>Ease score</span><span>${likelihoodBar(ease)}</span></div>
+          <div class="kv"><span>Read</span><span class="m-data" style="color:${ease >= 70 ? 'var(--tilly-green)' : ease >= 45 ? 'var(--tilly-grey-500)' : 'var(--tilly-red)'}">${easeBand}</span></div>
+          <div class="kv"><span>Deal likelihood (whole account)</span><span class="fit">${r.likelihood}%</span></div>
+          <div style="margin-top:14px;padding-top:14px;border-top:var(--line)" class="t-caption">${disposition === 'PROMOTER' ? 'A promoter in this seat lifts the close odds — route the relationship through them.' : disposition === 'DETRACTOR' ? 'A detractor in this seat drags the close odds — resolve their issue before any commercial motion.' : 'Disposition unknown or neutral — the discovery conversation sets it.'}</div>
+        </div>
+        <div class="panel">
+          <span class="m-label">CONTACT DETAILS</span>
+          <div class="kv"><span>Email</span><span>${esc(email)}</span></div>
+          <div class="kv"><span>Phone</span><span>${esc(p ? p.phone : '—')}</span></div>
+          <div class="kv"><span>LinkedIn</span><span>${esc(p ? p.linkedin : '—')}</span></div>
+          <div class="kv"><span>Preferred channel</span><span>${esc(p ? p.channel : 'Unknown — default to email')}</span></div>
+          ${isPrimary ? `<div class="kv"><span>Tenure</span><span>${esc(r.contact.tenure)}</span></div>` : ''}
+          ${isPrimary ? `<div style="margin-top:14px;padding-top:14px;border-top:var(--line)" class="t-caption">${esc(r.contact.note)}</div>` : ''}
+        </div>
+        <div class="panel" style="grid-column:1 / -1">
+          <span class="m-label">SOCIAL — WHAT THEY'VE BEEN POSTING · FRAMING ONLY, NEVER SCORED</span>
+          ${posts.map(post => `
+            <div class="grid-row" style="cursor:default">
+              <span class="m-data" style="color:var(--tilly-blue);min-width:86px;flex:none">${esc(post.platform)}</span>
+              <div style="flex:1;font-size:13px;line-height:1.5">“${esc(post.text)}”</div>
+              <span class="m-data t-muted" style="flex:none">${esc(post.when)}</span>
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="gap"></div>
+      <div class="feed">
+        <div class="feed-head"><span class="feed-live">● LIVE</span><span class="feed-title">TILLY'S READ — THIS PERSON</span></div>
+        ${(p ? p.read : ['no profile authored yet — tilly enriches on first contact', `ease estimated ${ease} from account likelihood`]).map(t => `<div>${esc(t)}</div>`).join('')}
+      </div>
+      ${p ? `<div class="panel" style="border:2px solid var(--tilly-blue);padding:20px 24px;margin-top:8px">
+        <span class="m-label" style="color:var(--tilly-blue)">SUGGESTED OPENER</span>
+        <div class="t-heading" style="font-size:16px;letter-spacing:-0.4px;margin-top:6px">${esc(p.opener)}</div>
+      </div>` : ''}
+      <div class="gap"></div>
+      <a href="#/record/${r.id}" class="btn btn-text">← Back to ${esc(r.name)}</a>`;
+  },
+
   record(id) {
     const r = recById(id);
     if (!r) return `<p class="t-body">Record not found. <a href="#/pipeline">Back to pipeline</a></p>`;
@@ -1114,9 +1183,15 @@ const views = {
           <div class="kv"><span>Deal owner</span><span>${esc(ownerName(r))}</span></div>
         </div>
         <div class="panel">
-          <span class="m-label">STAKEHOLDER MAP — BUYING COMMITTEE</span>
-          ${r.stakeholders.map(s => `
-            <div class="kv"><span>${esc(s.name)} <span class="t-caption">· ${esc(s.role)}</span></span><span><span class="chip${s.tag.startsWith('DECISION') ? ' chip-front' : ''}" style="font-size:9px;padding:4px 8px">${esc(s.tag)}</span></span></div>`).join('')}
+          <span class="m-label">STAKEHOLDER MAP — CLICK A PERSON FOR THEIR FULL PROFILE</span>
+          ${r.stakeholders.map((s, i) => {
+            const clickable = /^[A-Z][a-z]+ [A-Z][a-z]+$/.test(s.name);
+            return `
+            <div class="kv${clickable ? ' click' : ''}"${clickable ? ` data-goto="#/person/${r.id}.${i}" style="cursor:pointer"` : ''}>
+              <span>${clickable ? `<span style="color:var(--tilly-blue);font-weight:600">${esc(s.name)}</span>` : esc(s.name)} <span class="t-caption">· ${esc(s.role)}</span></span>
+              <span style="display:flex;gap:8px;align-items:center"><span class="chip${s.tag.startsWith('DECISION') ? ' chip-front' : ''}" style="font-size:9px;padding:4px 8px">${esc(s.tag)}</span>${clickable ? '<span class="m-data" style="color:var(--tilly-blue)">→</span>' : ''}</span>
+            </div>`;
+          }).join('')}
         </div>
         <div class="panel" style="grid-column:1 / -1">
           <span class="m-label">SIGNALS</span>
@@ -1142,7 +1217,7 @@ function render() {
   const name = views[view] ? view : 'cockpit';
   $view.innerHTML = views[name](param);
   document.querySelectorAll('.nav a').forEach(a => {
-    a.classList.toggle('active', a.dataset.view === name || (name === 'record' && a.dataset.view === 'pipeline'));
+    a.classList.toggle('active', a.dataset.view === name || ((name === 'record' || name === 'person') && a.dataset.view === 'pipeline'));
   });
   window.scrollTo(0, 0);
   paintTour();
