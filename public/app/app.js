@@ -263,6 +263,55 @@ function nextStepPanel(r) {
     </div>`;
 }
 
+/* Tender block on the dossier: where it's held, notice ID, click-through,
+   live deadline countdown, bid-process tracker, gate checks and documents */
+function tenderDaysLeft(t) {
+  return Math.ceil((new Date(t.deadlineISO) - Date.now()) / 86400000);
+}
+
+function tenderBlock(r) {
+  const t = DATA.tenders.find(x => x.record === r.id);
+  if (!t) return '';
+  const days = tenderDaysLeft(t);
+  const dcolor = days < 5 ? 'var(--tilly-red)' : days <= 10 ? 'var(--tilly-grey-500)' : 'var(--tilly-green)';
+  const cur = t.bidStages.indexOf(t.bidStage);
+  return `
+    <div class="panel" style="padding:24px;margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:10px">
+        <span class="m-label" style="margin:0">TENDER ${esc(t.noticeId)} · HELD ON ${esc(t.source.toUpperCase())}</span>
+        <span class="m-data" style="color:${dcolor}">▮ ${days} DAYS TO DEADLINE · ${esc(t.deadline)}</span>
+      </div>
+      <div style="display:flex;gap:10px;margin:14px 0 20px;flex-wrap:wrap;align-items:center">
+        <a class="btn btn-secondary btn-sm" href="${esc(t.sourceUrl)}" target="_blank" rel="noopener">Open tender documentation ↗</a>
+        <span class="chip ${t.bid === 'BID' ? 'chip-pole' : 'chip-esc'}">${esc(t.bid)}</span>
+        <span class="m-data t-muted">${esc(t.state.toUpperCase())}</span>
+      </div>
+      <span class="m-label" style="display:block;margin-bottom:8px">BID PROCESS — LIVE AGAINST THE DEADLINE</span>
+      <div class="stagebar">
+        ${t.bidStages.map((s, i) => `
+          <div class="sseg${i < cur ? ' done' : i === cur ? ' cur' : i === cur + 1 ? ' next' : ''}">
+            <span class="sn">${i < cur ? '✓ DONE' : i === cur ? '● NOW' : 'STAGE ' + (i + 1)}</span>
+            <span class="sl">${esc(s)}</span>
+          </div>`).join('')}
+      </div>
+      <div class="gap"></div>
+      <div class="grid-2">
+        <div>
+          <span class="m-label" style="display:block;margin-bottom:8px">BID / NO-BID GATE — LIVE CHECKS</span>
+          ${t.gates.map(g => `
+            <div class="kv"><span>${esc(g.test)} <span class="t-caption">· ${esc(g.req)}</span></span>
+            <span class="m-data" style="color:${g.pass ? 'var(--tilly-green)' : 'var(--tilly-red)'}">${g.pass ? '✓' : '✗'} ${esc(g.val)}</span></div>`).join('')}
+        </div>
+        <div>
+          <span class="m-label" style="display:block;margin-bottom:8px">DOCUMENTS — EVERYTHING LIVES UNDER THE DEAL</span>
+          ${t.docs.map(d => `
+            <div class="kv"><span>${esc(d.name)} <span class="t-caption">· ${esc(d.added)}</span></span>
+            <span style="display:flex;gap:10px;align-items:center"><span class="chip" style="font-size:9px;padding:3px 8px">${esc(d.kind)}</span><a class="m-data" style="color:var(--tilly-blue)" href="${esc(t.sourceUrl)}" target="_blank" rel="noopener">OPEN ↗</a></span></div>`).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
 /* Tilly's radio: the labelled live feed — timestamp, account, what happened, click through */
 const radio = items => `
   <div class="feed">
@@ -745,14 +794,17 @@ const views = {
       <div class="m-section" style="margin-bottom:16px">TENDER INTAKE — POLLED DAILY, BID/NO-BID GATED</div>
       <table class="tbl">
         <thead><tr><th>Tender</th><th>Source</th><th>Deadline</th><th>State</th><th>Gate decision</th></tr></thead>
-        <tbody>${DATA.tenders.map(t => `
+        <tbody>${DATA.tenders.map(t => {
+          const days = tenderDaysLeft(t);
+          return `
           <tr${t.record ? ` class="click" data-id="${t.record}"` : ''}>
-            <td style="font-weight:600">${esc(t.name)}</td>
+            <td><div style="font-weight:600">${esc(t.name)}</div><div class="m-data t-muted" style="font-size:10px;margin-top:2px">${esc(t.noticeId)} · <a href="${esc(t.sourceUrl)}" target="_blank" rel="noopener" style="color:var(--tilly-blue)">${esc(t.source.toUpperCase())} ↗</a></div></td>
             <td class="t-caption">${esc(t.source)}</td>
-            <td><span class="m-data" style="color:var(--tilly-blue)">${esc(t.deadline)}</span></td>
+            <td><span class="m-data" style="color:${days < 5 ? 'var(--tilly-red)' : 'var(--tilly-blue)'}">${esc(t.deadline)}</span><div class="m-data t-muted" style="font-size:10px">${days} DAYS LEFT</div></td>
             <td><span class="chip">${esc(t.state.toUpperCase())}</span></td>
             <td class="t-caption">${esc(t.gate)}</td>
-          </tr>`).join('')}
+          </tr>`;
+        }).join('')}
         </tbody>
       </table>
       <div class="gap"></div>
@@ -1218,6 +1270,7 @@ const views = {
       ${r.escalation ? `<div class="esc-banner"><span class="m-data">▲ ${esc(r.escalation.toUpperCase())} — HANDED TO A HUMAN OWNER. AGENT STAYS ON RESEARCH, DRAFTING AND ADMIN.</span></div><div class="gap"></div>` : ''}
       ${stageBar(r)}
       ${nextStepPanel(r)}
+      ${tenderBlock(r)}
       <div class="grid-2">
         <div class="panel">
           <span class="m-label">SCORE — WHY, IN PLAIN ENGLISH</span>
