@@ -506,6 +506,16 @@ const DATA = {
      The obligation register comes straight from the signed contract (§9.6) —
      commitments become dated tasks so what was sold is what gets delivered. ---- */
   success: {
+    /* Autopilot: what Tilly is running herself right now, no human in the loop */
+    autopilot: [
+      { record: 'mind', action: 'Onboarding nudges — day 1/3/7 sequence toward first value', tier: 'T1', status: 'RUNNING · STEP 2 OF 6' },
+      { record: 'age-uk', action: 'Activation push to the second user group', tier: 'T1', status: 'RUNNING' },
+      { record: 'oxfam', action: 'Tier upsell — their own usage charted, offer live', tier: 'T2', status: 'SENT · AWAITING REPLY' },
+      { record: 'scope', action: 'Checkout recovery sequence', tier: 'T1', status: 'EMAIL 2 OF 2 · TOMORROW 10:00' },
+      { record: 'trinity', action: 'All commercial sequences paused while the complaint is open', tier: 'T0', status: 'FROZEN — AUTOMATIC' },
+      { record: 'ymca', action: 'Save-play context pack and drafts refreshed daily behind the human', tier: 'T0', status: 'RUNNING' }
+    ],
+
     /* §1.1 The garage — who is who */
     garage: [
       { who: 'THE CUSTOMER', role: 'Driver', desc: 'Their outcomes are the only score that counts' },
