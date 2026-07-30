@@ -192,6 +192,16 @@ const kanban = (stages, pick) => `
 
 const backLink = () => `<a href="#/pipeline" class="btn btn-text" style="padding:16px 0 0;display:inline-block">← Pipeline</a>`;
 
+/* Tilly's radio: the labelled live feed — timestamp, account, what happened, click through */
+const radio = items => `
+  <div class="feed">
+    <div class="feed-head"><span class="feed-live">● LIVE</span><span class="feed-title">TILLY'S RADIO — WHAT YOUR AGENT DID, AND WHY</span><span class="feed-sub">IF IT'S MONO, THE AI SAID IT</span></div>
+    ${items.map(f => {
+      const r = f.record ? recById(f.record) : null;
+      return `<div class="feed-row${r ? ' click' : ''}"${r ? ` data-id="${r.id}"` : ''}><span class="ft">${esc(f.t)}</span><span class="fa">${esc(f.who)}</span><span class="fm">${esc(f.msg)}</span>${r ? '<span class="go">OPEN →</span>' : ''}</div>`;
+    }).join('')}
+  </div>`;
+
 function S_setRetention(recordId, status) {
   DATA.success.retention[recordId] = status;
   render();
@@ -206,17 +216,17 @@ const views = {
     const openTasks = DATA.tasks.filter(t => !t.done).length;
     const pole = DATA.records.filter(r => r.band === 'POLE').length;
     const stats = [
-      { label: 'NEED A HUMAN NOW', value: String(grid.length), cls: ' stat-blue' },
-      { label: 'OPEN TASKS', value: String(openTasks), cls: '' },
-      { label: 'POLE — HOT LEADS', value: String(pole), cls: '' },
-      { label: 'TEAM STREAK', value: '7 DAYS', cls: ' stat-dark' }
+      { label: 'NEED A HUMAN NOW', value: String(grid.length), cls: ' stat-blue', attr: 'data-scroll=".grid-2"' },
+      { label: 'OPEN TASKS', value: String(openTasks), cls: '', attr: 'data-goto="#/tasks"' },
+      { label: 'POLE — HOT LEADS', value: String(pole), cls: '', attr: 'data-pole-filter' },
+      { label: 'TEAM STREAK', value: '7 DAYS', cls: ' stat-dark', attr: 'data-scroll="#championships"' }
     ];
     const t = DATA.teamObjective;
     return `
       <h1 class="t-title page-title">Cockpit</h1>
       <p class="t-body t-muted page-sub">${esc(DATA.race.week)} · ${esc(DATA.race.season)}. Charity retail buys slowly — the F1 format is how we keep race pace inside the team anyway. Your grid is below; click a row to see exactly what to do.</p>
       <div class="stats">
-        ${stats.map(s => `<div class="stat${s.cls}"><span class="m-label">${s.label}</span><strong>${s.value}</strong></div>`).join('')}
+        ${stats.map(s => `<div class="stat click${s.cls}" ${s.attr}><span class="m-label">${s.label}</span><strong>${s.value}</strong><span class="stat-go">→</span></div>`).join('')}
       </div>
       <div class="gap"></div>
       <div class="grid-2" style="align-items:start">
@@ -275,7 +285,7 @@ const views = {
         }).join('')}
       </div>
       <div class="gap-lg"></div>
-      <div class="m-section" style="margin-bottom:16px">THE CHAMPIONSHIPS</div>
+      <div class="m-section" id="championships" style="margin-bottom:16px">THE CHAMPIONSHIPS</div>
       ${board("DRIVERS' — POINTS THIS SEASON", DATA.reps)}
       <div class="m-data t-muted" style="display:block;margin:6px 0 0">${esc(DATA.race.fastestLap)}</div>
       <div class="gap"></div>
@@ -287,7 +297,7 @@ const views = {
         <div class="t-caption" style="margin-top:10px">Shared target unlocks a team reward — the board never goes zero-sum.</div>
       </div>
       <div class="gap"></div>
-      <div class="feed">${DATA.feed.map(f => `<div>${esc(f)}</div>`).join('')}</div>`;
+      ${radio(DATA.feed)}`;
   },
 
   tasks() {
@@ -424,7 +434,10 @@ const views = {
       ${cardGrid(DATA.core)}
       <div class="gap-lg"></div>
       <div class="m-section" style="margin-bottom:16px">5 — PREDICTIVE SCORING — FIT × INTENT</div>
-      <div class="feed" style="margin-bottom:8px">${m.formula.map(f => `<div>${esc(f)}</div>`).join('')}</div>
+      <div class="feed" style="margin-bottom:8px">
+        <div class="feed-head"><span class="feed-title">THE SCORING FORMULA — §4.3</span></div>
+        ${m.formula.map(f => `<div>${esc(f)}</div>`).join('')}
+      </div>
       <div class="grid-2">
         <div>
           <div class="m-label" style="display:block;margin-bottom:8px">FIT — WHO THEY ARE, SLOW-MOVING</div>
@@ -725,7 +738,10 @@ const views = {
         </tbody>
       </table>`).join('')}
       <div class="gap"></div>
-      <div class="feed">${S.healthModel.formula.map(f => `<div>${esc(f)}</div>`).join('')}</div>
+      <div class="feed">
+        <div class="feed-head"><span class="feed-title">FLAG LOGIC — §2.3</span></div>
+        ${S.healthModel.formula.map(f => `<div>${esc(f)}</div>`).join('')}
+      </div>
       <div class="gap"></div>
       <div class="panel" style="padding:18px 20px">
         <span class="m-label">HEALTH DIMENSIONS — DEFAULT WEIGHTS, RE-WEIGHTED BY STAGE</span>
@@ -946,23 +962,76 @@ const views = {
         </div>
       </div>
       <div class="gap"></div>
-      <div class="feed">${r.trace.map(t => `<div>${esc(t)}</div>`).join('')}</div>
+      <div class="feed">
+        <div class="feed-head"><span class="feed-live">● LIVE</span><span class="feed-title">TILLY'S REASONING — THIS ACCOUNT</span><span class="feed-sub">IF IT'S MONO, THE AI SAID IT</span></div>
+        ${r.trace.map(t => `<div>${esc(t)}</div>`).join('')}
+      </div>
       <div class="gap"></div>
       <a href="#/pipeline" class="btn btn-text">← Back to pipeline</a>`;
   }
 };
 
+/* ---- Guided tour — skippable "here's where you do this" walkthrough ---- */
+
+let tour = null;
+const TOUR = [
+  { hash: '#/cockpit', sel: '.stats', title: 'Your morning, in four numbers', text: "Here's where you see what needs a human right now — the grid count, open tasks, hot leads and the team streak. If these are clear, you're racing well." },
+  { hash: '#/cockpit', sel: '.grid-2', title: 'The starting grid', text: "Here's where your day starts: everything needing you, tightest clock first, enterprise and self-serve separated. Click any row and it expands into exact action items." },
+  { hash: '#/pipeline', sel: '.filterbar', title: 'The pipeline', text: "Here's where every scored prospect lives. Filter by band or lane, search anything, and work top to bottom — likelihood is computed, never guessed." },
+  { hash: '#/funnel', sel: '.stats', title: 'Top of funnel', text: "Here's where Tilly fetches, enriches and qualifies leads — every night at 02:00, without you. Your job is the meetings she books." },
+  { hash: '#/tasks', sel: '.panel', title: 'Tasks', text: "Here's where your day lives. Say the next step out loud in any recorded meeting and it appears here, dated — you never type a task." },
+  { hash: '#/engage', sel: '.tbl', title: 'Engage', text: "Here's where Tilly's drafts wait to send. Amber items need one click from you; everything else goes itself, education first, pitches second." },
+  { hash: '#/success', sel: '.stats', title: 'Tilly Success', text: "Here's where customers are kept: health telemetry nightly, the churn radar, coaching videos, and the safety car when risk lands. Renewals are won here." }
+];
+
+function paintTour() {
+  document.querySelectorAll('.tour-hl').forEach(el => el.classList.remove('tour-hl'));
+  let card = document.getElementById('tour-card');
+  if (tour === null) { if (card) card.remove(); return; }
+  const step = TOUR[tour];
+  if ((location.hash || '#/cockpit').indexOf(step.hash) !== 0) { location.hash = step.hash; return; }
+  const el = $view.querySelector(step.sel);
+  if (el) { el.classList.add('tour-hl'); el.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+  if (!card) {
+    card = document.createElement('div');
+    card.id = 'tour-card'; card.className = 'tour-card';
+    document.body.appendChild(card);
+  }
+  card.innerHTML = `
+    <span class="m-label">TOUR · ${tour + 1} OF ${TOUR.length}</span>
+    <h3>${step.title}</h3>
+    <p>${step.text}</p>
+    <div class="row">
+      <button class="tour-skip" data-tour-skip>SKIP THE TOUR</button>
+      <div style="display:flex;gap:8px">
+        ${tour > 0 ? '<button class="btn btn-secondary btn-sm" data-tour-back>Back</button>' : ''}
+        <button class="btn btn-primary btn-sm" data-tour-next>${tour === TOUR.length - 1 ? 'Finish — start selling' : 'Next'}</button>
+      </div>
+    </div>`;
+}
+
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-tour-skip]')) { tour = null; paintTour(); location.hash = '#/cockpit'; return; }
+  if (e.target.closest('[data-tour-back]')) { tour = Math.max(0, tour - 1); paintTour(); return; }
+  if (e.target.closest('[data-tour-next]')) {
+    if (tour >= TOUR.length - 1) { tour = null; paintTour(); location.hash = '#/cockpit'; }
+    else { tour++; paintTour(); }
+  }
+});
+
 /* ---- Router ---- */
 
 function render() {
   const hash = location.hash || '#/cockpit';
-  const [, view, param] = hash.split('/');
+  let [, view, param] = hash.split('/');
+  if (view === 'tour') { tour = 0; view = 'cockpit'; }
   const name = views[view] ? view : 'cockpit';
   $view.innerHTML = views[name](param);
   document.querySelectorAll('.nav a').forEach(a => {
     a.classList.toggle('active', a.dataset.view === name || (name === 'record' && a.dataset.view === 'pipeline'));
   });
   window.scrollTo(0, 0);
+  paintTour();
 }
 
 $view.addEventListener('click', e => {
@@ -1026,6 +1095,17 @@ $view.addEventListener('click', e => {
     render();
     return;
   }
+  const scr = e.target.closest('[data-scroll]');
+  if (scr) {
+    const target = $view.querySelector(scr.dataset.scroll);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  if (e.target.closest('[data-pole-filter]')) {
+    bandFilter = 'POLE'; laneFilter = 'ALL';
+    location.hash = '#/pipeline'; render();
+    return;
+  }
   const goto = e.target.closest('[data-goto]');
   if (goto) { location.hash = goto.dataset.goto; render(); return; }
   const expand = e.target.closest('[data-expand]');
@@ -1061,6 +1141,83 @@ function updateCounts() {
   document.getElementById('count-rep').textContent = DATA.records.filter(r => r.owner === 'priya').length;
 }
 updateCounts();
+
+/* ---- Ask Tilly — your race engineer, one click away (Sidekick-style) ---- */
+
+let askOpen = false;
+const askMsgs = [
+  { from: 'tilly', text: "I'm Tilly — your AI success assistant, disclosed, not disguised. Ask me where anything lives, why the model did what it did, or what to do next. If I don't know, I get a human.", link: null }
+];
+const ASK_CHIPS = ['What needs me right now?', 'Why is YMCA at risk?', 'How do I approve a proposal?', 'Where is my commission?'];
+const ASK_ROUTES = [
+  { re: /need|right now|today|start|first/i, text: 'Your starting grid has everything needing a human, tightest clock first — it lives on the Cockpit. Work it top to bottom.', link: ['#/cockpit', 'Open the Cockpit'] },
+  { re: /risk|churn|ymca|save|red/i, text: 'YMCA is red-flagged: usage −40%, two negative replies, renewal in six weeks. The save play is pause-first — grant-funded budgets respond better to a pause than a discount.', link: ['#/success', 'Open Tilly Success'] },
+  { re: /approve|proposal|amber|send/i, text: 'Anything amber waits for one click from you in Engage. Check the discount against the ladder, hit Approve — it sends itself.', link: ['#/engage', 'Open Engage'] },
+  { re: /commission|quota|target|money|earn|my page/i, text: 'Your quota, attainment and commission live on My page — including commission-if-won on every open deal.', link: ['#/rep/priya', 'Open My page'] },
+  { re: /lead|prospect|funnel|new business/i, text: 'Tilly fetches and qualifies overnight at 02:00 — the freshest intake is on the Funnel view. You never prospect manually.', link: ['#/funnel', 'Open Funnel'] },
+  { re: /video|coach|adoption|enable/i, text: 'Adoption gaps and coaching videos are in Success — preview the explainer, then send it in-product + email at tier T1.', link: ['#/success', 'Open Success'] },
+  { re: /pole|band|score|likelihood|fit|intent/i, text: 'Likelihood = 0.4 × fit + 0.6 × intent, banded Pole to Cold. Hover any chip for its meaning, or read the full model on Channels.', link: ['#/channels', 'Open the model'] },
+  { re: /task|to-?do|granola|meeting/i, text: 'Your day lives in Tasks. Say the next step out loud in a recorded meeting and it appears there, dated — you never type a task.', link: ['#/tasks', 'Open Tasks'] },
+  { re: /escalat|human|handoff|trigger/i, text: 'Eight triggers hand a deal to a human — each with a threshold and SLA. The full list, and the agent permission tiers, are on Escalations.', link: ['#/escalations', 'Open Escalations'] }
+];
+
+function askReply(q) {
+  const hit = ASK_ROUTES.find(r => r.re.test(q));
+  return hit
+    ? { from: 'tilly', text: hit.text, link: hit.link }
+    : { from: 'tilly', text: `I don't know that one — so I won't guess. I've flagged it to a human teammate; they'll reply to ${DATA.settings.emailProxy} (test proxy) within 2 business hours.`, link: null };
+}
+
+function paintAsk() {
+  let el = document.getElementById('ask-root');
+  if (!el) { el = document.createElement('div'); el.id = 'ask-root'; document.body.appendChild(el); }
+  if (!askOpen) {
+    el.innerHTML = `<button class="ask-fab" data-ask-open><span style="width:16px;height:16px;background:var(--tilly-blue);position:relative;display:inline-block"><span style="position:absolute;left:3px;right:3px;top:6px;height:3px;background:#fff"></span></span>ASK TILLY</button>`;
+    return;
+  }
+  el.innerHTML = `
+    <div class="ask-panel">
+      <div class="ask-head">
+        <div class="mark mark-20 mark-inverse"></div>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:14px;letter-spacing:-0.3px">Ask Tilly</div>
+          <div class="m-data" style="color:rgba(255,255,255,.5);font-size:9px">YOUR RACE ENGINEER · AI, DISCLOSED · ESCALATES TO HUMANS</div>
+        </div>
+        <button class="tour-skip" data-ask-close style="font-size:16px">×</button>
+      </div>
+      <div class="ask-msgs" id="ask-msgs">
+        ${askMsgs.map(m => `
+          <div class="ask-msg ${m.from}">${esc(m.text)}${m.link ? `<div style="margin-top:8px"><a href="${m.link[0]}" class="m-data" style="color:var(--tilly-blue)">${esc(m.link[1].toUpperCase())} →</a></div>` : ''}</div>`).join('')}
+      </div>
+      <div class="ask-chips">${ASK_CHIPS.map(c => `<button class="fchip" data-ask-chip="${esc(c)}">${esc(c.toUpperCase())}</button>`).join('')}</div>
+      <div class="ask-input">
+        <input id="ask-text" placeholder="Ask anything — or say it out loud in a meeting…">
+        <button data-ask-send>Ask</button>
+      </div>
+    </div>`;
+  const box = document.getElementById('ask-msgs');
+  box.scrollTop = box.scrollHeight;
+  document.getElementById('ask-text').focus();
+}
+
+function askSubmit(q) {
+  if (!q.trim()) return;
+  askMsgs.push({ from: 'me', text: q.trim(), link: null });
+  askMsgs.push(askReply(q));
+  paintAsk();
+}
+
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-ask-open]')) { askOpen = true; paintAsk(); return; }
+  if (e.target.closest('[data-ask-close]')) { askOpen = false; paintAsk(); return; }
+  const chip = e.target.closest('[data-ask-chip]');
+  if (chip) { askSubmit(chip.dataset.askChip); return; }
+  if (e.target.closest('[data-ask-send]')) { askSubmit(document.getElementById('ask-text').value); return; }
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'ask-text') askSubmit(e.target.value);
+});
+paintAsk();
 
 /* Test-mode banner in the static topbar */
 if (DATA.settings.testMode) {

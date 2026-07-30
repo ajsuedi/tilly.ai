@@ -594,13 +594,13 @@ const DATA = {
   ],
 
   feed: [
-    'scanned 4,218 shops · 02:00',
-    '31 expanding · 6 ready to talk',
-    'bhf: pole band — 15-min response clock met',
-    'cruk: escalated — deal value £340k · red-tier contract with legal',
-    'oxfam: lane change self-serve → assisted · audit written',
-    'trinity: complaint — all sequences paused, human owner on it',
-    'ymca: escalated — 2 negative replies · rep clock 4h',
-    'salvation_army: confidence below floor on pricing question — asked a human'
+    { t: '02:00', record: null, who: 'NIGHTLY RUN', msg: 'Scanned 4,218 shops — fetch, enrich and score complete' },
+    { t: '02:04', record: null, who: 'NIGHTLY RUN', msg: '31 retailers expanding · 6 ready to talk — promoted to your grid' },
+    { t: '07:12', record: 'bhf', who: 'BHF', msg: 'Entered pole band — 15-min response clock met' },
+    { t: '08:30', record: 'cruk', who: 'CRUK', msg: 'Escalated — deal value £340k · red-tier contract with legal' },
+    { t: '08:41', record: 'oxfam', who: 'OXFAM', msg: 'Lane change self-serve → assisted · audit entry written' },
+    { t: '09:02', record: 'trinity', who: 'TRINITY', msg: 'Complaint detected — all sequences paused, human owner assigned' },
+    { t: '09:15', record: 'ymca', who: 'YMCA', msg: 'Escalated — 2 negative replies · rep clock 4h started' },
+    { t: '09:20', record: 'salvation-army', who: 'SALVATION ARMY', msg: 'Confidence below floor on a pricing question — asked a human' }
   ]
 };

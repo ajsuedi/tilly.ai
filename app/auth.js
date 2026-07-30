@@ -9,11 +9,23 @@ const PROXY = DATA.settings.emailProxy;
 
 const state = {
   step: 0,                 // signup step index
-  email: '', name: '', org: '', shops: '', cause: '',
-  goals: new Set(), plan: 'growth', annual: true
+  email: '', name: '', org: '', shops: '', sells: '',
+  goals: new Set(), plan: 'growth', annual: true,
+  seats: 3, entMeeting: false
 };
 
-const STEPS = ['VERIFY', 'ABOUT YOU', 'YOUR CHARITY', 'PLAN'];
+const STEPS = ['VERIFY', 'ABOUT YOU', 'YOUR COMPANY', 'PLAN', 'PAYMENT'];
+
+const PLAN_PRICES = { starter: { m: 39, y: 32, name: 'Starter' }, growth: { m: 79, y: 65, name: 'Growth' } };
+
+function orderTotals() {
+  const p = PLAN_PRICES[state.plan] || PLAN_PRICES.growth;
+  const perUser = state.annual ? p.y : p.m;
+  const months = state.annual ? 12 : 1;
+  const sub = perUser * state.seats * months;
+  const vat = Math.round(sub * 0.2);
+  return { p, perUser, months, sub, vat, total: sub + vat, cycle: state.annual ? 'year' : 'month' };
+}
 
 const stepper = active => `
   <div class="stepper">
@@ -176,8 +188,42 @@ function signupPlan() {
         </div>`).join('')}
     </div>
     ${state.plan === 'enterprise'
-      ? `<button class="btn btn-primary btn-block" data-done>Schedule a meeting</button><div class="hint" style="font-size:12px;color:var(--tilly-grey-500);margin-top:10px;text-align:center">Complexity-routed to the contract path — a named rep takes it from here.</div>`
-      : `<button class="btn btn-primary btn-block" data-done>Start free — card comes later</button><div class="hint" style="font-size:12px;color:var(--tilly-grey-500);margin-top:10px;text-align:center">14-day activation target. Checkout only when you're getting value.</div>`}`;
+      ? `<button class="btn btn-primary btn-block" data-ent>Schedule a meeting</button><div class="hint" style="font-size:12px;color:var(--tilly-grey-500);margin-top:10px;text-align:center">Complexity-routed to the contract path — a named rep takes it from here. No card needed.</div>`
+      : `<button class="btn btn-primary btn-block" data-topay>Continue to payment</button><div class="hint" style="font-size:12px;color:var(--tilly-grey-500);margin-top:10px;text-align:center">14-day free trial starts today — you won't be charged until it ends. Cancel or pause any time.</div>`}`;
+}
+
+function signupPayment() {
+  const o = orderTotals();
+  return `
+    ${stepper(4)}
+    <h1 class="t-title" style="margin:0 0 8px">Checkout.</h1>
+    <p class="t-body t-muted" style="margin:0 0 12px">Your 14-day trial starts now; the first charge lands when it ends. Cancel or pause any time — patience never costs you.</p>
+    <div style="background:var(--tilly-grey-100);padding:10px 14px;margin-bottom:28px"><span class="m-data" style="color:var(--tilly-blue)">TEST MODE — 4242 TEST CARD · NO REAL CHARGE · RECEIPT → ${esc(PROXY.toUpperCase())}</span></div>
+    <div class="panel" style="padding:20px;margin-bottom:24px">
+      <span class="m-label" style="display:block;margin-bottom:8px">ORDER SUMMARY</span>
+      <div class="kv"><span>Plan</span><span>${esc(o.p.name)} · £${o.perUser} per user / month${state.annual ? ', billed annually' : ''}</span></div>
+      <div class="kv"><span>Seats</span><span style="display:flex;gap:10px;align-items:center;justify-content:flex-end">
+        <button class="fchip" data-seat="-1" style="padding:6px 12px">−</button>
+        <span class="fit">${state.seats}</span>
+        <button class="fchip" data-seat="1" style="padding:6px 12px">+</button>
+      </span></div>
+      <div class="kv"><span>Subtotal</span><span>£${o.sub.toLocaleString('en-GB')} / ${o.cycle}</span></div>
+      <div class="kv"><span>VAT (20%)</span><span>£${o.vat.toLocaleString('en-GB')}</span></div>
+      <div class="kv"><span><b>Total after trial</b></span><span class="fit">£${o.total.toLocaleString('en-GB')} / ${o.cycle}</span></div>
+    </div>
+    <div class="field" id="f-card">
+      <label>CARD NUMBER</label>
+      <input class="input" id="su-card" inputmode="numeric" placeholder="4242 4242 4242 4242" value="4242 4242 4242 4242">
+      <div class="err-msg">Please add a card number (any 4242 test card works here).</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div class="field" style="flex:1"><label>EXPIRY</label><input class="input" style="width:100%;box-sizing:border-box" value="12/28"></div>
+      <div class="field" style="flex:1"><label>CVC</label><input class="input" style="width:100%;box-sizing:border-box" value="123"></div>
+      <div class="field" style="flex:2"><label>BILLING POSTCODE</label><input class="input" style="width:100%;box-sizing:border-box" placeholder="EC1A 1BB"></div>
+    </div>
+    <div class="field"><label>NAME ON CARD</label><input class="input" value="${esc(state.name)}"></div>
+    <button class="btn btn-primary btn-block" data-paid>Start trial — then £${o.total.toLocaleString('en-GB')} / ${o.cycle}</button>
+    <div class="hint" style="font-size:12px;color:var(--tilly-grey-500);margin-top:12px;text-align:center">VAT invoice with every charge · payment failures follow the dunning ladder, never a hard cut-off.</div>`;
 }
 
 function signupWelcome() {
@@ -187,14 +233,17 @@ function signupWelcome() {
       <div class="mark mark-44" style="margin:0 auto 24px"></div>
       <h1 class="t-title" style="margin:0 0 8px">Welcome to Tilly, ${esc(first)}.</h1>
       <p class="t-body t-muted" style="margin:0 auto 8px;max-width:420px">${esc(state.org || 'Your company')} is on the grid. Tilly is already scanning 11,200 charity shops for the retailers most ready to hear from you${state.sells ? ' about ' + esc(state.sells.toLowerCase()) : ''}.</p>
-      <div class="m-data" style="color:var(--tilly-blue)">CONFIRMATION SENT → ${esc(PROXY.toUpperCase())} (TEST PROXY)</div>
+      <div class="m-data" style="color:var(--tilly-blue)">${state.entMeeting
+        ? `MEETING REQUEST SENT → ${esc(PROXY.toUpperCase())} (TEST PROXY) · A NAMED REP TAKES IT FROM HERE`
+        : `TRIAL STARTED · RECEIPT + CONFIRMATION SENT → ${esc(PROXY.toUpperCase())} (TEST PROXY)`}</div>
+      ${!state.entMeeting ? `<div class="m-data t-muted" style="margin-top:6px">${esc((PLAN_PRICES[state.plan] || PLAN_PRICES.growth).name.toUpperCase())} · ${state.seats} SEATS · £${orderTotals().total.toLocaleString('en-GB')} / ${orderTotals().cycle.toUpperCase()} AFTER TRIAL</div>` : ''}
     </div>
     <div class="welcome-cards">
       <div class="wcard rec">
         <div class="m-label" style="display:block;margin-bottom:10px;color:var(--tilly-blue)">RECOMMENDED</div>
         <div class="t-heading" style="font-size:18px;letter-spacing:-0.5px">Cover the essentials</div>
         <p class="t-caption" style="margin:8px 0 20px">A short guided lap of the key features, so day one already pays for itself.</p>
-        <a class="btn btn-primary" href="index.html#/selfserve">Let's go</a>
+        <a class="btn btn-primary" href="index.html#/tour">Let's go</a>
       </div>
       <div class="wcard">
         <div class="m-label" style="display:block;margin-bottom:10px">AT YOUR OWN PACE</div>
@@ -207,7 +256,7 @@ function signupWelcome() {
 
 /* ---- Router ---- */
 
-const SIGNUP_STEPS = [signupEmail, signupVerify, signupAbout, signupCompany, signupPlan, signupWelcome];
+const SIGNUP_STEPS = [signupEmail, signupVerify, signupAbout, signupCompany, signupPlan, signupPayment, signupWelcome];
 
 function render() {
   const hash = location.hash || '#/login';
@@ -265,7 +314,16 @@ $card.addEventListener('click', e => {
   if (annual) { state.annual = annual.dataset.annual === '1'; render(); return; }
   const plan = t.closest('[data-plan]');
   if (plan) { state.plan = plan.dataset.plan; render(); return; }
-  if (t.closest('[data-done]')) { go(5); return; }
+  if (t.closest('[data-topay]')) { state.entMeeting = false; go(5); return; }
+  if (t.closest('[data-ent]')) { state.entMeeting = true; go(6); return; }
+  const seat = t.closest('[data-seat]');
+  if (seat) { state.seats = Math.max(1, state.seats + Number(seat.dataset.seat)); render(); return; }
+  if (t.closest('[data-paid]')) {
+    const card = document.getElementById('su-card').value.trim();
+    const f = document.getElementById('f-card');
+    if (card.replace(/\s/g, '').length < 12) { f.classList.add('err'); return; }
+    go(6); return;
+  }
 });
 
 /* Verification code boxes: auto-advance, enable Verify when complete */

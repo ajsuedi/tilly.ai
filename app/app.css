@@ -1,5 +1,46 @@
 /* Tilly CRM app layout — built on design/styles.css tokens. Flat. Square. Instant. */
 
+/* Ask Tilly — the race engineer in the corner */
+.ask-fab {
+  position: fixed; right: 24px; bottom: 24px; z-index: 150;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--tilly-black); color: #fff; border: none;
+  padding: 13px 18px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 1.5px;
+}
+.ask-fab:hover { background: var(--tilly-blue); }
+.ask-panel {
+  position: fixed; right: 24px; bottom: 24px; z-index: 150;
+  width: min(380px, calc(100vw - 48px)); max-height: min(560px, calc(100vh - 96px));
+  display: flex; flex-direction: column;
+  background: var(--tilly-white); border: 1px solid var(--tilly-black);
+}
+.ask-head { background: var(--tilly-black); color: #fff; padding: 14px 16px; display: flex; gap: 12px; align-items: center; flex: none; }
+.ask-msgs { padding: 16px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.ask-msg { font-size: 13px; line-height: 1.55; padding: 10px 14px; max-width: 88%; }
+.ask-msg.tilly { background: var(--tilly-grey-100); align-self: flex-start; }
+.ask-msg.me { background: var(--tilly-blue); color: #fff; align-self: flex-end; }
+.ask-chips { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 16px 12px; flex: none; }
+.ask-input { display: flex; border-top: var(--line); flex: none; }
+.ask-input input { flex: 1; border: none; padding: 13px 14px; font-family: var(--font-sans); font-size: 13px; outline: none; }
+.ask-input button { border: none; background: var(--tilly-blue); color: #fff; padding: 0 20px; font-family: var(--font-sans); font-weight: 600; font-size: 13px; cursor: pointer; }
+.ask-input button:hover { background: var(--tilly-blue-pressed); }
+
+/* Guided tour — "here's where you do this" */
+.tour-hl { outline: 3px solid var(--tilly-blue); outline-offset: 4px; }
+.tour-card {
+  position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
+  width: min(480px, calc(100vw - 48px));
+  background: var(--tilly-black); color: #fff;
+  padding: 20px 24px; z-index: 200;
+}
+.tour-card .m-label { color: var(--tilly-trace); }
+.tour-card h3 { margin: 6px 0 6px; font-size: 18px; font-weight: 600; letter-spacing: -0.5px; }
+.tour-card p { margin: 0 0 16px; font-size: 13px; line-height: 1.55; color: rgba(255,255,255,.7); }
+.tour-card .row { display: flex; justify-content: space-between; align-items: center; }
+.tour-skip { background: none; border: none; color: rgba(255,255,255,.6); font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; cursor: pointer; padding: 0; }
+.tour-skip:hover { color: #fff; }
+
 /* Demo bar — always-on toggle between the three surfaces */
 .demobar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 100;
@@ -62,7 +103,12 @@ body.demo .side { top: 45px; height: calc(100vh - 45px); }
 
 /* ---- Stats — the F1 wall ---- */
 .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.stat { border: var(--line); padding: 18px 20px; }
+.stat { border: var(--line); padding: 18px 20px; position: relative; }
+.stat.click { cursor: pointer; }
+.stat.click:hover { box-shadow: inset 0 0 0 1px var(--tilly-black); }
+.stat.stat-blue.click:hover, .stat.stat-dark.click:hover { box-shadow: inset 0 0 0 2px rgba(255,255,255,.5); }
+.stat-go { position: absolute; top: 16px; right: 16px; font-family: var(--font-mono); font-size: 12px; opacity: .35; }
+.stat.click:hover .stat-go { opacity: 1; }
 .stat strong {
   display: block;
   font-size: 34px; font-weight: 600; letter-spacing: -1.5px;
@@ -235,10 +281,25 @@ td [data-tip]:hover::before, .kv [data-tip]:hover::before { bottom: auto; top: c
 }
 .esc-banner .m-data { color: var(--tilly-red); }
 
-/* ---- Feed ---- */
+/* ---- Feed / Tilly's radio ---- */
 .feed { background: var(--tilly-black); padding: 20px 24px; }
-.feed div { font-family: var(--font-mono); font-size: 12px; line-height: 2.1; color: var(--tilly-trace); }
-.feed div::before { content: '> '; }
+.feed > div:not(.feed-head):not(.feed-row) { font-family: var(--font-mono); font-size: 12px; line-height: 2.1; color: var(--tilly-trace); }
+.feed > div:not(.feed-head):not(.feed-row)::before { content: '> '; }
+.feed-head {
+  display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;
+  padding-bottom: 12px; margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.15);
+}
+.feed-live { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; color: var(--tilly-trace); }
+.feed-title { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; color: rgba(255,255,255,.75); }
+.feed-sub { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px; color: rgba(255,255,255,.35); margin-left: auto; }
+.feed-row { display: flex; gap: 16px; align-items: baseline; padding: 5px 8px; margin: 0 -8px; }
+.feed-row.click:hover { background: rgba(255,255,255,.07); cursor: pointer; }
+.feed-row .ft { font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,.35); min-width: 42px; flex: none; }
+.feed-row .fa { font-family: var(--font-mono); font-size: 11px; color: #fff; min-width: 110px; flex: none; }
+.feed-row .fm { font-family: var(--font-mono); font-size: 12px; color: var(--tilly-trace); line-height: 1.8; }
+.feed-row .go { margin-left: auto; font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,.35); flex: none; }
+.feed-row.click:hover .go { color: #fff; }
 
 .gap { height: 8px; }
 .gap-lg { height: 40px; }
