@@ -370,9 +370,33 @@ const DATA = {
   ],
 
   tenders: [
-    { name: 'BHF — EPOS & CRM replacement', record: 'bhf', source: 'Find a Tender Service', deadline: '22 AUG 2026', state: 'Responding', gate: 'BID — mandatories 100% · scored 78%' },
-    { name: 'Royal Voluntary Service — retail CRM call-off', record: null, source: 'Framework / DPS portal', deadline: '05 SEP 2026', state: 'Qualifying', gate: 'BID — clarifications drafted' },
-    { name: 'Hospice UK group — member systems framework', record: null, source: 'Charity & funder portals', deadline: '30 SEP 2026', state: 'Identified', gate: 'NO-BID — accreditation not held · partner route under review' }
+    { name: 'BHF — EPOS & CRM replacement', record: 'bhf', source: 'Find a Tender Service', noticeId: 'FTS-2026-012345',
+      sourceUrl: 'https://www.find-tender.service.gov.uk/Notice/012345-2026',
+      deadline: '22 AUG 2026', deadlineISO: '2026-08-22', state: 'Responding', bid: 'BID',
+      gate: 'BID — mandatories 100% · scored 78%',
+      bidStages: ['Identified', 'Qualifying', 'Responding', 'Submitted', 'Negotiating', 'Awarded'], bidStage: 'Responding',
+      gates: [
+        { test: 'Mandatory coverage', req: '100% or auto no-bid', val: '100%', pass: true },
+        { test: 'Scored coverage', req: '≥70% of marks', val: '78%', pass: true },
+        { test: 'Value to effort', req: '≥8× bid cost', val: '11×', pass: true },
+        { test: 'Deadline feasibility', req: '≥5 working days', val: 'on track', pass: true },
+        { test: 'Accreditation held', req: 'or a partner route', val: 'Cyber Essentials+ held', pass: true },
+        { test: 'Incumbent risk', req: 'loss-risk flips to no-bid', val: 'WIN ZONE', pass: true }
+      ],
+      docs: [
+        { name: 'Invitation to Tender (ITT).pdf', kind: 'SOURCE', added: '02 JUL' },
+        { name: 'Technical specification annex.pdf', kind: 'SOURCE', added: '02 JUL' },
+        { name: 'Requirements register — 41 items.xlsx', kind: 'REGISTER', added: '03 JUL' },
+        { name: 'Draft bid response v3.docx', kind: 'DRAFT · 60%', added: 'TODAY' },
+        { name: 'Pricing schedule.xlsx', kind: 'DRAFT', added: 'YESTERDAY' },
+        { name: 'DPIA & security annex.pdf', kind: 'COMPLIANCE', added: '18 JUL' }
+      ] },
+    { name: 'Royal Voluntary Service — retail CRM call-off', record: null, source: 'Framework / DPS portal', noticeId: 'DPS-RM6294-CALL-0071',
+      sourceUrl: 'https://www.contractsfinder.service.gov.uk/', deadline: '05 SEP 2026', deadlineISO: '2026-09-05', state: 'Qualifying', bid: 'BID',
+      gate: 'BID — clarifications drafted' },
+    { name: 'Hospice UK group — member systems framework', record: null, source: 'Charity & funder portals', noticeId: 'CHFP-2026-118',
+      sourceUrl: 'https://www.hospiceuk.org/', deadline: '30 SEP 2026', deadlineISO: '2026-09-30', state: 'Identified', bid: 'NO-BID',
+      gate: 'NO-BID — accreditation not held · partner route under review' }
   ],
 
   engageQueue: [
