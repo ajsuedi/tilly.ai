@@ -1,6 +1,6 @@
 # Tilly — 3-minute demo script
 
-Open `app/index.html` in a browser. The black **DEMO** bar at the top switches between the three surfaces at any time.
+Run `npm run dev` and open http://localhost:3000 (or open `public/app/index.html` directly). The black **DEMO** bar at the top switches between the three surfaces at any time.
 
 ## 1. Self-serve signup (~45s)
 

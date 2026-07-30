@@ -22,12 +22,22 @@ Three surfaces, one demo bar: self-serve signup (with checkout + guided tour), e
 
 ## Repo layout
 
+## Run it
+
+```bash
+npm install
+npm run dev
+```
+
+Then open [http://localhost:3000](http://localhost:3000) — the root redirects into the CRM. Deployable to Vercel as-is.
+
 | Path | What it is |
 | --- | --- |
-| `brand/` | Brand identity source — the brand guide and the direction explorations it came from |
-| `design/` | Design infrastructure — [`styles.css`](design/styles.css) (design tokens + component classes) and [`index.html`](design/index.html) (live system reference) |
-| `app/` | The CRM — clickable prototype implementing the full workflow. Open [`app/index.html`](app/index.html) in a browser; no build step, no dependencies |
-| `docs/` | Architecture reference — [`crm-workflow.html`](docs/crm-workflow.html), the workflow the app implements |
+| `pages/`, `next.config.mjs` | Next.js shell — root redirect into the CRM; views migrate to React incrementally |
+| `public/brand/` | Brand identity source — the brand guide and the direction explorations it came from |
+| `public/design/` | Design infrastructure — design tokens + component classes and the live system reference |
+| `public/app/` | The CRM — the full prototype (also opens directly from the file, no build needed) |
+| `public/docs/` | Architecture references — the CRM workflow & build spec and the customer success spec |
 
 ## The CRM in one pass
 
