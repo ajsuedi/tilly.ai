@@ -1,9 +1,8 @@
-// Root of the Next.js app — sends visitors straight into the CRM.
-// The prototype lives in public/ as static assets; views migrate to React incrementally.
-export default function Home() {
-  return null;
-}
+// Fallback only — the config-level redirect in next.config.mjs sends / to the CRM.
+// This client-side hop covers any environment that skips config redirects.
+import { useEffect } from 'react';
 
-export async function getServerSideProps() {
-  return { redirect: { destination: '/app/index.html', permanent: false } };
+export default function Home() {
+  useEffect(() => { window.location.replace('/app/index.html'); }, []);
+  return <p style={{ fontFamily: 'monospace', padding: 24 }}>Redirecting to the CRM…</p>;
 }
