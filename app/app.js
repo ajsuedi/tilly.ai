@@ -285,7 +285,7 @@ const views = {
     const openTasks = DATA.tasks.filter(t => !t.done).length;
     const pole = DATA.records.filter(r => r.band === 'POLE').length;
     const stats = [
-      { label: 'NEED A HUMAN NOW', value: String(grid.length), cls: ' stat-blue', attr: 'data-scroll=".grid-2"' },
+      { label: 'NEED A HUMAN NOW', value: String(grid.length), cls: ' stat-blue', attr: 'data-scroll=".f1wrap"' },
       { label: 'OPEN TASKS', value: String(openTasks), cls: '', attr: 'data-goto="#/tasks"' },
       { label: 'POLE — HOT LEADS', value: String(pole), cls: '', attr: 'data-pole-filter' },
       { label: 'TEAM STREAK', value: '7 DAYS', cls: ' stat-dark', attr: 'data-scroll="#championships"' }
@@ -298,31 +298,29 @@ const views = {
         ${stats.map(s => `<div class="stat click${s.cls}" ${s.attr}><span class="m-label">${s.label}</span><strong>${s.value}</strong><span class="stat-go">→</span></div>`).join('')}
       </div>
       <div class="gap"></div>
-      <div class="grid-2" style="align-items:start">
-        ${[['STARTING GRID — ENTERPRISE', grid.filter(g => g.r.lane === 'enterprise')],
-           ['STARTING GRID — SELF-SERVE & ASSISTED', grid.filter(g => g.r.lane !== 'enterprise')]].map(([title, items]) => `
-        <div class="board">
-          <div class="zone-head"><span class="m-label" style="margin:0">${title}</span><span class="m-data t-muted">${items.length}</span></div>
-          ${items.map(g => {
-            const k = g.r.id + '|' + g.label;
-            return `
-            <div class="grid-row" data-expand="${esc(k)}">
-              <span class="clock">${g.urgency}</span>
-              ${avatar(g.r)}
-              <div style="flex:1;min-width:0"><div class="t-heading" style="font-size:14px">${esc(g.r.name)}</div><div class="m-data t-muted" style="font-size:10px">${esc(g.label)}</div></div>
-              <span class="m-data" style="color:var(--tilly-blue)">${expandedGrid.has(k) ? '−' : '+'}</span>
-            </div>
-            ${expandedGrid.has(k) ? `
-            <div class="grid-expand">
-              ${g.steps.map(s => `<div class="sig">${esc(s)}</div>`).join('')}
-              <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap">
-                <button class="btn btn-primary btn-sm" data-goto="${g.goto}">${esc(g.action)}</button>
-                <button class="btn btn-secondary btn-sm" data-goto="#/record/${g.r.id}">Open record</button>
+      <div class="f1wrap">
+        <div class="f1head">
+          <span class="checker"></span>
+          <span class="m-label" style="margin:0;color:#fff">STARTING GRID — TIGHTEST CLOCK ON POLE</span>
+          <span class="m-data" style="margin-left:auto;color:rgba(255,255,255,.45)">${grid.length} ON THE GRID</span>
+        </div>
+        <div class="f1grid">
+          ${[['ENTERPRISE SIDE', grid.filter(g => g.r.lane === 'enterprise'), ''],
+             ['SELF-SERVE & ASSISTED SIDE', grid.filter(g => g.r.lane !== 'enterprise'), ' f1col-r']].map(([laneTitle, items, cls]) => `
+          <div class="f1col${cls}">
+            <div class="f1lane">${laneTitle}</div>
+            ${items.map(g => `
+            <div class="f1slot" data-goto="#/record/${g.r.id}">
+              <div class="f1top"><span class="f1pos">P${grid.indexOf(g) + 1}</span><span class="f1clock">▮ ${g.urgency}</span></div>
+              <div style="display:flex;align-items:center;gap:12px">
+                ${avatar(g.r, 30)}
+                <div style="min-width:0"><div class="f1name">${esc(g.r.name)}</div><div class="f1why">${esc(g.label)}</div></div>
               </div>
-            </div>` : ''}`;
-          }).join('') || '<div class="t-caption" style="padding:16px 20px">Clear — nothing needs a human here.</div>'}
-        </div>`).join('')}
+            </div>`).join('') || '<div class="f1lane">CLEAR — NOTHING NEEDS A HUMAN</div>'}
+          </div>`).join('')}
+        </div>
       </div>
+      <div class="t-caption" style="margin-top:10px">P1 is your tightest clock. Click a slot to open the deal — its next step and action items are at the top of the dossier.</div>
       <div class="gap-lg"></div>
       <div class="m-section" style="margin-bottom:16px">TOP 10 OPPORTUNITIES — BY WEIGHTED VALUE</div>
       <div class="board">
@@ -355,8 +353,22 @@ const views = {
       </div>
       <div class="gap-lg"></div>
       <div class="m-section" id="championships" style="margin-bottom:16px">THE CHAMPIONSHIPS</div>
-      ${board("DRIVERS' — POINTS THIS SEASON", DATA.reps)}
-      <div class="m-data t-muted" style="display:block;margin:6px 0 0">${esc(DATA.race.fastestLap)}</div>
+      <div class="tower">
+        <div class="f1head" style="padding:0 0 12px;margin-bottom:4px">
+          <span class="checker"></span>
+          <span class="m-label" style="margin:0;color:#fff">DRIVERS' CLASSIFICATION — ${esc(DATA.race.season)}</span>
+        </div>
+        ${[...DATA.reps].sort((a, b) => b.points - a.points).map((r, i, a) => `
+          <div class="trow">
+            <span class="tpos">${i + 1}</span>
+            <span class="tstripe" style="background:${['var(--tilly-blue)', '#FFFFFF', '#9AA3B2', '#5B616E'][i] || '#5B616E'}"></span>
+            <span class="tcode">${esc(r.name.split(' ')[1].slice(0, 3).toUpperCase())}</span>
+            <span class="tname">${esc(r.name)} — ${esc(r.note)}</span>
+            ${r.id === 'priya' ? '<span class="tfl">FASTEST LAP</span>' : ''}
+            <span class="tgap">${i === 0 ? r.points + ' PTS' : '+' + (a[i - 1].points - r.points) + ' INT'}</span>
+          </div>`).join('')}
+      </div>
+      <div class="m-data t-muted" style="display:block;margin:6px 0 0">${esc(DATA.race.fastestLap)} · INT = POINTS TO THE DRIVER AHEAD</div>
       <div class="gap"></div>
       ${board("CONSTRUCTORS' — PRODUCTS BY WIN RATE", DATA.products)}
       <div class="gap"></div>
