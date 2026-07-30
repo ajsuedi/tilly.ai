@@ -134,7 +134,7 @@ const byLikelihood = records => [...records].sort((a, b) => b.likelihood - a.lik
 
 const recordRows = records => records.map(r => `
   <tr class="click${r.band === 'POLE' ? ' pole' : ''}" data-id="${r.id}">
-    <td><div style="display:flex;align-items:center;gap:12px">${avatar(r)}<span style="font-weight:600">${esc(r.name)}</span></div></td>
+    <td><div style="display:flex;align-items:center;gap:12px">${avatar(r)}<span style="font-weight:600">${esc(r.name)}</span>${r.agentSourced ? '<span class="chip chip-pole" style="font-size:9px;padding:3px 7px">NEW · AGENT</span>' : ''}</div></td>
     <td>${laneChip(r)}</td>
     <td>${bandChip(r)}</td>
     <td>${stageChip(r)}</td>
@@ -409,11 +409,31 @@ const views = {
   },
 
   funnel() {
+    const F = DATA.funnel;
     return `
       <h1 class="t-title page-title">Top of funnel</h1>
       <p class="t-body t-muted page-sub">Tilly fetches, enriches and qualifies leads every night at 02:00. Your job is three things: turn up, coach, and say the next step out loud — Granola records it and the CRM sets it. Selling here is teaching; most of your buyers have never used anything like what you sell.</p>
       <div class="stats">
-        ${DATA.funnel.run.map((s, i) => `<div class="stat${i === 3 ? ' stat-blue' : ''}"><span class="m-label">${s.label}</span><strong>${s.value}</strong></div>`).join('')}
+        ${F.run.map((s, i) => `<div class="stat${i === 3 ? ' stat-blue' : ''}"><span class="m-label">${s.label}</span><strong>${s.value}</strong></div>`).join('')}
+      </div>
+      <div class="gap-lg"></div>
+      <div class="m-section" style="margin-bottom:16px">THE AGENT FLOW — TILLY ACTS, YOU APPROVE</div>
+      <div class="stagebar" id="agent-flow">
+        ${F.flow.map((s, i) => `
+          <div class="sseg" id="agent-seg-${i}">
+            <span class="sn">${s.tier} · STEP ${i + 1}</span>
+            <span class="sl">${esc(s.step)}</span>
+          </div>`).join('')}
+      </div>
+      <div class="t-caption" style="margin-bottom:16px">${F.flow.map(s => esc(s.step.charAt(0) + s.step.slice(1).toLowerCase()) + ': ' + esc(s.desc)).join(' · ')}</div>
+      <div style="display:flex;gap:12px;align-items:center;margin-bottom:8px">
+        ${F.hasRun
+          ? `<span class="m-data" style="color:var(--tilly-green)">✓ RUN COMPLETE — 2 PROMOTED TO THE PIPELINE · DRAFTS IN ENGAGE</span> <button class="btn btn-secondary btn-sm" data-goto="#/pipeline">See them in the pipeline</button>`
+          : `<button class="btn btn-primary" data-run-agent>▶ Run the agent now</button><span class="m-data t-muted">OR WAIT — IT RUNS ITSELF AT 02:00</span>`}
+      </div>
+      <div class="feed" id="agent-log" style="${F.hasRun ? '' : 'display:none'}">
+        <div class="feed-head"><span class="feed-live">● LIVE</span><span class="feed-title">AGENT RUN — WATCH TILLY WORK</span></div>
+        ${F.hasRun ? F.runLog.map(l => `<div>${esc(l.msg)}</div>`).join('') : ''}
       </div>
       <div class="gap-lg"></div>
       <div class="m-section" style="margin-bottom:16px">OVERNIGHT INTAKE — QUALIFYING WITHOUT YOU</div>
@@ -1174,6 +1194,7 @@ $view.addEventListener('click', e => {
     render();
     return;
   }
+  if (e.target.closest('[data-run-agent]')) { runAgent(); return; }
   if (e.target.closest('[data-clear-filters]')) {
     bandFilter = 'ALL'; laneFilter = 'ALL'; searchQuery = '';
     document.getElementById('search').value = '';
@@ -1243,6 +1264,55 @@ $view.addEventListener('drop', e => {
   dragId = null;
   render();
 });
+
+/* ---- The agent run: watch Tilly fetch, score, qualify and promote — live ---- */
+
+let agentRunning = false;
+
+function promoteCandidates() {
+  DATA.funnel.candidates.forEach(c => {
+    if (recById(c.id)) return;
+    c.likelihood = Math.round(0.4 * c.fit + 0.6 * c.intent);
+    c.band = band(c.likelihood);
+    c.lane = lane(c.complexity);
+    c.agentSourced = true;
+    DATA.records.push(c);
+    DATA.engageQueue.unshift({ record: c.id, type: 'EMAIL', item: `First touch — education, no pitch: what good looks like for ${c.shops} shops`, channel: 'Email', when: 'Tue 09:00', authority: 'T1 · AUTO' });
+    DATA.feed.unshift({ t: 'NOW', record: c.id, who: c.initials, msg: `Promoted to the pipeline by the agent run — ${c.band}, ${c.lane} lane` });
+  });
+  DATA.funnel.incoming.forEach(l => {
+    if (/PDSA|Sense/.test(l.name)) l.status = 'PROMOTED';
+  });
+  DATA.funnel.hasRun = true;
+  updateCounts();
+}
+
+function runAgent() {
+  if (agentRunning || DATA.funnel.hasRun) return;
+  agentRunning = true;
+  const log = document.getElementById('agent-log');
+  log.style.display = '';
+  const lines = DATA.funnel.runLog;
+  let i = 0;
+  const tick = setInterval(() => {
+    if (i >= lines.length) {
+      clearInterval(tick);
+      agentRunning = false;
+      promoteCandidates();
+      render();
+      return;
+    }
+    const l = lines[i];
+    document.querySelectorAll('#agent-flow .sseg.cur').forEach(s => { s.classList.remove('cur'); s.classList.add('done'); });
+    const seg = document.getElementById('agent-seg-' + l.step);
+    if (seg) { seg.classList.remove('done'); seg.classList.add('cur'); }
+    const row = document.createElement('div');
+    row.textContent = l.msg;
+    log.appendChild(row);
+    log.scrollIntoView({ block: 'end', behavior: 'smooth' });
+    i++;
+  }, 600);
+}
 
 /* Search — lives in the static topbar, so focus survives re-render */
 const $search = document.getElementById('search');
