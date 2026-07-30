@@ -1380,13 +1380,46 @@ let askOpen = false;
 const askMsgs = [
   { from: 'tilly', text: "I'm Tilly — your AI success assistant, disclosed, not disguised. Ask me where anything lives, why the model did what it did, or what to do next. If I don't know, I get a human.", link: null }
 ];
-const ASK_CHIPS = ['What needs me right now?', 'Why is YMCA at risk?', 'How do I approve a proposal?', 'Where is my commission?'];
+const ASK_CHIPS = ['How likely am I to win this deal?', 'How many qualified leads?', "What's my commission?", 'How far am I from target?'];
+
+/* Context: which deal and which rep the question is being asked from */
+const askCtx = () => {
+  const h = location.hash || '';
+  const rec = h.match(/#\/record\/([\w-]+)/);
+  const rep = h.match(/#\/rep\/(\w+)/);
+  return { rec: rec ? recById(rec[1]) : null, rep: (rep && repById(rep[1])) || repById('priya') };
+};
+
 const ASK_ROUTES = [
+  { re: /how likely|win this|chance|odds|likelihood of/i, fn: () => {
+      const { rec } = askCtx();
+      if (rec) return { text: `${rec.name}: ${rec.likelihood}% to convert — ${rec.band} band (0.4 × fit ${rec.fit} + 0.6 × intent ${rec.intent}). Verdict vs ${rec.verdict.vs}: ${rec.verdict.type}. ${rec.verdict.play}`, link: ['#/record/' + rec.id, 'See the full dossier'] };
+      const top = byLikelihood(DATA.records.filter(r => r.stage !== 'Won'))[0];
+      return { text: `Open a deal and ask again for its exact odds. Best in the book right now: ${top.name} at ${top.likelihood}% (${top.band}).`, link: ['#/record/' + top.id, 'Open ' + top.name] };
+    } },
+  { re: /qualified|how many lead/i, fn: () => {
+      const n = b => DATA.records.filter(r => r.band === b).length;
+      const agent = DATA.records.filter(r => r.agentSourced).length;
+      return { text: `${DATA.records.length} scored accounts in the book: ${n('POLE')} Pole and ${n('FRONT ROW')} Front Row — that's ${n('POLE') + n('FRONT ROW')} qualified, workable leads — plus ${n('MIDFIELD')} Midfield being nurtured. Last night's run qualified 9 overnight${agent ? `, and the latest agent run promoted ${agent} more` : ''}.`, link: ['#/pipeline', 'Open the pipeline'] };
+    } },
+  { re: /commission|earn|money/i, fn: () => {
+      const { rep } = askCtx();
+      const mine = DATA.records.filter(r => r.owner === rep.id);
+      const earned = Math.round(rep.closedYTD * rep.commissionRate);
+      const proj = Math.round(weightedValue(mine) * rep.commissionRate);
+      return { text: `${rep.name.split(' ')[0]}: ${gbp(earned)} earned YTD (${Math.round(rep.commissionRate * 100)}% of ${gbp(rep.closedYTD)} closed). Your weighted open pipeline projects another ${gbp(proj)} — and everything past quota pays ${Math.round(rep.acceleratorRate * 100)}%.`, link: ['#/rep/' + rep.id, 'Open My page'] };
+    } },
+  { re: /target|quota|far .*(hit|target)|attainment|this quarter/i, fn: () => {
+      const { rep } = askCtx();
+      const gap = Math.max(0, rep.quota - rep.closedYTD);
+      const att = Math.round(100 * rep.closedYTD / rep.quota);
+      const cov = Math.round(100 * weightedValue(DATA.records.filter(r => r.owner === rep.id)) / Math.max(1, gap));
+      return { text: `You're at ${att}% of your ${gbp(rep.quota)} annual quota — ${gbp(gap)} to go. Your weighted pipeline covers ${cov}% of that gap${cov >= 100 ? ' — close what you have and you\'re over the line.' : ' — worth letting the agent promote more from the funnel.'}`, link: ['#/rep/' + rep.id, 'Open My page'] };
+    } },
   { re: /need|right now|today|start|first/i, text: 'Your starting grid has everything needing a human, tightest clock first — it lives on the Cockpit. Work it top to bottom.', link: ['#/cockpit', 'Open the Cockpit'] },
   { re: /risk|churn|ymca|save|red/i, text: 'YMCA is red-flagged: usage −40%, two negative replies, renewal in six weeks. The save play is pause-first — grant-funded budgets respond better to a pause than a discount.', link: ['#/success', 'Open Tilly Success'] },
   { re: /approve|proposal|amber|send/i, text: 'Anything amber waits for one click from you in Engage. Check the discount against the ladder, hit Approve — it sends itself.', link: ['#/engage', 'Open Engage'] },
-  { re: /commission|quota|target|money|earn|my page/i, text: 'Your quota, attainment and commission live on My page — including commission-if-won on every open deal.', link: ['#/rep/priya', 'Open My page'] },
-  { re: /lead|prospect|funnel|new business/i, text: 'Tilly fetches and qualifies overnight at 02:00 — the freshest intake is on the Funnel view. You never prospect manually.', link: ['#/funnel', 'Open Funnel'] },
+  { re: /prospect|funnel|new business/i, text: 'Tilly fetches and qualifies overnight at 02:00 — the freshest intake is on the Funnel view. You never prospect manually.', link: ['#/funnel', 'Open Funnel'] },
   { re: /video|coach|adoption|enable/i, text: 'Adoption gaps and coaching videos are in Success — preview the explainer, then send it in-product + email at tier T1.', link: ['#/success', 'Open Success'] },
   { re: /pole|band|score|likelihood|fit|intent/i, text: 'Likelihood = 0.4 × fit + 0.6 × intent, banded Pole to Cold. Hover any chip for its meaning, or read the full model on Channels.', link: ['#/channels', 'Open the model'] },
   { re: /task|to-?do|granola|meeting/i, text: 'Your day lives in Tasks. Say the next step out loud in a recorded meeting and it appears there, dated — you never type a task.', link: ['#/tasks', 'Open Tasks'] },
@@ -1395,9 +1428,9 @@ const ASK_ROUTES = [
 
 function askReply(q) {
   const hit = ASK_ROUTES.find(r => r.re.test(q));
-  return hit
-    ? { from: 'tilly', text: hit.text, link: hit.link }
-    : { from: 'tilly', text: `I don't know that one — so I won't guess. I've flagged it to a human teammate; they'll reply to ${DATA.settings.emailProxy} (test proxy) within 2 business hours.`, link: null };
+  if (!hit) return { from: 'tilly', text: `I don't know that one — so I won't guess. I've flagged it to a human teammate; they'll reply to ${DATA.settings.emailProxy} (test proxy) within 2 business hours.`, link: null };
+  const a = hit.fn ? hit.fn() : { text: hit.text, link: hit.link };
+  return { from: 'tilly', text: a.text, link: a.link };
 }
 
 function paintAsk() {
