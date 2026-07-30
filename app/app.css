@@ -103,9 +103,15 @@
   border: var(--line); color: var(--tilly-grey-500);
 }
 .chip-selfserve { border-color: var(--tilly-black); color: var(--tilly-black); }
+.chip-assisted { background: var(--tilly-grey-100); border-color: var(--tilly-grey-100); color: var(--tilly-black); }
 .chip-enterprise { background: var(--tilly-black); border-color: var(--tilly-black); color: #fff; }
 .chip-esc { background: var(--tilly-grey-100); border-color: var(--tilly-grey-100); color: var(--tilly-red); }
 .chip-won { background: var(--tilly-grey-100); border-color: var(--tilly-grey-100); color: var(--tilly-green); }
+
+/* Bands — F1 metaphor carried through the scoring model */
+.chip-pole { background: var(--tilly-blue); border-color: var(--tilly-blue); color: #fff; }
+.chip-front { border-color: var(--tilly-black); color: var(--tilly-black); }
+.chip-back { background: var(--tilly-grey-100); border-color: var(--tilly-grey-100); color: var(--tilly-grey-500); }
 
 /* ---- Record detail ---- */
 .rec-head { display: flex; align-items: center; gap: 20px; padding: 8px 0 28px; }

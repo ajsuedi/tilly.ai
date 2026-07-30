@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tilly.ai — CRM workflow architecture</title>
+<title>Tilly.ai — CRM workflow &amp; build spec</title>
 <style>
   :root{
     --page:#FAF9F5; --surface:#FFFFFF; --surface-alt:#F1EFE8;
@@ -35,15 +35,14 @@
   h1{font-size:26px;font-weight:500;margin:0 0 6px}
   .lede{font-size:15px;color:var(--text-2);margin:0 0 8px;max-width:70ch}
   .meta{font-size:12px;color:var(--text-3);margin:0 0 28px}
-  .hero{display:inline-flex;align-items:center;gap:8px;background:var(--accent-bg);color:var(--accent);
-    padding:7px 18px;border-radius:20px;font-size:13px;font-weight:500;margin:0 auto;display:flex;width:max-content}
+  .hero{display:flex;width:max-content;align-items:center;gap:8px;background:var(--accent-bg);
+    color:var(--accent);padding:7px 18px;border-radius:20px;font-size:13px;font-weight:500;margin:0 auto}
   .conn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 0}
   .conn i{width:0.5px;height:16px;background:var(--border-strong);display:block}
   .conn span{font-size:12px;color:var(--text-3)}
   .caret{width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;
     border-top:6px solid var(--border-strong)}
-  .lane{font-size:13px;font-weight:500;color:var(--text-2);margin:0 0 10px;
-    text-transform:none;letter-spacing:0}
+  .lane{font-size:13px;font-weight:500;color:var(--text-2);margin:0 0 10px}
   .lane .num{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;
     border-radius:50%;background:var(--surface-alt);color:var(--text-2);font-size:11px;margin-right:8px}
   .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
@@ -76,33 +75,92 @@
     border-radius:5px;background:var(--surface-alt);color:var(--text-2)}
   .row.lead .pos{background:var(--accent-bg);color:var(--accent)}
   .row .name{flex:1}
-  .row .val{font-weight:500}
+  .row .val{font-weight:500;font-variant-numeric:tabular-nums}
   .bar{width:90px;height:5px;border-radius:3px;background:var(--surface-alt);overflow:hidden}
   .bar b{display:block;height:100%;background:var(--accent);border-radius:3px}
-  h2{font-size:18px;font-weight:500;margin:44px 0 4px}
-  h2 + p{font-size:14px;color:var(--text-2);margin:0 0 16px;max-width:70ch}
+  h2{font-size:19px;font-weight:500;margin:52px 0 4px;padding-top:8px}
+  h2 + p{font-size:14px;color:var(--text-2);margin:0 0 16px;max-width:72ch}
+  h3{font-size:15px;font-weight:500;margin:30px 0 4px}
+  h3 + p{font-size:13px;color:var(--text-2);margin:0 0 12px;max-width:74ch}
+  p.note{font-size:13px;color:var(--text-2);max-width:74ch}
   table{width:100%;border-collapse:collapse;font-size:13px;background:var(--surface);
-    border:0.5px solid var(--border);border-radius:12px;overflow:hidden}
+    border:0.5px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:8px}
   th{text-align:left;font-weight:500;font-size:12px;color:var(--text-2);
     padding:10px 14px;border-bottom:0.5px solid var(--border);background:var(--surface-alt)}
   td{padding:10px 14px;border-bottom:0.5px solid var(--border);vertical-align:top}
-  tr:last-child td{border-bottom:none}
-  ol{padding-left:20px;font-size:14px;color:var(--text-2)}
-  ol li{margin-bottom:6px}
-  ol li strong{color:var(--text);font-weight:500}
-  footer{margin-top:48px;padding-top:16px;border-top:0.5px solid var(--border);
+  tbody tr:last-child td{border-bottom:none}
+  tfoot td{font-weight:500;background:var(--surface-alt);border-top:0.5px solid var(--border-strong);
+    border-bottom:none}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;
+    background:var(--surface-alt);padding:1px 5px;border-radius:4px;color:var(--text)}
+  .num-cell{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  .band{display:inline-block;font-size:11px;font-weight:500;padding:2px 8px;border-radius:5px;white-space:nowrap}
+  .b-pole{background:var(--accent-bg);color:var(--accent)}
+  .b-front{background:var(--teal-bg);color:var(--teal)}
+  .b-mid{background:var(--surface-alt);color:var(--text-2)}
+  .b-back{background:var(--amber-bg);color:var(--amber)}
+  .b-cold{background:var(--red-bg);color:var(--red)}
+  .b-ok{background:var(--green-bg);color:var(--green)}
+  .b-warn{background:var(--amber-bg);color:var(--amber)}
+  .b-stop{background:var(--red-bg);color:var(--red)}
+  .formula{background:var(--surface);border:0.5px solid var(--border);border-left:3px solid var(--accent);
+    border-radius:0 8px 8px 0;padding:12px 16px;margin:12px 0;
+    font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px;
+    line-height:1.8;overflow-x:auto}
+  .formula em{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-style:normal;color:var(--text-3);font-size:12px}
+  nav.toc{background:var(--surface);border:0.5px solid var(--border);border-radius:12px;
+    padding:14px 18px;margin:28px 0 0}
+  nav.toc p{font-size:12px;color:var(--text-3);margin:0 0 8px}
+  nav.toc ol{columns:2;column-gap:28px;margin:0;font-size:13px;padding-left:20px}
+  nav.toc li{margin-bottom:4px;color:var(--text-2)}
+  nav.toc a{color:var(--accent);text-decoration:none}
+  nav.toc a:hover{text-decoration:underline}
+  .flag{display:flex;gap:10px;background:var(--surface-alt);border-radius:8px;
+    padding:10px 14px;font-size:13px;color:var(--text-2);margin:12px 0}
+  .flag b{color:var(--text);font-weight:500}
+  ol.steps{padding-left:20px;font-size:14px;color:var(--text-2)}
+  ol.steps li{margin-bottom:6px}
+  ol.steps li strong{color:var(--text);font-weight:500}
+  footer{margin-top:56px;padding-top:16px;border-top:0.5px solid var(--border);
     font-size:12px;color:var(--text-3)}
-  @media print{body{background:#fff;padding:0}.zone,.card,.board{break-inside:avoid}}
+  @media print{body{background:#fff;padding:0}
+    .zone,.card,.board,table,.formula{break-inside:avoid}
+    nav.toc{display:none} h2{break-before:page}}
+  @media (max-width:640px){nav.toc ol{columns:1}}
 </style>
 </head>
 <body>
 <div class="wrap">
 
-  <h1>Tilly.ai — intelligent CRM workflow</h1>
+  <h1>Tilly.ai — intelligent CRM workflow &amp; build spec</h1>
   <p class="lede">Full-lifecycle customer architecture for the UK charity sector. Serves self-serve
     e-commerce customers and enterprise/contractor customers from a single intelligence core,
     with an autonomous agent running the journey until a defined escalation trigger fires.</p>
-  <p class="meta">Internal architecture reference · Fluent Technology · July 2026</p>
+  <p class="meta">Internal architecture reference · Fluent Technology · July 2026 · build-agnostic (no vendor assumed)</p>
+
+  <nav class="toc">
+    <p>Contents</p>
+    <ol>
+      <li><a href="#overview">Workflow overview</a></li>
+      <li><a href="#connect">How the pieces connect</a></li>
+      <li><a href="#coverage">Requirement coverage</a></li>
+      <li><a href="#scoring">Predictive scoring model</a></li>
+      <li><a href="#compete">Competitive analysis engine</a></li>
+      <li><a href="#routing">Routing &amp; complexity model</a></li>
+      <li><a href="#selfserve">Self-serve lane spec</a></li>
+      <li><a href="#enterprise">Enterprise lane spec</a></li>
+      <li><a href="#contract">Contract builder spec</a></li>
+      <li><a href="#enrich">Enrichment spec</a></li>
+      <li><a href="#agent">Agent autonomy &amp; escalation</a></li>
+      <li><a href="#game">Gamification mechanics</a></li>
+      <li><a href="#risks">Open decisions &amp; risks</a></li>
+    </ol>
+  </nav>
+
+  <h2 id="overview">1. Workflow overview</h2>
+  <p>Read top to bottom. Each stage hands enriched context to the next, so nothing is re-collected
+    and every downstream decision uses the fullest available picture.</p>
 
   <div class="hero">Tilly.ai — full lifecycle CRM</div>
 
@@ -185,13 +243,16 @@
   <div class="conn"><i></i><div class="caret"></div></div>
 
   <div class="zone esc">
-    <p class="lane">Human escalation — the only triggers that break autonomy</p>
+    <p class="lane">Human escalation — the eight triggers that break autonomy</p>
     <div>
       <span class="pill">Deal value above threshold</span>
       <span class="pill">Negative sentiment detected</span>
       <span class="pill">Complex negotiation</span>
       <span class="pill">Compliance / legal sign-off</span>
       <span class="pill">Customer explicitly asks for a person</span>
+      <span class="pill">Safeguarding or complaint raised</span>
+      <span class="pill">Agent confidence below floor</span>
+      <span class="pill">Same task failed 3 times</span>
     </div>
   </div>
 
@@ -220,41 +281,534 @@
     <div class="row"><span class="pos">P3</span><span class="name">Add-on services</span><span class="bar"><b style="width:44%"></b></span><span class="val">44%</span></div>
   </div>
 
-  <h2>How the pieces connect</h2>
-  <p>Read the workflow top to bottom. Each stage hands enriched context to the next, so nothing is
-    re-collected and every downstream decision uses the fullest available picture.</p>
-  <ol>
+  <h2 id="connect">2. How the pieces connect</h2>
+  <p>The seven-step spine that every record travels, whichever lane it lands in.</p>
+  <ol class="steps">
     <li><strong>Capture</strong> — inbound and outbound channels create or match a record. No manual entry.</li>
     <li><strong>Enrich</strong> — the record is auto-populated with org, person, signal and social data before a human ever sees it.</li>
     <li><strong>Score and analyse</strong> — Tilly ranks conversion likelihood and overlays competitive position on the specific opportunity.</li>
     <li><strong>Route</strong> — fit score plus deal complexity decides self-serve e-commerce or enterprise contract path.</li>
     <li><strong>Engage</strong> — the personalisation layer pushes video, dossiers, proposals and contracts on the best channel.</li>
-    <li><strong>Escalate only when needed</strong> — the agent owns the journey until one of five defined triggers fires.</li>
+    <li><strong>Escalate only when needed</strong> — the agent owns the journey until one of eight defined triggers fires (§11.2).</li>
     <li><strong>Compete</strong> — outcomes feed the cockpit, where reps and products race on live leaderboards.</li>
   </ol>
 
-  <h2>Requirement coverage</h2>
+  <h2 id="coverage">3. Requirement coverage</h2>
   <p>Every stated requirement mapped to the stage that delivers it.</p>
   <table>
-    <thead><tr><th style="width:38%">Requirement</th><th style="width:22%">Stage</th><th>How it is met</th></tr></thead>
+    <thead><tr><th style="width:34%">Requirement</th><th style="width:22%">Stage</th><th>How it is met</th></tr></thead>
     <tbody>
       <tr><td>Inbound and outbound channels</td><td>Stages 1–2</td><td>Nine channel sources, all writing to one record</td></tr>
-      <tr><td>Auto-enriched records</td><td>Stage 3</td><td>Org, contact, signal and social enrichment on creation</td></tr>
-      <tr><td>Predictive scoring</td><td>Core</td><td>Ranks prospects by likelihood to convert</td></tr>
-      <tr><td>Competitive market analysis</td><td>Core</td><td>Win / lose / undercut position per opportunity</td></tr>
-      <tr><td>Agent runs journey unaided</td><td>Core + escalation</td><td>Autonomous until one of five triggers fires</td></tr>
-      <tr><td>Self-serve e-commerce</td><td>Self-serve path</td><td>Ad funnel, checkout, subscription, renewal</td></tr>
-      <tr><td>Enterprise contracts &amp; tenders</td><td>Enterprise path</td><td>Bid tracking, proposals, procurement workflow</td></tr>
-      <tr><td>Pushes video content out</td><td>Stage 4</td><td>Product-in-action clips matched to use case</td></tr>
-      <tr><td>Super-personalised</td><td>Core + stage 4</td><td>Personalisation engine drives every touchpoint</td></tr>
-      <tr><td>Builds contracts from needs</td><td>Enterprise path + stage 4</td><td>Contract builder generates terms from captured requirements</td></tr>
-      <tr><td>Person-level detail</td><td>Stage 3–4</td><td>Job changes, moves, interests, conversation openers</td></tr>
-      <tr><td>Gamified, connects to support</td><td>Stage 5</td><td>Hot leads, convert likelihood, pit lane support count</td></tr>
-      <tr><td>Competitive F1 team feel</td><td>Stage 5</td><td>Drivers' and constructors' championships</td></tr>
+      <tr><td>Auto-enriched records</td><td>Stage 3 · §10</td><td>Org, contact, signal and social enrichment on creation</td></tr>
+      <tr><td>Predictive scoring</td><td>Core · §4</td><td>Fit × intent model, five bands, calibrated monthly</td></tr>
+      <tr><td>Competitive market analysis</td><td>Core · §5</td><td>Win / contested / loss-risk / undercut verdict per deal</td></tr>
+      <tr><td>Agent runs journey unaided</td><td>Core · §11</td><td>Four permission tiers, autonomous to signature on self-serve</td></tr>
+      <tr><td>Self-serve e-commerce</td><td>§7</td><td>Ad funnel, checkout, subscription, dunning, upsell</td></tr>
+      <tr><td>Enterprise contracts &amp; tenders</td><td>§8</td><td>Tender intake, bid/no-bid gate, procurement workflow</td></tr>
+      <tr><td>Pushes video content out</td><td>Stage 4 · §7</td><td>Clip library matched to use case and funnel stage</td></tr>
+      <tr><td>Super-personalised</td><td>Core · §10</td><td>Personalisation engine drives every touchpoint</td></tr>
+      <tr><td>Builds contracts from needs</td><td>§9</td><td>Requirements register → clause rules → assembled contract</td></tr>
+      <tr><td>Person-level detail</td><td>§10</td><td>Job changes, moves, interests, conversation openers</td></tr>
+      <tr><td>Gamified, connects to support</td><td>§12</td><td>Points formula, hot-lead alerts, pit-lane support handoff</td></tr>
+      <tr><td>Competitive F1 team feel</td><td>§12</td><td>Drivers' and constructors' championships, race weeks, seasons</td></tr>
     </tbody>
   </table>
 
-  <footer>Tilly.ai CRM workflow — internal reference. Leaderboard figures are illustrative placeholders.</footer>
+  <h2 id="scoring">4. Predictive scoring model</h2>
+  <p>Two independent scores — <strong>fit</strong> (who they are, slow-moving) and <strong>intent</strong>
+    (what they are doing, fast-moving) — blended into a single conversion likelihood. Keeping them
+    separate matters: a perfect-fit charity with no intent needs nurture, a poor-fit org with high
+    intent needs qualifying out. A single blended number hides both cases.</p>
+
+  <h3>4.1 Fit score features</h3>
+  <p>Scored 0–100. Each feature is normalised to 0–1 then multiplied by its weight. Recomputed on
+    every enrichment refresh, not on every page view.</p>
+  <table>
+    <thead><tr><th style="width:26%">Feature</th><th class="num-cell" style="width:9%">Weight</th><th style="width:30%">Signal source</th><th>Scoring rule</th></tr></thead>
+    <tbody>
+      <tr><td>Income band</td><td class="num-cell">20</td><td>Charity Commission / OSCR / CCNI filings</td><td>Peak at target band; taper above and below</td></tr>
+      <tr><td>Funding health</td><td class="num-cell">15</td><td>Reserves months, recent grant awards</td><td>≥6 months reserves = 1.0; &lt;3 months = 0.3</td></tr>
+      <tr><td>Buying-committee completeness</td><td class="num-cell">15</td><td>Contact records held</td><td>1.0 when finance, ops and digital roles all present</td></tr>
+      <tr><td>Tech stack compatibility</td><td class="num-cell">12</td><td>Site fingerprint, job ads, integrations</td><td>Known-good stack = 1.0; blocking incumbent = 0.2</td></tr>
+      <tr><td>Cause-area match to ICP</td><td class="num-cell">12</td><td>Registered objects, classification</td><td>Tiered list: core 1.0, adjacent 0.6, out 0.1</td></tr>
+      <tr><td>Organisation size</td><td class="num-cell">10</td><td>Headcount, volunteer count</td><td>Band curve matched to seat-count sweet spot</td></tr>
+      <tr><td>Legal structure</td><td class="num-cell">10</td><td>Register type</td><td>Charity / CIO 1.0, CIC 0.8, contractor 0.7, other 0.4</td></tr>
+      <tr><td>Geography</td><td class="num-cell">6</td><td>Registered address, service area</td><td>Serviceable nation = 1.0; outside coverage = 0</td></tr>
+    </tbody>
+    <tfoot><tr><td>Total</td><td class="num-cell">100</td><td colspan="2"></td></tr></tfoot>
+  </table>
+
+  <h3>4.2 Intent score features</h3>
+  <p>Scored 0–100 with time decay, so a burst of interest three months ago does not read as
+    live interest today. Recomputed on every tracked event and nightly for decay.</p>
+  <table>
+    <thead><tr><th style="width:26%">Feature</th><th class="num-cell" style="width:9%">Weight</th><th class="num-cell" style="width:12%">Half-life</th><th>Scoring rule</th></tr></thead>
+    <tbody>
+      <tr><td>Demo or trial request</td><td class="num-cell">20</td><td class="num-cell">30 days</td><td>Binary, full weight on submission</td></tr>
+      <tr><td>Tender / RFP match published</td><td class="num-cell">16</td><td class="num-cell">deadline</td><td>Scales with capability match %; expires at bid deadline</td></tr>
+      <tr><td>Pricing page engagement</td><td class="num-cell">14</td><td class="num-cell">14 days</td><td>Views capped at 5; time-on-page multiplier</td></tr>
+      <tr><td>Reply depth on outreach</td><td class="num-cell">12</td><td class="num-cell">21 days</td><td>1 reply 0.5, threaded exchange 1.0, meeting booked 1.0</td></tr>
+      <tr><td>Multi-contact activity</td><td class="num-cell">12</td><td class="num-cell">21 days</td><td>2 people 0.6, 3+ from same org 1.0</td></tr>
+      <tr><td>Video completion</td><td class="num-cell">10</td><td class="num-cell">14 days</td><td>Linear on % watched; ≥80% counts as complete</td></tr>
+      <tr><td>Pre-sales question raised</td><td class="num-cell">10</td><td class="num-cell">21 days</td><td>Binary; commercial questions score full</td></tr>
+      <tr><td>Event / webinar attendance</td><td class="num-cell">6</td><td class="num-cell">45 days</td><td>Registered 0.4, attended 1.0</td></tr>
+    </tbody>
+    <tfoot><tr><td>Total</td><td class="num-cell">100</td><td colspan="2"></td></tr></tfoot>
+  </table>
+
+  <h3>4.3 Combining into conversion likelihood</h3>
+  <div class="formula">
+    intent_decayed = Σ ( weight<sub>i</sub> × value<sub>i</sub> × 0.5 <sup>(days_since / half_life<sub>i</sub>)</sup> )<br>
+    raw = (0.40 × fit) + (0.60 × intent_decayed)<br>
+    likelihood = calibrate(raw)&nbsp;&nbsp;<em>isotonic regression against closed-won history</em>
+  </div>
+  <p class="note">Intent is weighted heavier than fit because it moves the near-term forecast. The
+    calibration step is not optional — an uncalibrated 70 means nothing to a rep, whereas a calibrated
+    70 should close roughly 70% of the time. Track calibration error every month and publish it.</p>
+
+  <h3>4.4 Bands</h3>
+  <p>Five bands, no gaps and no overlaps across 0–100. Band names carry the F1 metaphor through
+    to the cockpit and drive both agent behaviour and leaderboard multipliers.</p>
+  <table>
+    <thead><tr><th style="width:16%">Band</th><th class="num-cell" style="width:12%">Range</th><th style="width:34%">Agent behaviour</th><th>Rep visibility</th></tr></thead>
+    <tbody>
+      <tr><td><span class="band b-pole">Pole</span></td><td class="num-cell">80–100</td><td>Immediate personalised outreach, offer generated</td><td>Hot-lead alert, 15-min response clock starts</td></tr>
+      <tr><td><span class="band b-front">Front row</span></td><td class="num-cell">60–79</td><td>Accelerated sequence, video pushed, meeting offered</td><td>Top of queue</td></tr>
+      <tr><td><span class="band b-mid">Midfield</span></td><td class="num-cell">40–59</td><td>Standard nurture, watching for a trigger event</td><td>Visible, not prioritised</td></tr>
+      <tr><td><span class="band b-back">Back marker</span></td><td class="num-cell">20–39</td><td>Low-frequency content only</td><td>Collapsed by default</td></tr>
+      <tr><td><span class="band b-cold">Cold</span></td><td class="num-cell">0–19</td><td>Suppressed; re-enters only on a new signal</td><td>Hidden</td></tr>
+    </tbody>
+  </table>
+
+  <h3>4.5 Model governance</h3>
+  <p>The scoring model is a product surface, not a one-off build. It needs an owner, a retraining
+    rhythm and promotion gates.</p>
+  <table>
+    <thead><tr><th style="width:26%">Control</th><th>Rule</th></tr></thead>
+    <tbody>
+      <tr><td>Cold start</td><td>Ship as a transparent weighted rules model (the tables above). Do not train until ≥200 closed outcomes exist.</td></tr>
+      <tr><td>Retraining cadence</td><td>Monthly, on a rolling 18-month window, 20% time-based holdout</td></tr>
+      <tr><td>Promotion gate</td><td>New model ships only if holdout AUC ≥ 0.72 <em>and</em> beats incumbent by ≥0.02</td></tr>
+      <tr><td>Drift monitoring</td><td>Population stability index per feature; alert at PSI &gt; 0.2, block auto-retrain at &gt; 0.3</td></tr>
+      <tr><td>Explainability</td><td>Every score exposes its top three contributing features in plain English on the record</td></tr>
+      <tr><td>Override loop</td><td>Rep can dispute a score with a reason code; disputes are a labelled training input, not just a log</td></tr>
+      <tr><td>Fairness check</td><td>Confirm income band is not proxying to exclude small charities we can profitably serve; review quarterly</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>Design decision needed:</b> whether small-charity suppression is a deliberate
+    commercial choice or an artefact of the weighting. It changes the income-band curve in §4.1.</div>
+
+  <h2 id="compete">5. Competitive analysis engine</h2>
+  <p>Runs per opportunity, not per account — the same charity can be a win on one product and a
+    loss on another. Output is a single verdict plus a recommended commercial move.</p>
+
+  <h3>5.1 Competitor detection</h3>
+  <table>
+    <thead><tr><th style="width:28%">Signal</th><th style="width:16%">Confidence</th><th>What it tells us</th></tr></thead>
+    <tbody>
+      <tr><td>Site / DNS tech fingerprint</td><td><span class="band b-ok">High</span></td><td>Incumbent tooling in active use</td></tr>
+      <tr><td>Published contract award notice</td><td><span class="band b-ok">High</span></td><td>Named incumbent, value and expiry date</td></tr>
+      <tr><td>Prospect mentions a vendor in reply</td><td><span class="band b-ok">High</span></td><td>Who they are actually comparing us against</td></tr>
+      <tr><td>Job adverts naming a platform</td><td><span class="band b-warn">Medium</span></td><td>Committed stack, likely switching cost</td></tr>
+      <tr><td>Review-site activity</td><td><span class="band b-warn">Medium</span></td><td>Active evaluation in progress</td></tr>
+      <tr><td>Sector inference from peer group</td><td><span class="band b-stop">Low</span></td><td>Prior only; never drives a price move alone</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.2 Verdict rules</h3>
+  <p>Evaluated in order; first match wins. A price recommendation is only ever produced with a
+    high-confidence competitor signal.</p>
+  <table>
+    <thead><tr><th style="width:18%">Verdict</th><th style="width:44%">Condition</th><th>Recommended play</th></tr></thead>
+    <tbody>
+      <tr><td><span class="band b-stop">Loss risk</span></td><td>Gap on any mandatory requirement, <em>or</em> incumbent tenure &gt;2 years with no renewal window inside 6 months</td><td>No-bid or reposition to a different product</td></tr>
+      <tr><td><span class="band b-ok">Undercut</span></td><td>Requirement match ≥80% <em>and</em> our cost-to-serve ≤70% of competitor list price <em>and</em> high-confidence signal</td><td>Priced move within the discount ladder; never below margin floor</td></tr>
+      <tr><td><span class="band b-ok">Win zone</span></td><td>≥2 differentiators map to stated requirements <em>and</em> price within ±10%</td><td>Lead on differentiators, hold price</td></tr>
+      <tr><td><span class="band b-warn">Contested</span></td><td>1 differentiator match, price within ±10%</td><td>Proof-led: reference charity, pilot offer</td></tr>
+      <tr><td><span class="band b-mid">Unknown</span></td><td>No signal above low confidence</td><td>Ask the discovery question; do not guess</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>Guardrail:</b> the undercut verdict can propose a price, never apply one.
+    Application always goes through the discount ladder in §9.4.</div>
+
+  <h2 id="routing">6. Routing &amp; complexity model</h2>
+  <p>Lane choice is a function of complexity, not of value alone. A £40k renewal with two
+    stakeholders and no custom terms scores 30 and stays in assisted self-serve; a £6k first contract
+    that arrives as a formal tender scores 55 and goes straight to enterprise. Value alone would have
+    routed both the wrong way.</p>
+
+  <h3>6.1 Complexity score</h3>
+  <table>
+    <thead><tr><th style="width:34%">Input</th><th class="num-cell" style="width:12%">Points</th><th>Trigger</th></tr></thead>
+    <tbody>
+      <tr><td>Formal procurement route</td><td class="num-cell">40</td><td>Open tender, framework call-off or DPS</td></tr>
+      <tr><td>Annual contract value</td><td class="num-cell">0–30</td><td>0 below £5k, 15 at £5–25k, 30 above £25k</td></tr>
+      <tr><td>Custom requirements</td><td class="num-cell">0–20</td><td>5 points each, capped at 4 requirements</td></tr>
+      <tr><td>Stakeholder count</td><td class="num-cell">0–15</td><td>0 for ≤2, 8 for 3–4, 15 for 5+</td></tr>
+      <tr><td>Security / DPIA review required</td><td class="num-cell">15</td><td>Personal or beneficiary data in scope</td></tr>
+      <tr><td>Multi-entity or consortium</td><td class="num-cell">10</td><td>Group structure, shared service or partnership bid</td></tr>
+    </tbody>
+    <tfoot><tr><td>Maximum</td><td class="num-cell">130</td><td></td></tr></tfoot>
+  </table>
+
+  <h3>6.2 Lane assignment</h3>
+  <table>
+    <thead><tr><th style="width:20%">Complexity</th><th style="width:24%">Lane</th><th>Ownership</th></tr></thead>
+    <tbody>
+      <tr><td class="num-cell">0–24</td><td><span class="band b-ok">Self-serve</span></td><td>Agent end-to-end, no human touch expected</td></tr>
+      <tr><td class="num-cell">25–54</td><td><span class="band b-warn">Assisted self-serve</span></td><td>Agent-led, named rep visible and on the hook</td></tr>
+      <tr><td class="num-cell">55–130</td><td><span class="band b-stop">Enterprise</span></td><td>Rep-owned, agent runs research, drafting and admin</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Complexity is re-evaluated on every material change. Lanes can move in both
+    directions: a self-serve trial that publishes a tender is promoted to enterprise; a stalled
+    enterprise deal that shrinks in scope drops back. Every lane change writes an audit entry with
+    the inputs that caused it.</p>
+
+  <h2 id="selfserve">7. Self-serve lane spec</h2>
+  <p>An e-commerce funnel with a CRM brain attached. The commercial goal is activation inside
+    14 days, because activation is the strongest predictor of month-3 retention.</p>
+
+  <h3>7.1 Lifecycle states</h3>
+  <table>
+    <thead><tr><th style="width:16%">State</th><th style="width:34%">Entry condition</th><th>Agent action</th></tr></thead>
+    <tbody>
+      <tr><td>Anonymous</td><td>First tracked session, no identity</td><td>Content personalisation by inferred org only</td></tr>
+      <tr><td>Identified</td><td>Email captured or org resolved</td><td>Enrichment fires, fit score computed</td></tr>
+      <tr><td>Trial</td><td>Account created</td><td>Onboarding checklist, day 1/3/7 nudges</td></tr>
+      <tr><td>Activated</td><td>3 core actions completed within 14 days</td><td>Switch from setup help to value content</td></tr>
+      <tr><td>Paid</td><td>First successful charge</td><td>Confirmation, adoption sequence begins</td></tr>
+      <tr><td>Expanded</td><td>Seat or tier increase</td><td>Reinforce, ask for reference or referral</td></tr>
+      <tr><td>At risk</td><td>Usage down &gt;40% over 30 days, or payment failed</td><td>Diagnose, offer help, escalate if sentiment negative</td></tr>
+      <tr><td>Churned</td><td>Subscription ended</td><td>Exit survey, win-back at day 30 / 90 / 180</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.2 Event schema</h3>
+  <p>Minimum tracked event set. Every event carries <code>org_id</code>, <code>person_id</code>,
+    <code>session_id</code>, <code>timestamp</code>, <code>source</code> and
+    <code>utm_*</code> in addition to the properties below.</p>
+  <table>
+    <thead><tr><th style="width:26%">Event</th><th style="width:34%">Key properties</th><th>Feeds</th></tr></thead>
+    <tbody>
+      <tr><td><code>page_viewed</code></td><td>path, referrer, time_on_page</td><td>Intent — pricing engagement</td></tr>
+      <tr><td><code>video_progress</code></td><td>asset_id, percent_watched, use_case_tag</td><td>Intent — video completion</td></tr>
+      <tr><td><code>trial_started</code></td><td>plan, seats, signup_method</td><td>State transition</td></tr>
+      <tr><td><code>core_action_completed</code></td><td>action_key (1 of 3), sequence_number</td><td>Activation definition</td></tr>
+      <tr><td><code>plan_limit_approached</code></td><td>limit_type, percent_used</td><td>Upsell trigger</td></tr>
+      <tr><td><code>feature_gate_hit</code></td><td>feature_key, attempt_count</td><td>Upsell trigger</td></tr>
+      <tr><td><code>checkout_started</code> / <code>_completed</code></td><td>plan, term, value, discount_code</td><td>Revenue, funnel drop-off</td></tr>
+      <tr><td><code>payment_failed</code></td><td>reason_code, attempt_number</td><td>Dunning ladder</td></tr>
+      <tr><td><code>cancel_intent</code></td><td>reason, stage_reached</td><td>Save-offer engine</td></tr>
+    </tbody>
+  </table>
+
+  <h3>7.3 Activation, upsell and dunning rules</h3>
+  <table>
+    <thead><tr><th style="width:22%">Mechanic</th><th style="width:34%">Trigger</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>Activation nudge</td><td>Core action 1 incomplete at 48h</td><td>In-app prompt, then email with a 90-second clip</td></tr>
+      <tr><td>Activation rescue</td><td>0 of 3 actions at day 7</td><td>Offer a live 15-minute setup call — the one deliberate human touch</td></tr>
+      <tr><td>Seat upsell</td><td>Blocked seat invite, or 2 attempts in 7 days</td><td>In-context seat-pack offer</td></tr>
+      <tr><td>Tier upsell</td><td>≥80% of a plan limit for 2 consecutive weeks</td><td>Tier comparison with their own usage charted</td></tr>
+      <tr><td>Feature upsell</td><td>Same gated feature hit 3 times</td><td>Time-boxed trial of that feature, not a hard paywall</td></tr>
+      <tr><td>Dunning</td><td>Payment failure</td><td>Retry day 1, 3, 7, 14 · read-only day 21 · cancel day 30</td></tr>
+      <tr><td>Save offer</td><td><code>cancel_intent</code> raised</td><td>Ranked by predicted CLV: pause 3 months → tier down → time-boxed retention discount (§9.4)</td></tr>
+      <tr><td>Win-back</td><td>Churned</td><td>Day 30, 90, 180; suppressed if churn reason was product gap still open</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>Charity-sector nuance:</b> annual and grant-funded budget cycles mean a pause
+    offer will usually outperform a discount. Sequence pause first and measure before defaulting to
+    price cuts.</div>
+
+  <h2 id="enterprise">8. Enterprise lane spec</h2>
+  <p>Two entry routes with different clocks: proactive ABM, where we control timing, and reactive
+    tender response, where a published deadline controls everything.</p>
+
+  <h3>8.1 Tender intake</h3>
+  <p>Monitored sources, polled daily, deduplicated on notice reference. Each match creates an
+    opportunity with the deadline as a hard date.</p>
+  <table>
+    <thead><tr><th style="width:34%">Source</th><th style="width:18%">Coverage</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Find a Tender Service</td><td>UK-wide, high value</td><td>Above-threshold notices; primary source</td></tr>
+      <tr><td>Contracts Finder</td><td>England</td><td>Includes below-threshold and pipeline notices</td></tr>
+      <tr><td>Public Contracts Scotland</td><td>Scotland</td><td>Separate registration and portal flow</td></tr>
+      <tr><td>Sell2Wales</td><td>Wales</td><td>Welsh-language requirement flag matters here</td></tr>
+      <tr><td>eTendersNI</td><td>Northern Ireland</td><td>Distinct compliance annexes</td></tr>
+      <tr><td>Framework &amp; DPS portals</td><td>Call-offs</td><td>Faster route; existing accreditation required</td></tr>
+      <tr><td>Charity &amp; funder portals</td><td>Sector-specific</td><td>Often unstructured; parsed rather than fed</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.2 Requirements register</h3>
+  <p>The ITT or RFP is parsed into a structured register. This register is the single source of
+    truth for the bid response <em>and</em> the input to the contract builder — the same requirement
+    IDs flow through to clause selection, so what we promised and what we signed cannot drift apart.</p>
+  <table>
+    <thead><tr><th style="width:18%">Field</th><th>Definition</th></tr></thead>
+    <tbody>
+      <tr><td><code>req_id</code></td><td>Stable identifier, referenced by the response and by every clause it triggers</td></tr>
+      <tr><td><code>verbatim</code></td><td>Exact source text, never paraphrased — the audit anchor</td></tr>
+      <tr><td><code>type</code></td><td>Mandatory · scored · desirable · information only</td></tr>
+      <tr><td><code>weighting</code></td><td>Evaluator's stated marks, where published</td></tr>
+      <tr><td><code>status</code></td><td>Met · partial · gap · needs clarification</td></tr>
+      <tr><td><code>evidence_ref</code></td><td>Link to the proof: case study, certification, product doc</td></tr>
+      <tr><td><code>owner</code></td><td>Person accountable for the response to this requirement</td></tr>
+      <tr><td><code>clause_refs</code></td><td>Contract clauses this requirement pulls in — populated by §9</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.3 Bid / no-bid gate</h3>
+  <p>Automated recommendation with a written rationale. A no-bid recommendation can be overridden
+    by a human, but the override and its reason are recorded and reviewed at quarter end.</p>
+  <table>
+    <thead><tr><th style="width:22%">Test</th><th style="width:20%">Threshold</th><th>If failed</th></tr></thead>
+    <tbody>
+      <tr><td>Mandatory coverage</td><td>100%</td><td>Auto no-bid — an unmet mandatory is a wasted bid</td></tr>
+      <tr><td>Scored coverage</td><td>≥70% of available marks</td><td>Flag as low-probability; needs sign-off to proceed</td></tr>
+      <tr><td>Value to effort</td><td>ACV ≥ 8× estimated bid cost</td><td>Flag for commercial review</td></tr>
+      <tr><td>Incumbent risk</td><td>From §5.2 verdict</td><td>Loss risk verdict flips the default to no-bid</td></tr>
+      <tr><td>Deadline feasibility</td><td>≥5 working days remaining</td><td>Flag; only proceed with named owner and capacity confirmed</td></tr>
+      <tr><td>Accreditation held</td><td>Framework / certification in place</td><td>Auto no-bid unless a partner route exists</td></tr>
+    </tbody>
+  </table>
+
+  <h3>8.4 Procurement workflow states</h3>
+  <table>
+    <thead><tr><th style="width:22%">State</th><th style="width:30%">Exit condition</th><th>Agent contribution</th></tr></thead>
+    <tbody>
+      <tr><td>Identified</td><td>Bid/no-bid decision recorded</td><td>Parse notice, build register, run verdict</td></tr>
+      <tr><td>Qualifying</td><td>Clarification questions answered</td><td>Draft clarification questions from gap rows</td></tr>
+      <tr><td>Responding</td><td>Submission uploaded</td><td>Draft answers from evidence library, flag weak sections</td></tr>
+      <tr><td>Submitted</td><td>Evaluation outcome received</td><td>Track deadline, log all correspondence</td></tr>
+      <tr><td>Negotiating</td><td>Terms agreed</td><td>Assemble contract, run clause risk check</td></tr>
+      <tr><td>Awarded / lost</td><td>Signature or award notice</td><td>Capture win/loss reason codes into the model</td></tr>
+      <tr><td>Mobilising</td><td>Service live</td><td>Onboarding plan, obligation register handover</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>Do not skip:</b> the obligation register at mobilisation. Contract commitments
+    that never reach delivery are the single biggest source of avoidable churn in contracted work.</div>
+
+  <h2 id="contract">9. Contract builder spec</h2>
+  <p>The builder assembles from a governed clause library driven by the requirements register — not
+    a template with find-and-replace. Every clause in an output document is traceable to the
+    requirement or commercial condition that pulled it in.</p>
+
+  <h3>9.1 Clause library schema</h3>
+  <table>
+    <thead><tr><th style="width:20%">Field</th><th>Definition</th></tr></thead>
+    <tbody>
+      <tr><td><code>clause_id</code> · <code>version</code></td><td>Immutable ID with semantic version; superseded versions are retained, never edited</td></tr>
+      <tr><td><code>category</code></td><td>Commercial · service · data · liability · exit · sector-specific</td></tr>
+      <tr><td><code>jurisdiction</code></td><td>England &amp; Wales · Scotland · Northern Ireland</td></tr>
+      <tr><td><code>risk_tier</code></td><td><span class="band b-ok">Green</span> pre-approved · <span class="band b-warn">Amber</span> needs review · <span class="band b-stop">Red</span> legal only</td></tr>
+      <tr><td><code>fallback_ladder</code></td><td>Preferred → acceptable → walk-away wording, in order</td></tr>
+      <tr><td><code>triggers</code></td><td>Conditions that pull the clause in — requirement types, data classes, values</td></tr>
+      <tr><td><code>incompatible_with</code></td><td>Clause IDs that cannot co-exist; blocks assembly if both selected</td></tr>
+      <tr><td><code>approver_role</code></td><td>Minimum authority needed to issue this clause</td></tr>
+      <tr><td><code>owner</code> · <code>review_due</code></td><td>Named owner and review date; expired clauses cannot be assembled</td></tr>
+    </tbody>
+  </table>
+
+  <h3>9.2 Assembly pipeline</h3>
+  <ol class="steps">
+    <li><strong>Resolve requirements</strong> — pull every register row with status met or partial.</li>
+    <li><strong>Select clauses</strong> — evaluate trigger rules; each selected clause records the <code>req_id</code> that caused it.</li>
+    <li><strong>Apply commercials</strong> — price, term, seats and discount from the deal record, validated against §9.4.</li>
+    <li><strong>Validate</strong> — check incompatibilities, expired versions, jurisdiction match, unresolved placeholders. Any failure blocks generation.</li>
+    <li><strong>Risk-rate the document</strong> — highest clause tier present sets the document tier, which sets the approval route.</li>
+    <li><strong>Route for approval</strong> — per the matrix in §9.5.</li>
+    <li><strong>Issue for signature</strong> — e-sign with the obligation register generated in parallel.</li>
+    <li><strong>Archive</strong> — signed PDF plus the machine-readable clause manifest and full decision trail.</li>
+  </ol>
+
+  <h3>9.3 Clause trigger rules</h3>
+  <p>Illustrative rules showing the pattern. Each is a condition on the register or deal record,
+    not a manual choice.</p>
+  <table>
+    <thead><tr><th style="width:36%">Condition</th><th style="width:26%">Clause pulled in</th><th>Tier</th></tr></thead>
+    <tbody>
+      <tr><td>Personal data processed by us</td><td>Data processing agreement</td><td><span class="band b-ok">Green</span> mandatory</td></tr>
+      <tr><td>Contact with beneficiaries or service users</td><td>Safeguarding &amp; DBS obligations</td><td><span class="band b-ok">Green</span> mandatory</td></tr>
+      <tr><td>Special category data in scope</td><td>Enhanced security schedule + DPIA annex</td><td><span class="band b-warn">Amber</span></td></tr>
+      <tr><td>Requirement specifies an uptime target</td><td>Service levels with service credits</td><td><span class="band b-warn">Amber</span></td></tr>
+      <tr><td>Term exceeds 24 months</td><td>Indexed price review clause</td><td><span class="band b-ok">Green</span></td></tr>
+      <tr><td>Grant-funded purchase</td><td>Funding-contingent termination right</td><td><span class="band b-warn">Amber</span></td></tr>
+      <tr><td>Consortium or multi-entity buyer</td><td>Joint and several liability schedule</td><td><span class="band b-stop">Red</span></td></tr>
+      <tr><td>Customer requests unlimited liability</td><td>Blocked — walk-away wording only</td><td><span class="band b-stop">Red</span></td></tr>
+      <tr><td>Data residency stated as UK-only</td><td>Hosting location warranty</td><td><span class="band b-warn">Amber</span></td></tr>
+      <tr><td>Subcontractors used in delivery</td><td>Subprocessor list &amp; change notice</td><td><span class="band b-ok">Green</span></td></tr>
+    </tbody>
+  </table>
+
+  <h3>9.4 Commercial guardrails</h3>
+  <p>Hard limits the builder enforces. These are not advisory — the document cannot generate
+    outside them.</p>
+  <table>
+    <thead><tr><th style="width:30%">Guardrail</th><th style="width:22%">Limit</th><th>Beyond the limit</th></tr></thead>
+    <tbody>
+      <tr><td>Discount — agent authority</td><td>0–10%</td><td>Auto-approved, logged</td></tr>
+      <tr><td>Discount — sales lead</td><td>&gt;10–20%</td><td>Sales lead approval required</td></tr>
+      <tr><td>Discount — commercial director</td><td>&gt;20–30%</td><td>Commercial director approval required</td></tr>
+      <tr><td>Discount ceiling</td><td>&gt;30%</td><td>Blocked; cannot be approved in-flow</td></tr>
+      <tr><td>Retention save discount</td><td>Max 20%, max 3 months</td><td>Separate authority from the new-business ladder; agent may issue within this cap</td></tr>
+      <tr><td>Margin floor</td><td>Configured per product</td><td>Blocked regardless of discount tier</td></tr>
+      <tr><td>Payment terms</td><td>Max 60 days</td><td>Finance approval required</td></tr>
+      <tr><td>Liability cap</td><td>12 months' fees</td><td>Legal only; unlimited is never issuable</td></tr>
+      <tr><td>Term length</td><td>Max 36 months</td><td>Commercial director approval</td></tr>
+      <tr><td>Free-of-charge period</td><td>Max 1 month</td><td>Sales lead approval</td></tr>
+    </tbody>
+  </table>
+
+  <h3>9.5 Approval matrix</h3>
+  <table>
+    <thead><tr><th style="width:20%">Document tier</th><th style="width:26%">Approver</th><th style="width:16%">SLA</th><th>Agent may issue unaided</th></tr></thead>
+    <tbody>
+      <tr><td><span class="band b-ok">Green</span></td><td>None — pre-approved</td><td>Immediate</td><td>Yes, both lanes</td></tr>
+      <tr><td><span class="band b-warn">Amber</span></td><td>Sales lead, or finance for payment terms</td><td>1 working day</td><td>No — draft only, human issues</td></tr>
+      <tr><td><span class="band b-stop">Red</span></td><td>Legal, plus commercial director if priced</td><td>3 working days</td><td>No — agent assembles, never sends</td></tr>
+    </tbody>
+  </table>
+  <p class="note">The commercial prize here is volume of green documents. Every clause moved from
+    amber to green after review directly shortens the sales cycle, so track green-tier share as a
+    first-class metric and review the amber backlog monthly.</p>
+
+  <h3>9.6 Versioning and audit</h3>
+  <table>
+    <thead><tr><th style="width:26%">Capability</th><th>Requirement</th></tr></thead>
+    <tbody>
+      <tr><td>Clause manifest</td><td>Every issued document stores the exact clause IDs and versions used</td></tr>
+      <tr><td>Decision trail</td><td>For each clause: the trigger condition and <code>req_id</code> that selected it</td></tr>
+      <tr><td>Redline diff</td><td>Compare any version against the last customer-signed version, clause by clause</td></tr>
+      <tr><td>Counterparty edits</td><td>Inbound changes classified against the fallback ladder; anything below acceptable is auto-flagged red</td></tr>
+      <tr><td>Obligation extraction</td><td>On signature, commitments become dated tasks with owners</td></tr>
+      <tr><td>Retention</td><td>Signed documents and manifests retained per the sector retention schedule</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="enrich">10. Enrichment spec</h2>
+  <p>Enrichment is what makes the personalisation credible. The failure mode is confidently stale
+    data — a dossier that opens a conversation about a job someone left eight months ago is worse
+    than no dossier.</p>
+  <table>
+    <thead><tr><th style="width:24%">Field group</th><th style="width:20%">Refresh</th><th style="width:16%">Staleness action</th><th>Feeds</th></tr></thead>
+    <tbody>
+      <tr><td>Org registration &amp; financials</td><td>Annual + on filing event</td><td>Flag at 15 months</td><td>Fit score, contract jurisdiction</td></tr>
+      <tr><td>Contact role &amp; seniority</td><td>Weekly</td><td>Suppress dossier at 90 days</td><td>Buying committee, dossier</td></tr>
+      <tr><td>Job-change signals</td><td>Weekly</td><td>Expire at 60 days</td><td>Trigger events, outreach timing</td></tr>
+      <tr><td>Grant &amp; funding awards</td><td>Daily</td><td>Expire at 12 months</td><td>Funding health, intent</td></tr>
+      <tr><td>Tech stack fingerprint</td><td>Monthly</td><td>Flag at 6 months</td><td>Fit score, competitor detection</td></tr>
+      <tr><td>Tender &amp; award notices</td><td>Daily</td><td>Expire at bid deadline</td><td>Intent, competitive verdict</td></tr>
+      <tr><td>Social &amp; public interests</td><td>Monthly</td><td>Suppress at 6 months</td><td>Conversation starters only</td></tr>
+      <tr><td>Product usage</td><td>Real time</td><td>n/a</td><td>Activation, upsell, at-risk</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>Non-negotiable:</b> every enriched field stores source, confidence and
+    retrieval date, and social/interest data is used only for conversation framing — never as a
+    scoring input. That boundary keeps the system defensible under UK GDPR and keeps reps out of
+    territory that reads as surveillance to a charity buyer.</div>
+
+  <h2 id="agent">11. Agent autonomy &amp; escalation</h2>
+  <p>Autonomy is defined by permission tier, not by good intentions. The agent's default is to act;
+    the tiers say how far, and the escalation table says where it stops.</p>
+
+  <h3>11.1 Permission tiers</h3>
+  <table>
+    <thead><tr><th style="width:12%">Tier</th><th style="width:32%">Capability</th><th>Constraint</th></tr></thead>
+    <tbody>
+      <tr><td>T0</td><td>Read, enrich, score, research</td><td>Always on, no approval</td></tr>
+      <tr><td>T1</td><td>Send content — email, video, dossier, social touch</td><td>Frequency caps and consent state respected</td></tr>
+      <tr><td>T2</td><td>Book meetings, issue quotes, apply discounts</td><td>Within §9.4 agent authority: 10% new business, 20% retention save</td></tr>
+      <tr><td>T3</td><td>Issue a contract for signature</td><td>Green-tier documents in the self-serve lane only</td></tr>
+      <tr><td>—</td><td>Never permitted</td><td>Pricing below margin floor, altering legal terms, safeguarding matters, formal complaints, anything red tier</td></tr>
+    </tbody>
+  </table>
+
+  <h3>11.2 Escalation triggers</h3>
+  <table>
+    <thead><tr><th style="width:28%">Trigger</th><th style="width:22%">Threshold</th><th>Handoff</th></tr></thead>
+    <tbody>
+      <tr><td>Deal value</td><td>ACV above the enterprise threshold</td><td>Named rep, agent stays as researcher</td></tr>
+      <tr><td>Negative sentiment</td><td>2 consecutive negative-classified replies</td><td>Rep within 4 working hours</td></tr>
+      <tr><td>Complex negotiation</td><td>Counterparty edits below acceptable on the fallback ladder</td><td>Commercial owner</td></tr>
+      <tr><td>Compliance or legal</td><td>Any red-tier clause or DPIA requirement</td><td>Legal, before anything is sent</td></tr>
+      <tr><td>Explicit request</td><td>Customer asks for a person</td><td>Immediate, no qualifying questions first</td></tr>
+      <tr><td>Safeguarding or complaint</td><td>Any mention</td><td>Immediate to the designated human owner</td></tr>
+      <tr><td>Confidence floor</td><td>Agent confidence below configured threshold</td><td>Ask a human rather than guess</td></tr>
+      <tr><td>Repeated failure</td><td>Same task failed 3 times</td><td>Stop, escalate, do not retry</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Escalation is a handoff, not an abandonment: the agent keeps running research,
+    drafting and admin behind the human. And every escalation is logged with its trigger — that log
+    is the roadmap for which tier limits to relax as trust builds.</p>
+
+  <h2 id="game">12. Gamification mechanics</h2>
+  <p>The F1 framing needs real mechanics or it is decoration. Points reward the behaviour that
+    actually compounds — fast response to hot leads and competitive wins — not raw activity volume.</p>
+
+  <h3>12.1 Points formula</h3>
+  <div class="formula">
+    points = ( stage_points × band_multiplier ) + bonuses − penalties
+  </div>
+  <table>
+    <thead><tr><th style="width:34%">Component</th><th class="num-cell" style="width:16%">Value</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Stage — qualified</td><td class="num-cell">10</td><td>Awarded once per opportunity</td></tr>
+      <tr><td>Stage — demo held</td><td class="num-cell">25</td><td>Attendance confirmed, not just booked</td></tr>
+      <tr><td>Stage — proposal issued</td><td class="num-cell">40</td><td>Issued, not drafted</td></tr>
+      <tr><td>Stage — contract signed</td><td class="num-cell">100</td><td>Countersigned</td></tr>
+      <tr><td>Multiplier — Pole</td><td class="num-cell">1.5×</td><td>Band at the time of the stage event</td></tr>
+      <tr><td>Multiplier — Front row</td><td class="num-cell">1.3×</td><td></td></tr>
+      <tr><td>Multiplier — Midfield</td><td class="num-cell">1.0×</td><td></td></tr>
+      <tr><td>Multiplier — Back marker</td><td class="num-cell">0.8×</td><td>Deliberately still positive</td></tr>
+      <tr><td>Multiplier — Cold</td><td class="num-cell">0.5×</td><td>Cold records can still score if a rep converts one</td></tr>
+      <tr><td>Bonus — response &lt;15 min to hot lead</td><td class="num-cell">+15</td><td>"Fastest lap"</td></tr>
+      <tr><td>Bonus — win vs named incumbent</td><td class="num-cell">+50</td><td>Requires a high-confidence competitor signal</td></tr>
+      <tr><td>Bonus — enterprise tender win</td><td class="num-cell">+150</td><td>Reflects the effort curve on formal bids</td></tr>
+      <tr><td>Penalty — hot lead untouched 48h</td><td class="num-cell">−10</td><td>Applies to the owner, not the team</td></tr>
+      <tr><td>Penalty — record hygiene failure</td><td class="num-cell">−5</td><td>Missing close date, no next step</td></tr>
+    </tbody>
+  </table>
+
+  <h3>12.2 Structure and safeguards</h3>
+  <table>
+    <thead><tr><th style="width:26%">Element</th><th>Definition</th></tr></thead>
+    <tbody>
+      <tr><td>Race</td><td>One calendar week; resets weekly so a bad week is recoverable</td></tr>
+      <tr><td>Season</td><td>One quarter; cumulative standings</td></tr>
+      <tr><td>Drivers' championship</td><td>Individual reps by points</td></tr>
+      <tr><td>Constructors' championship</td><td>Products by win rate — makes cross-selling a team sport</td></tr>
+      <tr><td>Fastest lap</td><td>Shortest median time to first response, published weekly</td></tr>
+      <tr><td>Pit lane</td><td>Accounts handed to support; visible so nobody loses track of them</td></tr>
+      <tr><td>Handicap</td><td>Points normalised by territory size and inbound volume, so the leaderboard measures skill not luck</td></tr>
+      <tr><td>Anti-gaming</td><td>Stage points awarded once per opportunity; band multiplier locked at the stage event; self-reported stages sampled for audit</td></tr>
+      <tr><td>Team objective</td><td>A shared weekly target that unlocks a team reward — stops the board becoming purely zero-sum</td></tr>
+    </tbody>
+  </table>
+  <div class="flag"><b>Watch for:</b> leaderboards reliably produce the behaviour they measure. If
+    points only reward closing, expect cherry-picking and neglected midfield accounts. The handicap
+    and the team objective are what keep this healthy — treat them as core, not as nice-to-have.</div>
+
+  <h2 id="risks">13. Open decisions &amp; risks</h2>
+  <p>The things worth settling before build starts, rather than discovering in sprint four.</p>
+  <table>
+    <thead><tr><th style="width:26%">Decision</th><th style="width:34%">Why it matters</th><th>Needs</th></tr></thead>
+    <tbody>
+      <tr><td>Small-charity strategy</td><td>Sets the income-band curve in §4.1 and whether the self-serve lane is a growth engine or a filter</td><td>Commercial call</td></tr>
+      <tr><td>Cold-start data volume</td><td>Below 200 closed outcomes the model is rules, not prediction. Be explicit about the interim</td><td>Data audit</td></tr>
+      <tr><td>Agent signature authority</td><td>T3 in the self-serve lane is the boldest claim in this spec. Consider a pilot cap by value</td><td>Legal + commercial</td></tr>
+      <tr><td>Enrichment source licensing</td><td>Terms vary; some prohibit storage or derived scoring</td><td>Legal review per source</td></tr>
+      <tr><td>Video production capacity</td><td>Personalised video at volume is a real content operation, not a feature flag</td><td>Resourcing plan</td></tr>
+      <tr><td>Clause library ownership</td><td>Without a named owner and review cadence the library rots and blocks assembly</td><td>Named owner</td></tr>
+      <tr><td>Score transparency to customers</td><td>Charity buyers may ask. Decide the answer before someone is asked live</td><td>Policy</td></tr>
+      <tr><td>Leaderboard opt-out</td><td>Public ranking is motivating for some and corrosive for others</td><td>People decision</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Tilly.ai CRM workflow &amp; build spec — internal reference. Weights, thresholds and
+    leaderboard figures are calibrated starting points intended for review against real outcome
+    data, not fixed values. Fluent Technology · July 2026.</footer>
 
 </div>
 </body>
