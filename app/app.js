@@ -1451,8 +1451,22 @@ function paintAsk() {
         <button class="tour-skip" data-ask-close style="font-size:16px">×</button>
       </div>
       <div class="ask-msgs" id="ask-msgs">
-        ${askMsgs.map(m => `
-          <div class="ask-msg ${m.from}">${esc(m.text)}${m.link ? `<div style="margin-top:8px"><a href="${m.link[0]}" class="m-data" style="color:var(--tilly-blue)">${esc(m.link[1].toUpperCase())} →</a></div>` : ''}</div>`).join('')}
+        ${askMsgs.map(m => {
+          const recMatch = m.link && m.link[0].match(/^#\/record\/([\w-]+)/);
+          const r = recMatch ? recById(recMatch[1]) : null;
+          return `
+          <div class="ask-msg ${m.from}">${esc(m.text)}${r ? `
+            <a href="#/record/${r.id}" class="ask-card">
+              ${avatar(r, 30)}
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:600;font-size:13px">${esc(r.name)}</div>
+                <div style="display:flex;gap:8px;align-items:center;margin-top:4px;flex-wrap:wrap">${bandChip(r)}<span class="m-data" style="color:var(--tilly-blue)">${r.likelihood}%</span><span class="m-data" style="color:var(--tilly-grey-500)">${gbp(r.acvNum)}</span></div>
+                <div class="t-caption" style="font-size:11px;margin-top:4px">NEXT: ${esc(r.nextAction)}</div>
+              </div>
+              <span class="m-data" style="color:var(--tilly-blue);flex:none">OPEN →</span>
+            </a>`
+          : m.link ? `<div style="margin-top:8px"><a href="${m.link[0]}" class="m-data" style="color:var(--tilly-blue)">${esc(m.link[1].toUpperCase())} →</a></div>` : ''}</div>`;
+        }).join('')}
       </div>
       <div class="ask-chips">${ASK_CHIPS.map(c => `<button class="fchip" data-ask-chip="${esc(c)}">${esc(c.toUpperCase())}</button>`).join('')}</div>
       <div class="ask-input">
