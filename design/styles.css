@@ -1,0 +1,181 @@
+/* ============================================================
+   TILLY DESIGN SYSTEM — V1
+   One blue. Flat squares. Huge type. Zero decoration.
+   Source of truth: brand/Tilly Brand Guide.dc.html
+   Every colour, font, and size in the product comes from these
+   tokens. Never hard-code a hex the tokens already carry.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ---- Colour — one blue, nothing else ---- */
+  --tilly-blue: #0533F0;        /* actions, the mark, focus. 100% or nothing — never a tint */
+  --tilly-blue-pressed: #0429C4;
+  --tilly-black: #0A0B0D;       /* text, inverse panels */
+  --tilly-white: #FFFFFF;       /* the canvas */
+  --tilly-grey-100: #F5F6F8;    /* fills */
+  --tilly-grey-200: #E2E5E9;    /* lines */
+  --tilly-grey-500: #5B616E;    /* secondary text */
+
+  /* Data-only colours — never decorative */
+  --tilly-green: #12A150;       /* won / positive */
+  --tilly-red: #E5484D;         /* lost / risk */
+  --tilly-trace: #3AF57F;       /* AI reasoning traces on black */
+
+  /* ---- Type — two voices ---- */
+  --font-sans: 'Instrument Sans', sans-serif;   /* the human voice */
+  --font-mono: 'IBM Plex Mono', monospace;      /* the machine's voice: if it's mono, the AI said it */
+
+  /* ---- Geometry — flat, square, instant ---- */
+  --radius: 0;                  /* never rounded */
+  --line: 1px solid var(--tilly-grey-200);
+}
+
+/* ---- Base ---- */
+body {
+  margin: 0;
+  background: var(--tilly-white);
+  color: var(--tilly-black);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+::selection { background: var(--tilly-blue); color: #fff; }
+a { color: var(--tilly-blue); text-decoration: none; }
+a:hover { color: var(--tilly-black); }
+
+/* ---- Type scale — huge jumps, tracking tightens as size grows ---- */
+.t-display   { font-weight: 600; font-size: 76px; line-height: 1.0;  letter-spacing: -3.5px; }
+.t-hero      { font-weight: 600; font-size: 44px; line-height: 1.05; letter-spacing: -2px; }
+.t-title     { font-weight: 600; font-size: 34px; line-height: 1.1;  letter-spacing: -1.5px; }
+.t-display-s { font-weight: 600; font-size: 28px; line-height: 1.15; letter-spacing: -1.2px; }
+.t-heading   { font-weight: 600; font-size: 16px; letter-spacing: -0.3px; }
+.t-body      { font-size: 14px; }
+.t-caption   { font-size: 12px; color: var(--tilly-grey-500); }
+.t-muted     { color: var(--tilly-grey-500); }
+
+/* Machine voice — labels, data, reasoning traces */
+.m-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--tilly-grey-500);
+}
+.m-section {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--tilly-blue);
+}
+.m-data { font-family: var(--font-mono); font-size: 11px; }
+.m-trace {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 2;
+  color: var(--tilly-trace);
+  background: var(--tilly-black);
+  padding: 16px 20px;
+}
+
+/* ---- Buttons — radius 0, no shadows ---- */
+.btn {
+  display: inline-block;
+  border: none;
+  border-radius: var(--radius);
+  padding: 13px 26px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .1s;
+}
+.btn-primary   { background: var(--tilly-blue); color: #fff; }
+.btn-primary:hover, .btn-primary:active { background: var(--tilly-blue-pressed); }
+.btn-secondary { background: var(--tilly-grey-100); color: var(--tilly-black); }
+.btn-secondary:hover { background: var(--tilly-grey-200); }
+.btn-outline   { background: transparent; color: var(--tilly-black); border: 1px solid var(--tilly-black); padding: 12px 26px; }
+.btn-outline:hover { background: var(--tilly-grey-100); }
+.btn-text      { background: transparent; color: var(--tilly-blue); padding: 13px 8px; }
+.btn-text:hover { color: var(--tilly-black); }
+.btn-sm        { padding: 9px 16px; font-size: 12px; }
+.btn:focus-visible, .input:focus-visible {
+  outline: 1px solid var(--tilly-blue);
+  outline-offset: 1px;
+}
+
+/* ---- Inputs ---- */
+.input {
+  border: var(--line);
+  background: var(--tilly-white);
+  border-radius: var(--radius);
+  padding: 13px 16px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--tilly-black);
+}
+.input::placeholder { color: var(--tilly-grey-500); }
+.input:focus { border-color: var(--tilly-blue); outline: 1px solid var(--tilly-blue); }
+
+/* ---- Badges — mono = machine ---- */
+.badge {
+  display: inline-block;
+  padding: 7px 12px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  border-radius: var(--radius);
+}
+.badge-ai      { background: var(--tilly-black); color: var(--tilly-trace); }
+.badge-fit     { background: var(--tilly-grey-100); color: var(--tilly-black); }
+.badge-status  { border: var(--line); color: var(--tilly-grey-500); padding: 6px 12px; }
+.badge-ready   { background: var(--tilly-blue); color: #fff; }
+.badge-won     { background: var(--tilly-grey-100); color: var(--tilly-green); }
+.badge-lost    { background: var(--tilly-grey-100); color: var(--tilly-red); }
+
+/* ---- Cards — 1px line, no shadow, no radius ---- */
+.card { border: var(--line); background: var(--tilly-white); }
+.card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: var(--line);
+}
+.card-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 15px 20px;
+  border-bottom: var(--line);
+}
+.card-row:last-child { border-bottom: none; }
+
+/* ---- Avatar — flat square, brand colours only ---- */
+.avatar {
+  width: 36px; height: 36px;
+  background: var(--tilly-blue); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 14px;
+  flex: none;
+}
+.avatar-alt { background: var(--tilly-black); }
+
+/* ---- The mark — a donation slot. Never rotated, never rounded. ---- */
+.mark { position: relative; background: var(--tilly-blue); flex: none; }
+.mark::after {
+  content: '';
+  position: absolute;
+  left: 22.7%; right: 22.7%; top: 43.2%;
+  height: 13.6%;
+  background: var(--tilly-white);
+}
+.mark-20 { width: 20px; height: 20px; }   /* minimum size */
+.mark-28 { width: 28px; height: 28px; }
+.mark-44 { width: 44px; height: 44px; }
+.mark-inverse { background: var(--tilly-white); }
+.mark-inverse::after { background: var(--tilly-blue); }
+
+.wordmark { display: flex; align-items: center; gap: 11px; }
+.wordmark span { font-weight: 600; font-size: 22px; letter-spacing: -1px; color: var(--tilly-black); }
+
+/* ---- Layout helpers ---- */
+.rule { border: none; border-top: var(--line); margin: 0; }
+.section { padding: 72px 0; border-bottom: var(--line); }

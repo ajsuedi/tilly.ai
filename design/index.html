@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tilly Design System</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div style="max-width:1160px;margin:0 auto;padding:0 48px">
+
+  <!-- Masthead -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:28px 0;border-bottom:var(--line)">
+    <div class="wordmark"><div class="mark mark-28"></div><span>Tilly</span></div>
+    <span class="m-data t-muted">DESIGN SYSTEM · V1 · JULY 2026</span>
+  </div>
+
+  <!-- Hero -->
+  <div class="section" style="padding:72px 0">
+    <div class="m-section" style="margin-bottom:24px">00 — THE SYSTEM</div>
+    <h1 class="t-hero" style="margin:0;max-width:700px">The AI salesforce for charity retail.</h1>
+    <p class="t-body t-muted" style="max-width:560px;margin:20px 0 0;font-size:16px;line-height:1.55">
+      One blue. Flat squares. Huge type. Zero decoration. Everything on this page is built
+      from <a href="styles.css">styles.css</a> — tokens first, never hard-coded.
+    </p>
+  </div>
+
+  <!-- Colour -->
+  <div class="section">
+    <div class="m-section" style="margin-bottom:12px">01 — COLOUR</div>
+    <h2 class="t-title" style="margin:0 0 32px">One blue. Nothing else.</h2>
+    <div style="display:flex;gap:8px">
+      <div style="flex:4;height:160px;background:var(--tilly-blue);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px"><span class="t-heading">Tilly Blue</span><span class="m-data" style="opacity:.8">#0533F0 · actions, the mark, focus</span></div>
+      <div style="flex:3;height:160px;background:var(--tilly-black);color:#fff;display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px"><span class="t-heading">Black</span><span class="m-data" style="opacity:.8">#0A0B0D · text, inverse</span></div>
+      <div style="flex:3;height:160px;background:var(--tilly-white);border:var(--line);display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px"><span class="t-heading">White</span><span class="m-data t-muted">#FFFFFF · the canvas</span></div>
+      <div style="flex:2;height:160px;background:var(--tilly-grey-100);display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px"><span class="t-heading">Grey 100</span><span class="m-data t-muted">#F5F6F8 · fills</span></div>
+      <div style="flex:2;height:160px;background:var(--tilly-grey-200);display:flex;flex-direction:column;justify-content:flex-end;padding:14px 16px"><span class="t-heading">Grey 200</span><span class="m-data t-muted">#E2E5E9 · lines</span></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px">
+      <div style="flex:1;height:56px;background:var(--tilly-grey-100);display:flex;align-items:center;padding:0 16px;gap:12px"><span style="width:10px;height:10px;background:var(--tilly-green)"></span><span class="m-data t-muted">GREEN #12A150 — WON / POSITIVE, DATA ONLY</span></div>
+      <div style="flex:1;height:56px;background:var(--tilly-grey-100);display:flex;align-items:center;padding:0 16px;gap:12px"><span style="width:10px;height:10px;background:var(--tilly-red)"></span><span class="m-data t-muted">RED #E5484D — LOST / RISK, DATA ONLY</span></div>
+      <div style="flex:1;height:56px;background:var(--tilly-grey-100);display:flex;align-items:center;padding:0 16px;gap:12px"><span style="width:10px;height:10px;background:var(--tilly-blue)"></span><span class="m-data t-muted">BLUE IS NEVER A TINT — 100% OR NOTHING</span></div>
+    </div>
+  </div>
+
+  <!-- Type -->
+  <div class="section">
+    <div class="m-section" style="margin-bottom:12px">02 — TYPOGRAPHY</div>
+    <h2 class="t-title" style="margin:0 0 32px">Two voices. Huge jumps.</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="border:var(--line);padding:32px">
+        <div class="t-hero">Instrument Sans</div>
+        <p class="t-body t-muted" style="margin:14px 0 20px">Headlines, UI, body. Tracking tightens as size grows.</p>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span class="t-display-s">Display 28 / 600</span>
+          <span class="t-heading">Heading 16 / 600</span>
+          <span class="t-body">Body 14 / 400</span>
+          <span class="t-caption">Caption 12 / 400 · Grey 500</span>
+        </div>
+      </div>
+      <div style="border:var(--line);padding:32px;background:var(--tilly-black);color:#fff">
+        <div style="font-family:var(--font-mono);font-size:36px;line-height:1">IBM Plex Mono</div>
+        <p class="t-body" style="margin:14px 0 20px;color:rgba(255,255,255,.6)">The machine's voice. If it's mono, the AI said it.</p>
+        <div style="font-family:var(--font-mono);font-size:12px;line-height:2;color:var(--tilly-trace)">&gt; scanned 4,218 shops · 02:00<br>&gt; 31 expanding · 6 ready to talk<br>&gt; fit_score: 92 / 100</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Components -->
+  <div class="section">
+    <div class="m-section" style="margin-bottom:12px">03 — COMPONENTS</div>
+    <h2 class="t-title" style="margin:0 0 32px">Flat. Square. Instant.</h2>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="border:var(--line);padding:32px">
+        <div class="m-label" style="margin-bottom:20px">BUTTONS — RADIUS 0, NO SHADOWS</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+          <button class="btn btn-primary">Start prospecting</button>
+          <button class="btn btn-secondary">View pipeline</button>
+          <button class="btn btn-outline">Outline</button>
+          <button class="btn btn-text">Text →</button>
+        </div>
+        <div class="m-label" style="margin:28px 0 20px">INPUTS</div>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:360px">
+          <input class="input" placeholder="Search 11,200 charity shops…">
+        </div>
+      </div>
+      <div style="border:var(--line);padding:32px">
+        <div class="m-label" style="margin-bottom:20px">BADGES — MONO = MACHINE</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+          <span class="badge badge-ai">● AI ACTIVE</span>
+          <span class="badge badge-fit">92 FIT</span>
+          <span class="badge badge-status">PROSPECTING</span>
+          <span class="badge badge-ready">READY TO CALL</span>
+          <span class="badge badge-won">WON</span>
+          <span class="badge badge-lost">AT RISK</span>
+        </div>
+        <div class="m-label" style="margin:28px 0 20px">AI REASONING TRACE</div>
+        <div class="m-trace">&gt; sue_ryder: 4 new shops, north west<br>&gt; warm intro found via trustee network<br>&gt; drafting outreach…</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- In the app -->
+  <div class="section" style="border-bottom:none;padding-bottom:96px">
+    <div class="m-section" style="margin-bottom:12px">04 — IN THE APP</div>
+    <h2 class="t-title" style="margin:0 0 32px">The pipeline pattern.</h2>
+    <div class="card">
+      <div class="card-header">
+        <span class="t-heading">Pipeline</span>
+        <div style="display:flex;gap:8px;align-items:center"><span class="m-data t-muted">TILLY SCANNED 4,218 SHOPS · 02:00</span><span style="width:8px;height:8px;background:var(--tilly-blue)"></span></div>
+      </div>
+      <div class="card-row">
+        <div class="avatar">SR</div>
+        <div style="flex:1"><div class="t-heading" style="font-size:14px">Sue Ryder Retail</div><div class="t-caption">Opening 4 shops in the North West. Warm intro found.</div></div>
+        <span class="m-data" style="color:var(--tilly-blue)">92 FIT</span>
+        <button class="btn btn-primary btn-sm">Draft outreach</button>
+      </div>
+      <div class="card-row">
+        <div class="avatar avatar-alt">BT</div>
+        <div style="flex:1"><div class="t-heading" style="font-size:14px">Barnardo's Trading</div><div class="t-caption">Gift Aid uplift fits FY27 goals. Tilly drafted the pitch.</div></div>
+        <span class="m-data" style="color:var(--tilly-blue)">82 FIT</span>
+        <button class="btn btn-secondary btn-sm">Review</button>
+      </div>
+      <div class="card-row">
+        <div class="avatar">OX</div>
+        <div style="flex:1"><div class="t-heading" style="font-size:14px">Oxfam Trading</div><div class="t-caption">Self-service signup. 214 shops on the starter plan.</div></div>
+        <span class="badge badge-won">WON</span>
+        <button class="btn btn-outline btn-sm" style="padding:8px 16px">Open</button>
+      </div>
+    </div>
+    <div style="margin-top:48px;padding-top:28px;border-top:var(--line);display:flex;justify-content:space-between;align-items:center">
+      <div class="wordmark"><div class="mark mark-20"></div><span style="font-size:14px;letter-spacing:-0.3px">Tilly</span></div>
+      <span class="m-data t-muted">BRAND SOURCE: brand/Tilly Brand Guide.dc.html</span>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
