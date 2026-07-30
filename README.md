@@ -2,7 +2,9 @@
 
 **The AI salesforce for charity retail.**
 
-Tilly is a CRM to prospect and close enterprise and self-service customers in one place. First market: charity retailers in the UK.
+Tilly is a CRM for companies that prospect and sell into UK charity retailers — a market that is famously slow to adopt technology and needs constant support and coaching through both the sales and retention funnels. Tilly does the nurturing, educating and remembering; your team does the meetings. One CRM for both motions: enterprise contract deals and self-serve subscriptions.
+
+Why the Formula 1 framing throughout: the sector buys slowly, and slow markets breed slow teams. The race format — grids, pit stops, safety cars, championships — deliberately injects pace *inside* the team while the funnel itself stays patient with the buyer. Fast on our side of the table, unhurried on theirs.
 
 ## Repo layout
 

@@ -1,5 +1,24 @@
 /* Tilly CRM app layout — built on design/styles.css tokens. Flat. Square. Instant. */
 
+/* Demo bar — always-on toggle between the three surfaces */
+.demobar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: var(--tilly-black);
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 16px;
+}
+.demobar .lbl { font-family: var(--font-mono); font-size: 10px; letter-spacing: 1.5px; color: var(--tilly-trace); margin-right: 8px; }
+.demobar a {
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 1px;
+  color: rgba(255,255,255,.65); text-decoration: none;
+  border: 1px solid rgba(255,255,255,.3);
+  padding: 6px 12px;
+}
+.demobar a:hover { color: #fff; border-color: #fff; }
+.demobar a.on { background: var(--tilly-blue); border-color: var(--tilly-blue); color: #fff; }
+body.demo { padding-top: 45px; }
+body.demo .side { top: 45px; height: calc(100vh - 45px); }
+
 .app {
   display: grid;
   grid-template-columns: 220px 1fr;

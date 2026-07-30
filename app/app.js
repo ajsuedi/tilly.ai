@@ -214,7 +214,7 @@ const views = {
     const t = DATA.teamObjective;
     return `
       <h1 class="t-title page-title">Cockpit</h1>
-      <p class="t-body t-muted page-sub">${esc(DATA.race.week)} · ${esc(DATA.race.season)}. Your race starts below — click a row to see exactly what to do.</p>
+      <p class="t-body t-muted page-sub">${esc(DATA.race.week)} · ${esc(DATA.race.season)}. Charity retail buys slowly — the F1 format is how we keep race pace inside the team anyway. Your grid is below; click a row to see exactly what to do.</p>
       <div class="stats">
         ${stats.map(s => `<div class="stat${s.cls}"><span class="m-label">${s.label}</span><strong>${s.value}</strong></div>`).join('')}
       </div>
@@ -332,7 +332,7 @@ const views = {
   funnel() {
     return `
       <h1 class="t-title page-title">Top of funnel</h1>
-      <p class="t-body t-muted page-sub">Tilly fetches, enriches and qualifies leads every night at 02:00. Your job is three things: turn up to meetings, have the conversation, and say the next step out loud — Granola records it and the CRM sets it. Nothing else.</p>
+      <p class="t-body t-muted page-sub">Tilly fetches, enriches and qualifies leads every night at 02:00. Your job is three things: turn up, coach, and say the next step out loud — Granola records it and the CRM sets it. Selling here is teaching; most of your buyers have never used anything like what you sell.</p>
       <div class="stats">
         ${DATA.funnel.run.map((s, i) => `<div class="stat${i === 3 ? ' stat-blue' : ''}"><span class="m-label">${s.label}</span><strong>${s.value}</strong></div>`).join('')}
       </div>
@@ -385,7 +385,7 @@ const views = {
     const ss = DATA.records.filter(r => r.lane !== 'enterprise');
     return `
       <h1 class="t-title page-title">Pipeline</h1>
-      <p class="t-body t-muted page-sub">Sorted by convert likelihood — work top to bottom. Click a row for the dossier.</p>
+      <p class="t-body t-muted page-sub">Sorted by convert likelihood — work top to bottom. This sector takes its time: intent decays gently, nurture never stops, and a Midfield account is a future win being coached, not a dead one.</p>
       <div class="stats" style="margin-bottom:16px">
         <div class="stat stat-blue"><span class="m-label">TOTAL PIPELINE (ACV)</span><strong>${gbp(pipeValue(DATA.records))}</strong></div>
         <div class="stat"><span class="m-label">WEIGHTED × LIKELIHOOD</span><strong>${gbp(weightedValue(DATA.records))}</strong></div>
@@ -465,7 +465,7 @@ const views = {
     ];
     return `
       <h1 class="t-title page-title">Self-serve</h1>
-      <p class="t-body t-muted page-sub">The e-commerce path, plus the assisted lane. One funnel from first visit to active usage, then subscription billing tracked to the penny.</p>
+      <p class="t-body t-muted page-sub">The e-commerce path, plus the assisted lane. Your buyers are new to tools like this — so the funnel is built for hand-holding: guided activation, patient nudges, pause-first saves, billing tracked to the penny.</p>
       <div class="stats" style="margin-bottom:16px">
         <div class="stat stat-blue"><span class="m-label">PIPELINE VALUE (ACV)</span><strong>${gbp(pipeValue(recs))}</strong></div>
         <div class="stat"><span class="m-label">WEIGHTED × LIKELIHOOD</span><strong>${gbp(weightedValue(recs))}</strong></div>
@@ -537,7 +537,7 @@ const views = {
     ];
     return `
       <h1 class="t-title page-title">Enterprise</h1>
-      <p class="t-body t-muted page-sub">Rep-owned; the agent runs research, drafting and admin. Deal progress left to right; tender deadlines set the clock.</p>
+      <p class="t-body t-muted page-sub">Rep-owned; the agent runs research, drafting and admin. Committee decisions here take months and tender deadlines don't move — Tilly holds the thread between the moments that matter.</p>
       <div class="stats" style="margin-bottom:16px">
         <div class="stat stat-blue"><span class="m-label">PIPELINE VALUE (ACV)</span><strong>${gbp(pipeValue(recs))}</strong></div>
         <div class="stat"><span class="m-label">WEIGHTED × LIKELIHOOD</span><strong>${gbp(weightedValue(recs))}</strong></div>
@@ -573,7 +573,7 @@ const views = {
   engage() {
     return `
       <h1 class="t-title page-title">Engage</h1>
-      <p class="t-body t-muted page-sub">The outbound push, stamped with the authority that lets it send. Amber items need one click from you — everything else sends itself.</p>
+      <p class="t-body t-muted page-sub">The outbound push — education first, pitches second, because slow adopters buy from whoever teaches them. Every send is stamped with the authority that lets it go; amber items need one click from you.</p>
       ${DATA.settings.testMode ? `<div class="panel" style="padding:12px 20px;margin-bottom:8px"><span class="m-data" style="color:var(--tilly-blue)">TEST MODE — EVERY OUTBOUND EMAIL IS PROXIED TO ${esc(DATA.settings.emailProxy.toUpperCase())} · NOTHING REACHES A CUSTOMER</span></div>` : ''}
       <table class="tbl">
         <thead><tr><th>Type</th><th>Item</th><th>Account</th><th>Channel</th><th>When</th><th>Authority</th><th></th></tr></thead>
@@ -686,7 +686,7 @@ const views = {
       : `<span class="chip">MILESTONE</span>`;
     return `
       <h1 class="t-title page-title">Tilly Success</h1>
-      <p class="t-body t-muted page-sub">The garage. The customer is the driver — everyone else exists to get them round the lap faster. Health telemetry runs nightly, the safety car freezes commercial motions the moment risk lands, and the +75 NPS is earned in §3, not in the survey.</p>
+      <p class="t-body t-muted page-sub">The garage. Your customers adopt slowly and need constant coaching — that's not a problem, it's the operating model. The customer drives, everyone else gets them round the lap faster: telemetry nightly, coaching by video and pit stop, the safety car freezing commercial noise the moment risk lands. The +75 NPS is earned here, not in the survey.</p>
       <div class="stats">
         <div class="stat${greenShare >= 75 ? ' stat-blue' : ''}"><span class="m-label">GREEN FLAG SHARE (TARGET ≥75%)</span><strong>${greenShare}%</strong></div>
         <div class="stat"><span class="m-label">SAFETY CARS ACTIVE</span><strong>${scActive}</strong></div>

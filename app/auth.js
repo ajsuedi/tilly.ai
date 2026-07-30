@@ -57,12 +57,12 @@ function signupEmail() {
   document.title = 'Tilly — Get started';
   return `
     <div class="m-section" style="margin-bottom:20px">SELF-SERVE — START IN TWO MINUTES</div>
-    <h1 class="t-title" style="margin:0 0 8px">Every charity shop in the UK. One pipeline.</h1>
-    <p class="t-body t-muted" style="margin:0 0 12px">Full access. No card needed. Tilly starts prospecting while you finish signing up.</p>
+    <h1 class="t-title" style="margin:0 0 8px">Sell to every charity retailer in the UK.</h1>
+    <p class="t-body t-muted" style="margin:0 0 12px">11,200 shops, one pipeline. Charity retail buys slowly — Tilly finds them, warms them, and coaches them over the line while your team does the meetings. Full access, no card needed.</p>
     <div style="background:var(--tilly-grey-100);padding:10px 14px;margin-bottom:28px"><span class="m-data" style="color:var(--tilly-green)">100% ACCESS · NO CREDIT CARD REQUIRED</span></div>
     <div class="field" id="f-email">
       <label>WORK EMAIL</label>
-      <input class="input" id="su-email" placeholder="you@yourcharity.org.uk" value="${esc(state.email)}">
+      <input class="input" id="su-email" placeholder="you@yourcompany.co.uk" value="${esc(state.email)}">
       <div class="err-msg">Please add your work email.</div>
     </div>
     <label class="checkline"><button class="tick${state.terms ? ' on' : ''}" data-tickterms>${state.terms ? '✓' : ''}</button><span>I accept the <a href="#">Terms of Service</a> and <a href="#">Privacy Notice</a>.</span></label>
@@ -113,28 +113,34 @@ function signupAbout() {
     <div class="field">
       <label>WHICH ROLE DESCRIBES YOU BEST?</label>
       <select class="input" id="su-role">
-        <option>Shop manager</option><option>Retail / trading lead</option><option>Head of retail</option>
-        <option>Finance</option><option>Fundraising</option><option>Trustee</option><option>Other</option>
+        <option>Founder / CEO</option><option>Sales lead</option><option>SDR / BDR</option>
+        <option>Account management</option><option>Customer success</option><option>Marketing</option><option>Other</option>
       </select>
     </div>
     <button class="btn btn-primary btn-block" data-tocompany>Next</button>`;
 }
 
 function signupCompany() {
-  const goals = ['Sell more donated stock', 'Grow Gift Aid uptake', 'Fill the volunteer rota', 'See every shop in one place'];
+  const goals = ['Find charity retailers ready to buy', 'Nurture long, slow deals without dropping them', 'Coach customers through onboarding', 'Protect renewals with constant support'];
   return `
     ${stepper(2)}
-    <h1 class="t-title" style="margin:0 0 8px">Your charity.</h1>
-    <p class="t-body t-muted" style="margin:0 0 28px">Tilly auto-enriches the rest from the Charity Commission — no forms you don't need.</p>
+    <h1 class="t-title" style="margin:0 0 8px">Your company.</h1>
+    <p class="t-body t-muted" style="margin:0 0 28px">Tell Tilly what you sell — she'll match it to the retailers whose signals say they're ready, and pace the nurture for a sector that takes its time.</p>
     <div class="field" id="f-org">
-      <label>CHARITY OR TRADING NAME</label>
-      <input class="input" id="su-org" placeholder="e.g. St Clare's Hospice Shops" value="${esc(state.org)}">
-      <div class="err-msg">Please add your charity's name.</div>
+      <label>COMPANY NAME</label>
+      <input class="input" id="su-org" placeholder="e.g. ShopKit Systems Ltd" value="${esc(state.org)}">
+      <div class="err-msg">Please add your company's name.</div>
     </div>
     <div class="field">
-      <label>HOW MANY SHOPS?</label>
+      <label>WHAT DO YOU SELL INTO CHARITY RETAIL?</label>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${['EPOS & software', 'Gift Aid services', 'Logistics & recycling', 'Insurance & compliance', 'Shopfitting & supplies', 'Other'].map(s => `<button class="fchip${state.sells === s ? ' on' : ''}" data-sells="${esc(s)}" style="padding:12px 14px">${esc(s.toUpperCase())}</button>`).join('')}
+      </div>
+    </div>
+    <div class="field">
+      <label>SALES & CS TEAM SIZE</label>
       <div style="display:flex;gap:8px">
-        ${['1', '2–10', '11–50', '51–200', '200+'].map(s => `<button class="fchip${state.shops === s ? ' on' : ''}" data-shops="${s}" style="flex:1;padding:12px">${s}</button>`).join('')}
+        ${['Just me', '2–5', '6–20', '21+'].map(s => `<button class="fchip${state.shops === s ? ' on' : ''}" data-shops="${s}" style="flex:1;padding:12px">${s.toUpperCase()}</button>`).join('')}
       </div>
     </div>
     <div class="field">
@@ -147,14 +153,14 @@ function signupCompany() {
 function signupPlan() {
   const a = state.annual;
   const plans = [
-    { id: 'starter', name: 'Starter', m: 10, y: 8, sub: 'Up to 50 shops', feats: ['One pipeline, every shop', 'Gift Aid tracking', 'Tilly answers questions'] },
-    { id: 'growth', name: 'Growth', m: 14, y: 11, sub: 'Unlimited shops', feats: ['Everything in Starter', 'AI outreach & explainer videos', 'Volunteer rota & reporting'] },
-    { id: 'enterprise', name: 'Enterprise', m: 0, y: 0, sub: 'Contract & tender path', feats: ['Everything in Growth', 'Procurement & DPIA support', 'Named driver manager'] }
+    { id: 'starter', name: 'Starter', m: 39, y: 32, sub: 'For one founder-seller', feats: ['All 11,200 charity retailers, scored', 'Nurture sequences that never drop', 'Tilly answers and drafts'] },
+    { id: 'growth', name: 'Growth', m: 79, y: 65, sub: 'For sales & CS teams', feats: ['Everything in Starter', 'AI outreach & coaching videos', 'Tender watch, churn radar, QBR flows'] },
+    { id: 'enterprise', name: 'Enterprise', m: 0, y: 0, sub: 'Contract path', feats: ['Everything in Growth', 'SSO, DPA & procurement support', 'Named success manager'] }
   ];
   return `
     ${stepper(3)}
     <h1 class="t-title" style="margin:0 0 8px">Pick your plan.</h1>
-    <p class="t-body t-muted" style="margin:0 0 6px">Per shop, per month. Change or cancel any time — this is a grant-funded sector, we get it.</p>
+    <p class="t-body t-muted" style="margin:0 0 6px">Per user, per month. Sales cycles here run long — your plan can pause between pushes, so patience never costs you.</p>
     <div class="seg" style="max-width:360px">
       <button class="${a ? 'on' : ''}" data-annual="1">Annual — save 2 months</button>
       <button class="${a ? '' : 'on'}" data-annual="0">Monthly</button>
@@ -164,7 +170,7 @@ function signupPlan() {
         <div class="plan${state.plan === p.id ? ' on' : ''}" data-plan="${p.id}">
           <div class="m-label">${p.name.toUpperCase()}</div>
           <div class="price">${p.id === 'enterprise' ? 'Custom' : '£' + (a ? p.y : p.m)}</div>
-          <div class="t-caption">${p.id === 'enterprise' ? 'Talk to a human' : 'per shop / month' + (a ? ', billed annually' : '')}</div>
+          <div class="t-caption">${p.id === 'enterprise' ? 'Talk to a human' : 'per user / month' + (a ? ', billed annually' : '')}</div>
           <div style="margin-top:16px">${p.feats.map(f => `<div class="sig" style="font-size:12px">${esc(f)}</div>`).join('')}</div>
           <div style="margin-top:16px"><span class="m-data" style="color:${state.plan === p.id ? 'var(--tilly-blue)' : 'var(--tilly-grey-500)'}">${state.plan === p.id ? '■ SELECTED' : 'SELECT'}</span></div>
         </div>`).join('')}
@@ -180,7 +186,7 @@ function signupWelcome() {
     <div style="text-align:center;padding:8px 0 0">
       <div class="mark mark-44" style="margin:0 auto 24px"></div>
       <h1 class="t-title" style="margin:0 0 8px">Welcome to Tilly, ${esc(first)}.</h1>
-      <p class="t-body t-muted" style="margin:0 auto 8px;max-width:420px">${esc(state.org || 'Your charity')} is on the grid. Tilly has already started enriching your record from the Charity Commission.</p>
+      <p class="t-body t-muted" style="margin:0 auto 8px;max-width:420px">${esc(state.org || 'Your company')} is on the grid. Tilly is already scanning 11,200 charity shops for the retailers most ready to hear from you${state.sells ? ' about ' + esc(state.sells.toLowerCase()) : ''}.</p>
       <div class="m-data" style="color:var(--tilly-blue)">CONFIRMATION SENT → ${esc(PROXY.toUpperCase())} (TEST PROXY)</div>
     </div>
     <div class="welcome-cards">
@@ -208,6 +214,8 @@ function render() {
   $card.innerHTML = hash.startsWith('#/signup') ? SIGNUP_STEPS[state.step]() : loginView();
   document.getElementById('head-note').textContent = hash.startsWith('#/signup')
     ? 'SELF-SERVE SIGNUP · TEST MODE' : 'ENTERPRISE SIGN IN · TEST MODE';
+  document.getElementById('demo-signup').classList.toggle('on', hash.startsWith('#/signup'));
+  document.getElementById('demo-login').classList.toggle('on', !hash.startsWith('#/signup'));
   const first = $card.querySelector('[data-code="0"]');
   if (first) first.focus();
   window.scrollTo(0, 0);
@@ -239,6 +247,8 @@ $card.addEventListener('click', e => {
   }
   const shops = t.closest('[data-shops]');
   if (shops) { state.shops = shops.dataset.shops; render(); return; }
+  const sells = t.closest('[data-sells]');
+  if (sells) { state.sells = sells.dataset.sells; render(); return; }
   const goal = t.closest('[data-goal]');
   if (goal) {
     const g = goal.dataset.goal;

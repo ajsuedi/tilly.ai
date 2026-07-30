@@ -58,7 +58,13 @@
   @media (max-width: 640px) { .plans, .welcome-cards { grid-template-columns: 1fr; } .stepper .lbl { display: none; } }
 </style>
 </head>
-<body>
+<body class="demo">
+<div class="demobar">
+  <span class="lbl">● DEMO</span>
+  <a href="#/signup" id="demo-signup">SELF-SERVE SIGN-UP</a>
+  <a href="#/login" id="demo-login">ENTERPRISE SIGN-IN · SSO</a>
+  <a href="index.html">THE CRM</a>
+</div>
 <div class="auth-wrap">
   <div class="auth-head">
     <a href="index.html" class="wordmark" style="text-decoration:none"><div class="mark mark-28"></div><span>Tilly</span></a>
@@ -68,6 +74,6 @@
   <div style="margin-top:20px"><a class="m-data" href="index.html" style="color:var(--tilly-grey-500)">← BACK TO THE CRM PROTOTYPE</a></div>
 </div>
 <script src="data.js?v=16"></script>
-<script src="auth.js?v=2"></script>
+<script src="auth.js?v=4"></script>
 </body>
 </html>
