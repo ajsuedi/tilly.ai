@@ -625,6 +625,55 @@ const DATA = {
     ]
   },
 
+  /* ---- People intelligence: stakeholder profiles, keyed "recordId|Name".
+     Disposition: PROMOTER / PASSIVE / DETRACTOR / UNKNOWN. Ease 0–100 = how easy
+     they are to do business with — a close-likelihood signal at person level.
+     Social data is conversation framing ONLY, never a scoring input (UK GDPR). ---- */
+  people: {
+    'sue-ryder|Rachel Holt': { disposition: 'PROMOTER', nps: null, ease: 78, phone: '+44 20 7946 0810', linkedin: 'in/rachelholt-retail', channel: 'Email, mornings',
+      posts: [
+        { when: '2 DAYS AGO', platform: 'LINKEDIN', text: 'Four new Sue Ryder shops opening in the North West this quarter — proud of this team.' },
+        { when: 'LAST WEEK', platform: 'LINKEDIN', text: 'Gift Aid digitisation is the biggest unclaimed win in charity retail. Fight me.' }
+      ],
+      read: ['warm intro via trustee network — she knows we are coming', 'posts align exactly with our pitch — reference the gift aid thread', 'ease 78: engaged, responsive, decision maker'], opener: 'Congratulate her on the NW openings, then pick up her own Gift Aid thread.' },
+    'barnardos|Marcus Webb': { disposition: 'PASSIVE', nps: null, ease: 62, phone: '+44 20 7946 0223', linkedin: 'in/marcuswebbtrading', channel: 'Email',
+      posts: [{ when: '3 WEEKS AGO', platform: 'LINKEDIN', text: 'Good session at Charity Retail Conference — lots of vendors promising, fewer proving.' }],
+      read: ['met at conference — asked for gift aid evidence, not promises', 'passive until he sees numbers: lead with the 12% model', 'ease 62: workable, evidence-driven'], opener: 'Send the Gift Aid uplift model before any call — he buys proof.' },
+    'bhf|Amara Osei': { disposition: 'PROMOTER', nps: null, ease: 74, phone: '+44 20 7946 0551', linkedin: 'in/amaraosei', channel: 'Email · fast replies',
+      posts: [{ when: 'THIS WEEK', platform: 'LINKEDIN', text: 'Modernising a 700-shop estate is a marathon run at sprint pace. Loving it.' }],
+      read: ['champion inside the tender — new in role, wants a win', 'values hard numbers from her grocery-retail background', 'ease 74: your advocate on the evaluation panel'], opener: 'Arm her with the bid’s hardest numbers — she will carry them inside.' },
+    'bhf|Gareth Llewellyn': { disposition: 'UNKNOWN', nps: null, ease: 55, phone: '+44 20 7946 0552', linkedin: 'in/gllewellyn', channel: 'Formal — via the panel',
+      posts: [],
+      read: ['decision maker, no direct contact yet — tender rules apply', 'ease 55: unknown personally; the panel process decides'], opener: 'Do not go around the process — win him through the scored response.' },
+    'cruk|Daniel Price': { disposition: 'PASSIVE', nps: null, ease: 48, phone: '+44 20 7946 0119', linkedin: 'in/danielprice-commercial', channel: 'Phone — hates long email',
+      posts: [{ when: 'LAST MONTH', platform: 'LINKEDIN', text: 'Negotiation is not conflict. It is two teams finding the real price of certainty.' }],
+      read: ['negotiates hard but decides fast — a clean yes/no culture', 'prefers calls; keep email to confirmations', 'ease 48: hard going, but decisive once terms land'], opener: 'Call, don’t write. Bring one number you can defend and hold it.' },
+    'oxfam|Priti Shah': { disposition: 'PROMOTER', nps: 9, ease: 90, phone: '+44 20 7946 0334', linkedin: 'in/pritishah-retail', channel: 'Anything — replies same day',
+      posts: [
+        { when: 'YESTERDAY', platform: 'LINKEDIN', text: '214 shops on one system and the managers actually like it. Small miracles.' },
+        { when: '2 WEEKS AGO', platform: 'X', text: 'Charity retail tech is finally getting interesting.' }
+      ],
+      read: ['nps 9 — reference-ready champion, posted publicly about us', 'ease 90: smoothest relationship in the book', 'expansion sponsor for region 2'], opener: 'Ask for the case study while the goodwill is public — then the upsell.' },
+    'ymca|Owen Hughes': { disposition: 'DETRACTOR', nps: 4, ease: 25, phone: '+44 20 7946 0771', linkedin: 'in/owenhughes-trading', channel: 'Phone only — email sentiment negative',
+      posts: [{ when: 'THIS MONTH', platform: 'LINKEDIN', text: 'Budget season in the charity sector: the annual art of doing more with less.' }],
+      read: ['nps 4 · two terse replies — do not send anything automated', 'his post is the tell: this is a funding problem, not a product one', 'ease 25: hard going — pause offer, human voice, no pitch'], opener: 'Open with the pause offer and his budget reality. No product talk.' },
+    'trinity|Karen Doyle': { disposition: 'DETRACTOR', nps: 6, ease: 30, phone: '+44 20 7946 0448', linkedin: 'in/karendoyle-trinity', channel: 'Phone — complaint open',
+      posts: [],
+      read: ['complaint owner — duplicate direct debit hit their finances', 'previously healthy relationship; recoverable if the refund is fast', 'ease 30 today; was 70 before the billing error'], opener: 'Lead with the confirmed refund and an apology. Nothing else until closed.' },
+    'salvation-army|Grace Adeyemi': { disposition: 'UNKNOWN', nps: null, ease: 60, phone: '+44 20 7946 0662', linkedin: 'in/graceadeyemi', channel: 'LinkedIn — new in post',
+      posts: [{ when: 'THIS WEEK', platform: 'LINKEDIN', text: 'Week 8 in the new role. The to-do list is a mountain range, and I brought good boots.' }],
+      read: ['brand-new post — building her plan right now', 'first vendor to genuinely help her wins the relationship', 'ease 60: open window, no incumbent bias'], opener: 'Congratulate her on the role and offer the sector benchmark — help first.' },
+    'mind|Jess Fielding': { disposition: 'PROMOTER', nps: null, ease: 80, phone: '+44 20 7946 0885', linkedin: 'in/jessfielding', channel: 'In-product + email',
+      posts: [{ when: 'LAST WEEK', platform: 'LINKEDIN', text: 'Trialling new retail tooling. The bar is low, folks. Impress me.' }],
+      read: ['found us herself via the gift aid guide — self-driven', 'watched two webinars, invited colleagues: activation energy is hers', 'ease 80: smooth — keep the trial frictionless'], opener: 'Answer fast, remove friction — she is selling herself.' },
+    'emmaus|Bea Collins': { disposition: 'PASSIVE', nps: null, ease: 65, phone: '+44 20 7946 0993', linkedin: 'in/beacollins-emmaus', channel: 'Phone or in person — asked for a human',
+      posts: [{ when: 'LAST MONTH', platform: 'FACEBOOK', text: 'Our companions built three new furniture displays this week. Community is the product.' }],
+      read: ['explicitly asked for a person — honour it, no automation', 'mission-first communicator; match that register', 'ease 65: warm once trust is human'], opener: 'A person calls, talks community outcomes, books nothing on the first call.' },
+    'pdsa|Helen Ward': { disposition: 'UNKNOWN', nps: null, ease: 58, phone: '+44 20 7946 0104', linkedin: 'in/helenward-retail', channel: 'Email',
+      posts: [{ when: '2 WEEKS AGO', platform: 'LINKEDIN', text: 'Hiring! Retail operations assistant — come help 120 shops run smoother.' }],
+      read: ['surfaced by her own hiring post — the door is ajar', 'no contact history: education first, always', 'ease 58: unknown but reachable'], opener: 'Reference the hiring post — teams that grow need systems that scale.' }
+  },
+
   /* ---- Media monitor: news about enterprise accounts = a reason to reach out ---- */
   media: [
     { record: 'bhf', outlet: 'CHARITY RETAIL WEEK', when: 'TODAY', headline: 'BHF confirms plan to modernise its 700-shop estate', angle: 'Reference the announcement in the bid cover letter — it names the exact outcomes in our response.' },
