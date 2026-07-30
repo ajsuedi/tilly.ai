@@ -5,7 +5,7 @@
 let tour = null;
 const TOUR = [
   { hash: '#/cockpit', sel: '.stats', title: 'Your morning, in four numbers', text: "Here's where you see what needs a human right now — the grid count, open tasks, hot leads and the team streak. If these are clear, you're racing well." },
-  { hash: '#/cockpit', sel: '.grid-2', title: 'The starting grid', text: "Here's where your day starts: everything needing you, tightest clock first, enterprise and self-serve separated. Click any row and it expands into exact action items." },
+  { hash: '#/cockpit', sel: '.f1wrap', title: 'The starting grid', text: "Here's where your day starts: everything needing you, tightest clock first, enterprise and self-serve separated. Click any row and it expands into exact action items." },
   { hash: '#/pipeline', sel: '.filterbar', title: 'The pipeline', text: "Here's where every scored prospect lives. Filter by band or lane, search anything, and work top to bottom — likelihood is computed, never guessed." },
   { hash: '#/funnel', sel: '.stats', title: 'Top of funnel', text: "Here's where Tilly fetches, enriches and qualifies leads — every night at 02:00, without you. Your job is the meetings she books." },
   { hash: '#/tasks', sel: '.panel', title: 'Tasks', text: "Here's where your day lives. Say the next step out loud in any recorded meeting and it appears here, dated — you never type a task." },
