@@ -811,7 +811,44 @@ const views = {
       : `<span class="chip">MILESTONE</span>`;
     return `
       <h1 class="t-title page-title">Tilly Success</h1>
-      <p class="t-body t-muted page-sub">The garage. Your customers adopt slowly and need constant coaching — that's not a problem, it's the operating model. The customer drives, everyone else gets them round the lap faster: telemetry nightly, coaching by video and pit stop, the safety car freezing commercial noise the moment risk lands. The +75 NPS is earned here, not in the survey.</p>
+      <p class="t-body t-muted page-sub">The garage. Your customers adopt slowly and need constant coaching — that's not a problem, it's the operating model. Success runs on autopilot: Tilly does everything below herself, and the red list is the entire human workload. The +75 NPS is earned here, not in the survey.</p>
+      <div class="grid-2" style="align-items:start;margin-bottom:8px">
+        <div class="board">
+          <div class="zone-head"><span class="m-label" style="margin:0;color:var(--tilly-blue)">● AUTOPILOT — TILLY IS HANDLING</span><span class="m-data t-muted">${S.autopilot.length} RUNNING</span></div>
+          ${S.autopilot.map(a => {
+            const r = recById(a.record);
+            return `
+            <div class="grid-row" data-goto="#/record/${r.id}">
+              ${avatar(r, 26)}
+              <div style="flex:1;min-width:0">
+                <div class="t-heading" style="font-size:13px">${esc(r.name)}</div>
+                <div class="t-caption" style="font-size:11px">${esc(a.action)}</div>
+              </div>
+              <span class="chip" style="font-size:9px">${esc(a.tier)}</span>
+              <span class="m-data" style="color:var(--tilly-green);font-size:10px">${esc(a.status)}</span>
+            </div>`;
+          }).join('')}
+        </div>
+        <div class="board">
+          <div class="zone-head"><span class="m-label" style="margin:0;color:var(--tilly-red)">▲ NEEDS A HUMAN — THE ONLY ASKS</span><span class="m-data t-muted">EVERYTHING ELSE IS HANDLED</span></div>
+          ${[
+            ...S.safetyCars.map(sc => ({ record: sc.record, why: `${sc.severity} safety car — ${sc.cause}`, owner: sc.owner, sla: sc.clock })),
+            ...(S.retention['barnardos'] ? [] : [{ record: 'barnardos', why: 'Churn radar CRITICAL — exec QBR request needs your click', owner: 'You', sla: 'PILOT ENDS 30 SEP' }]),
+            ...(S.gate.items.some(i => !i.done) ? [{ record: S.gate.record, why: `Handover gate blocked — ${S.gate.items.find(i => !i.done).name.toLowerCase()}`, owner: 'Sales → CS', sla: 'BEFORE GO-LIVE' }] : [])
+          ].map(n => {
+            const r = recById(n.record);
+            return `
+            <div class="grid-row" data-goto="#/record/${r.id}">
+              ${avatar(r, 26)}
+              <div style="flex:1;min-width:0">
+                <div class="t-heading" style="font-size:13px">${esc(r.name)}</div>
+                <div class="t-caption" style="font-size:11px">${esc(n.why)} · <b>${esc(n.owner)}</b></div>
+              </div>
+              <span class="clock" style="min-width:0;font-size:10px">${esc(n.sla)}</span>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
       <div class="stats">
         <div class="stat${greenShare >= 75 ? ' stat-blue' : ''}"><span class="m-label">GREEN FLAG SHARE (TARGET ≥75%)</span><strong>${greenShare}%</strong></div>
         <div class="stat"><span class="m-label">SAFETY CARS ACTIVE</span><strong>${scActive}</strong></div>
