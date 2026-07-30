@@ -408,6 +408,68 @@ const DATA = {
 
   /* ---- Top of funnel: the agent's nightly run keeps the book full ---- */
   funnel: {
+    hasRun: false,
+    /* The agentic flow itself — every step is the agent acting, not suggesting */
+    flow: [
+      { step: 'SOURCES', tier: 'T0', desc: '9 channels polled — filings, job ads, tenders, grants, web signals' },
+      { step: 'FETCH', tier: 'T0', desc: 'New organisations pulled with the signal that surfaced them' },
+      { step: 'DEDUPE', tier: 'T0', desc: 'Matched against the book — every touch updates, never duplicates' },
+      { step: 'ENRICH', tier: 'T0', desc: 'Org, contact, signals — each field with source, confidence, date' },
+      { step: 'SCORE', tier: 'T0', desc: 'Fit × intent computed, likelihood banded Pole → Cold' },
+      { step: 'QUALIFY', tier: 'T0', desc: 'Below the sweet spot is out — with a coded reason, politely' },
+      { step: 'ROUTE', tier: 'T0', desc: 'Complexity assigns the lane, territory assigns the owner' },
+      { step: 'OUTREACH', tier: 'T1', desc: 'First-touch education drafted and queued — never a cold pitch' }
+    ],
+    runLog: [
+      { step: 0, msg: 'polling 9 sources — filings, job boards, tender portals, grant registers' },
+      { step: 1, msg: 'fetched 3 candidates: pdsa, sense, crisis' },
+      { step: 2, msg: 'deduped against 13 records in the book — all 3 are new' },
+      { step: 3, msg: 'pdsa: enriched — charity 208217 · 120 shops · head of retail ops identified' },
+      { step: 3, msg: 'sense: enriched — charity 289868 · 100 shops · hiring a retail systems analyst' },
+      { step: 4, msg: 'pdsa: fit 64 · intent 58 → likelihood 60 — FRONT ROW' },
+      { step: 4, msg: 'sense: fit 61 · intent 44 → likelihood 51 — MIDFIELD' },
+      { step: 5, msg: 'crisis: disqualified — 11 shops, below the seat sweet spot · reason coded' },
+      { step: 6, msg: 'routed: both self-serve lane, complexity <25 · owner: tilly (agent)' },
+      { step: 7, msg: 'first-touch education drafted for both — queued T1, tuesday 09:00' },
+      { step: 7, msg: 'run complete — 2 promoted to the pipeline · drafts waiting in engage' }
+    ],
+    /* Fully-formed records the run promotes into the pipeline */
+    candidates: [
+      {
+        id: 'pdsa', name: 'PDSA Charity Shops', initials: 'PD', logo: '#0072BC',
+        charityNo: '208217', incomeBand: '£10m–£100m', cause: 'Animal welfare', staff: 700, shops: 120,
+        fit: 64, intent: 58, complexity: 18, stage: 'Prospecting', tier: 'T1',
+        channel: 'Signal tracking', owner: 'tilly', acvNum: 9000,
+        acv: 'est £9,000', term: 'not yet scoped', users: '—',
+        explain: ['120 shops — inside the seat sweet spot', 'Retail ops hiring signal, 60-day window', 'No engagement yet — intent is all signals'],
+        contact: { name: 'Helen Ward', role: 'Head of Retail Operations', tenure: '4 yrs 1 mo', note: 'Surfaced by the hiring signal. No prior contact — education first.' },
+        signals: ['Job ad: retail operations assistant, mentions stock systems', 'Steady shop-count growth', 'No incumbent CRM detected'],
+        verdict: { type: 'UNKNOWN', vs: 'Open market', play: 'Ask the discovery question; do not guess.' },
+        trace: ['pdsa: fetched by nightly run — hiring signal', 'scored 64 fit · 58 intent — front row', 'first-touch education drafted, queued T1'],
+        escalation: null, state: null, nextAction: 'Approve first-touch education',
+        stakeholders: [
+          { name: 'Helen Ward', role: 'Head of Retail Operations', tag: 'DECISION MAKER' },
+          { name: 'Shop managers ×120', role: 'Store operations', tag: 'USERS' }
+        ]
+      },
+      {
+        id: 'sense', name: 'Sense Trading', initials: 'SE', logo: '#D6083B',
+        charityNo: '289868', incomeBand: '£10m–£100m', cause: 'Disability', staff: 550, shops: 100,
+        fit: 61, intent: 44, complexity: 14, stage: 'Prospecting', tier: 'T1',
+        channel: 'Signal tracking', owner: 'tilly', acvNum: 7500,
+        acv: 'est £7,500', term: 'not yet scoped', users: '—',
+        explain: ['100 shops — inside the sweet spot', 'Hiring a retail systems analyst — modernisation signal', 'Cause area adjacent to ICP core'],
+        contact: { name: 'Marcus Bell', role: 'Retail Support Manager', tenure: '2 yrs 8 mo', note: 'Surfaced by the systems-analyst job ad. Education-first approach.' },
+        signals: ['Job ad: retail systems analyst', 'Recent shop refits reported', 'Active on sector forums'],
+        verdict: { type: 'UNKNOWN', vs: 'Open market', play: 'Ask the discovery question; do not guess.' },
+        trace: ['sense: fetched by nightly run — systems-analyst signal', 'scored 61 fit · 44 intent — midfield', 'first-touch education drafted, queued T1'],
+        escalation: null, state: null, nextAction: 'Approve first-touch education',
+        stakeholders: [
+          { name: 'Marcus Bell', role: 'Retail Support Manager', tag: 'DECISION MAKER — TO CONFIRM' },
+          { name: 'Shop managers ×100', role: 'Store operations', tag: 'USERS' }
+        ]
+      }
+    ],
     run: [
       { label: 'SHOPS SCANNED · 02:00', value: '4,218' },
       { label: 'NEW LEADS FETCHED', value: '112' },
